@@ -12952,7 +12952,10 @@ window.OD_FIREBASE_CONFIG = {
     db: null,
 
     pc: null,
-    dc: null,
+    dc: null,                 // fast unordered channel: input + snapshots
+    reliableDc: null,         // reliable ordered channel: room/game events
+    pendingFastPacket: null,
+    _onlineReady: false,
     transport: 'NONE',   // 'P2P' | 'RELAY'
     pingMs: 0,
     pingTimer: null,
@@ -13389,6 +13392,12 @@ window.OD_FIREBASE_CONFIG = {
         try { this.dc.close(); } catch (e) {}
         this.dc = null;
       }
+      if (this.reliableDc) {
+        try { this.reliableDc.close(); } catch (e) {}
+        this.reliableDc = null;
+      }
+      this.pendingFastPacket = null;
+      this._onlineReady = false;
       if (this.pc) {
         try { this.pc.close(); } catch (e) {}
         this.pc = null;
@@ -13431,6 +13440,7 @@ window.OD_FIREBASE_CONFIG = {
       this.latestSnapshot = null;
       this.lastSnapshotTick = -1;
       this.matchReturnAt = 0;
+      this.pendingFastPacket = null;
     },
 
     // =========================================================================
@@ -13480,20 +13490,39 @@ window.OD_FIREBASE_CONFIG = {
     },
 
     bindDataChannel(dc) {
-      this.dc = dc;
+      // Fast channel carries replaceable real-time state. Reliable channel carries
+      // one-shot events (selection, rematch, match start) that must never be lost.
+      const isReliable = dc.label === 'stickfight-events';
+      if (isReliable) this.reliableDc = dc;
+      else this.dc = dc;
       dc.binaryType = 'arraybuffer';
 
+      if (!isReliable) {
+        dc.bufferedAmountLowThreshold = 16 * 1024;
+        dc.onbufferedamountlow = () => {
+          if (this.pendingFastPacket && dc.readyState === 'open') {
+            const packet = this.pendingFastPacket;
+            this.pendingFastPacket = null;
+            try { dc.send(packet); } catch (e) { this.pendingFastPacket = packet; }
+          }
+        };
+      }
+
       dc.onopen = () => {
-        this.transport = 'P2P';
-        this.updateModalView();
-        this.setStatus('⚡ P2P 초저지연 연결 완료! 캐릭터를 선택하세요.', '#4ade80');
-
-        // Start 1-second ping measurement
-        this.pingTimer = setInterval(() => {
-          this.sendPacket({ t: 'PING', ts: performance.now() });
-        }, 1000);
-
-        this.enterOnlineCharSelect();
+        if (!isReliable) {
+          this.transport = 'P2P';
+          this.updateModalView();
+          this.setStatus('⚡ P2P 연결 완료! 캐릭터를 선택하세요.', '#4ade80');
+          if (!this.pingTimer) {
+            this.pingTimer = setInterval(() => {
+              this.sendPacket({ t: 'PING', ts: performance.now() });
+            }, 1500);
+          }
+          if (!this._onlineReady) {
+            this._onlineReady = true;
+            this.enterOnlineCharSelect();
+          }
+        }
       };
 
       dc.onmessage = (e) => {
@@ -13502,13 +13531,23 @@ window.OD_FIREBASE_CONFIG = {
           this.handleNetMessage(msg);
         } catch (err) {}
       };
+      dc.onclose = () => {
+        if (!isReliable && this.active && this.transport === 'P2P') {
+          this.transport = 'RELAY';
+          this.startFirebaseRelayFallback();
+        }
+      };
     },
 
     async startWebRTCHost() {
       const pc = this.setupPeerConnection();
-      // Unordered + 0 retransmits = lowest possible latency (no TCP head-of-line blocking)
-      const dc = pc.createDataChannel('stickfight-p2p', { ordered: false, maxRetransmits: 0 });
-      this.bindDataChannel(dc);
+      // High-frequency input/snapshots are unordered and non-retransmitted so an
+      // old packet cannot block a newer one. One-shot game events use a separate
+      // reliable ordered channel.
+      const fast = pc.createDataChannel('stickfight-fast', { ordered: false, maxRetransmits: 0 });
+      const events = pc.createDataChannel('stickfight-events', { ordered: true });
+      this.bindDataChannel(fast);
+      this.bindDataChannel(events);
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
@@ -13562,12 +13601,22 @@ window.OD_FIREBASE_CONFIG = {
 
     sendPacket(obj) {
       if (!this.active) return;
-      if (this.dc && this.dc.readyState === 'open') {
+      const fastType = obj && ['IN', 'SNAP', 'PING', 'PONG'].includes(obj.t);
+      let channel = fastType ? this.dc : this.reliableDc;
+      if (!channel || channel.readyState !== 'open') {
+        // During initial negotiation, use the already-open fast path rather than
+        // silently dropping an early selection/control message.
+        if (this.dc && this.dc.readyState === 'open') channel = this.dc;
+      }
+      if (channel && channel.readyState === 'open') {
         try {
-          // 실시간 게임은 오래된 패킷보다 최신 입력/상태가 중요하다.
-          // 대기열이 과도하게 쌓이면 오래된 패킷은 버려 지연 누적을 막는다.
-          if (this.dc.bufferedAmount > 96 * 1024) return;
-          this.dc.send(JSON.stringify(obj));
+          const payload = JSON.stringify(obj);
+          if (fastType && channel.bufferedAmount > 48 * 1024) {
+            // Keep only the newest replaceable state; never queue stale snapshots.
+            this.pendingFastPacket = payload;
+            return;
+          }
+          channel.send(payload);
           return;
         } catch (e) {}
       }
@@ -13694,6 +13743,9 @@ window.OD_FIREBASE_CONFIG = {
             this.remoteDownMask = item.d;
             if (item.p) this.remotePressedQueue.push(item.p);
             if (item.dt) this.remoteDoubleQueue.push(item.dt);
+            // Prevent pathological queue growth after a background-tab pause.
+            if (this.remotePressedQueue.length > 12) this.remotePressedQueue.splice(0, this.remotePressedQueue.length - 12);
+            if (this.remoteDoubleQueue.length > 12) this.remoteDoubleQueue.splice(0, this.remoteDoubleQueue.length - 12);
           }
         }
         return;
@@ -13795,9 +13847,10 @@ window.OD_FIREBASE_CONFIG = {
       this.applyBitmaskToInput(remoteTargetKeys, this.remoteDownMask, rPressed, rDouble, true);
 
       this.localHistory.unshift({ f: this.tick, d: down, p: pressed, dt: dbl });
-      if (this.localHistory.length > 3) this.localHistory.pop();
+      if (this.localHistory.length > 6) this.localHistory.pop();
 
-      this.sendPacket({ t: 'IN', h: this.localHistory });
+      // 30Hz input stream with six-frame redundancy: less traffic, reliable taps.
+      if (this.tick % 2 === 0) this.sendPacket({ t: 'IN', h: this.localHistory });
     },
 
     applyBitmaskToInput(keyMap, downMask, pressedMask, doubleMask, clearFirst) {
@@ -14046,6 +14099,14 @@ window.OD_FIREBASE_CONFIG = {
           else if (Math.abs(dy) > 3) f.y += dy * 0.35;
         }
 
+        // Authoritative combat animation state: this keeps opponent skills and
+        // attack startup/recovery visible even if local input timing differs.
+        if (typeof s.fc === 'number') f.facing = s.fc;
+        if (typeof s.st === 'string' && f.state !== s.st) f.state = s.st;
+        if (Object.prototype.hasOwnProperty.call(s, 'at')) f.attackType = s.at || null;
+        if (typeof s.tm === 'number' && Number.isFinite(s.tm)) f.stateTimer = s.tm;
+        if (typeof s.vx === 'number') f.vx = f.vx * 0.35 + s.vx * 0.65;
+        if (typeof s.vy === 'number' && !(this.role === 'GUEST' && f === GAME.p2 && f.state === 'JUMP')) f.vy = f.vy * 0.35 + s.vy * 0.65;
         f.hp = s.hp;
         f.ult = s.ult;
         f.roundsWon = s.rw;
