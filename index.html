@@ -12892,6 +12892,7 @@ window.OD_FIREBASE_CONFIG = {
       this.bindGuestPhysicalKeys();
       this.patchGameLoopAndInput();
       this.patchCanvasSelectClick();
+      this.patchOnlineSelectionFlow();
       window.addEventListener('beforeunload', () => this.leaveRoom(true));
     },
 
@@ -13489,13 +13490,17 @@ window.OD_FIREBASE_CONFIG = {
         this.sendPacket({
           t: 'SEL',
           job: GAME.selectedJobs.P1,
-          locked: GAME.selectLocked.P1
+          locked: GAME.selectLocked.P1,
+          stage: GAME.pickStage,
+          battleType: GAME.battleType
         });
       } else {
         this.sendPacket({
           t: 'SEL',
           job: GAME.selectedJobs.P2,
-          locked: GAME.selectLocked.P2
+          locked: GAME.selectLocked.P2,
+          stage: GAME.pickStage,
+          battleType: GAME.battleType
         });
       }
     },
@@ -13517,11 +13522,24 @@ window.OD_FIREBASE_CONFIG = {
       if (msg.t === 'SEL' && typeof GAME !== 'undefined') {
         if (this.role === 'HOST') {
           GAME.selectedJobs.P2 = msg.job;
+          GAME.selectedJobs.P2 = msg.job;
           GAME.selectLocked.P2 = Boolean(msg.locked);
         } else {
           GAME.selectedJobs.P1 = msg.job;
           GAME.selectLocked.P1 = Boolean(msg.locked);
         }
+        if (Number.isInteger(msg.stage)) GAME.pickStage = msg.stage;
+        if (msg.battleType === 'DUEL' || msg.battleType === 'SWITCH') GAME.battleType = msg.battleType;
+        return;
+      }
+
+      if (msg.t === 'START_MATCH' && this.role === 'GUEST' && typeof GAME !== 'undefined') {
+        GAME.selectedJobs = { P1: msg.jobs.P1, P2: msg.jobs.P2 };
+        GAME.teamJobs = msg.teamJobs || { P1: [], P2: [] };
+        GAME.pickStage = msg.pickStage || 0;
+        GAME.battleType = msg.battleType || 'DUEL';
+        GAME.selectLocked = { P1: true, P2: true };
+        GAME.startMatch();
         return;
       }
 
@@ -13845,6 +13863,44 @@ window.OD_FIREBASE_CONFIG = {
 
       syncOne(GAME.p1, snap.p1);
       syncOne(GAME.p2, snap.p2);
+    },
+
+    // Coordinate selection completion: only the host starts the match, then tells the guest.
+    patchOnlineSelectionFlow() {
+      if (this._selectionFlowPatched || typeof GAME === 'undefined') return;
+      this._selectionFlowPatched = true;
+      const originalFinish = GAME.finishSelection.bind(GAME);
+      GAME.finishSelection = () => {
+        if (!this.active) return originalFinish();
+        if (this.role !== 'HOST') return; // Guest waits for the host's START_MATCH packet.
+        if (!GAME.selectLocked.P1 || !GAME.selectLocked.P2) return;
+        const beforePhase = GAME.phase;
+        originalFinish();
+        if (GAME.phase === 'CHAR_SELECT') {
+          // SWITCH mode advances to its second pick; publish the new stage and unlocked state.
+          this.syncCharSelectState();
+          return;
+        }
+        if (beforePhase === 'CHAR_SELECT' && GAME.phase !== 'CHAR_SELECT') {
+          this.sendPacket({
+            t: 'START_MATCH',
+            jobs: { P1: GAME.selectedJobs.P1, P2: GAME.selectedJobs.P2 },
+            teamJobs: GAME.teamJobs,
+            pickStage: GAME.pickStage,
+            battleType: GAME.battleType
+          });
+        }
+      };
+
+      // The game's legacy click handler also edits both sides. Suppress it online;
+      // NET.patchCanvasSelectClick owns all character-grid pointer input instead.
+      const canvas = document.getElementById('gameCanvas');
+      if (canvas) canvas.addEventListener('click', (e) => {
+        if (this.active && GAME.phase === 'CHAR_SELECT') {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+        }
+      }, true);
     },
 
     // Allow Host/Guest to click the center roster grid directly for their own character
