@@ -12978,6 +12978,19 @@ window.OD_FIREBASE_CONFIG = {
 
     // Latest authoritative snapshot from Host
     latestSnapshot: null,
+    lastSnapshotTick: -1,
+
+    // ---- 부드러운 동기화(참가자 화면) ----
+    epoch: 0,              // 매치/재대결마다 바뀌는 세대 번호: 이전 판의 늦게 온 패킷을 버린다
+    ownHist: [],           // 내 캐릭터(2P)의 최근 틱별 예측 위치 (지연 보정용)
+    pendingOwn: null,      // 호스트와의 오차 중 아직 다 반영하지 못한 양
+    targets: { p1: null, p2: null },   // 상대(원격) 캐릭터의 목표 좌표
+    _lastRefs: { p1: null, p2: null },
+    _mis: { p1: 0, p2: 0 },   // 방장 상태와 로컬 상태가 연속으로 다른 틱 수
+    _prevHt: 0,               // 직전 스냅샷의 히트스톱 값
+    _carry: null,             // 히트스톱 중 소비되지 않은 버튼 입력(다음 틱으로 이월)
+    guestPos: null,        // (방장용) 참가자가 직접 보고한 자기 캐릭터 위치
+    lastGuestPosF: -1,
     unsubCallbacks: [],
 
     init() {
@@ -13441,6 +13454,24 @@ window.OD_FIREBASE_CONFIG = {
       this.lastSnapshotTick = -1;
       this.matchReturnAt = 0;
       this.pendingFastPacket = null;
+      this.clearSmoothing();
+    },
+
+    newEpoch() {
+      return Math.floor(_origRandom() * 1e9) + 1;
+    },
+
+    clearSmoothing() {
+      this.ownHist = [];
+      this.pendingOwn = null;
+      this.targets = { p1: null, p2: null };
+      this._lastRefs = { p1: null, p2: null };
+      this.guestPos = null;
+      this.lastGuestPosF = -1;
+      this._mis = { p1: 0, p2: 0 };
+      this._prevHt = 0;
+      this._carry = null;
+      this.latestSnapshot = null;
     },
 
     // =========================================================================
@@ -13629,6 +13660,7 @@ window.OD_FIREBASE_CONFIG = {
     // 4. ONLINE CHARACTER SELECT & MATCH START SYNC
     // =========================================================================
     enterOnlineCharSelect() {
+      this.clearSmoothing();
       const modal = document.getElementById('onlineModal');
       if (modal) modal.hidden = true;
 
@@ -13681,7 +13713,8 @@ window.OD_FIREBASE_CONFIG = {
         return;
       }
       if (msg.t === 'PONG') {
-        this.pingMs = Math.max(1, Math.round(performance.now() - msg.ts));
+        const rawPing = Math.max(1, Math.round(performance.now() - msg.ts));
+        this.pingMs = this.pingMs ? Math.round(this.pingMs * 0.7 + rawPing * 0.3) : rawPing;
         const badge = document.getElementById('onlinePingBadge');
         if (badge) badge.textContent = `P2P 직결 · ${this.pingMs}ms`;
         return;
@@ -13718,12 +13751,15 @@ window.OD_FIREBASE_CONFIG = {
         GAME.pickStage = msg.pickStage || 0;
         GAME.battleType = msg.battleType || 'DUEL';
         GAME.selectLocked = { P1: true, P2: true };
+        if (Number.isFinite(msg.ep)) this.epoch = msg.ep;
+        this.clearSmoothing();
         GAME.startMatch();
         return;
       }
 
       if (msg.t === 'REMATCH' && typeof GAME !== 'undefined') {
         this.resetNetBuffers();
+        if (Number.isFinite(msg.ep)) this.epoch = msg.ep;
         if (typeof GAME.startMatch === 'function') GAME.startMatch();
         return;
       }
@@ -13748,13 +13784,22 @@ window.OD_FIREBASE_CONFIG = {
             if (this.remoteDoubleQueue.length > 12) this.remoteDoubleQueue.splice(0, this.remoteDoubleQueue.length - 12);
           }
         }
+        // 참가자가 보고한 자기 위치 (오래되었거나 이전 판의 패킷은 무시)
+        const ps = msg.ps;
+        if (ps && this.role === 'HOST' && ps.ep === this.epoch && Number.isFinite(ps.f) && ps.f > this.lastGuestPosF) {
+          this.lastGuestPosF = ps.f;
+          this.guestPos = { x: ps.x, y: ps.y, vx: ps.vx || 0, vy: ps.vy || 0, st: ps.st, ji: ps.ji, tk: this.tick };
+        }
         return;
       }
 
       if (msg.t === 'SNAP' && this.role === 'GUEST') {
         // Ignore duplicated or out-of-order state packets.
+        // 이전 판(세대)의 늦게 도착한 패킷은 무조건 버린다.
+        if (msg.ep !== this.epoch) return;
         if (Number.isFinite(msg.f) && msg.f <= this.lastSnapshotTick) return;
         if (Number.isFinite(msg.f)) this.lastSnapshotTick = msg.f;
+        msg._recvTick = this.tick;   // 받은 시점의 시뮬레이션 틱
         this.latestSnapshot = msg;
       }
     },
@@ -13849,8 +13894,22 @@ window.OD_FIREBASE_CONFIG = {
       this.localHistory.unshift({ f: this.tick, d: down, p: pressed, dt: dbl });
       if (this.localHistory.length > 6) this.localHistory.pop();
 
-      // 30Hz input stream with six-frame redundancy: less traffic, reliable taps.
-      if (this.tick % 2 === 0) this.sendPacket({ t: 'IN', h: this.localHistory });
+      // P2P(UDP 방식)에서는 매 틱(60Hz) 전송해 입력 지연을 줄이고, 6프레임 중복으로 패킷 손실에 대비한다.
+      // Firebase 릴레이 경로에서는 쓰기 부하를 줄이기 위해 30Hz로 유지한다.
+      if (this.transport === 'P2P' || this.tick % 2 === 0) {
+        const pkt = { t: 'IN', h: this.localHistory };
+        // 참가자는 자기 캐릭터의 실제(예측) 위치를 함께 보낸다 → 방장 화면에서 참가자 캐릭터가 입력 도착 간격 때문에 끊기지 않도록
+        if (this.role === 'GUEST' && GAME.p2 && GAME.phase === 'FIGHT') {
+          const m = GAME.p2;
+          pkt.ps = {
+            f: this.tick, ep: this.epoch, ji: m.jobId,
+            x: Math.round(m.x * 10) / 10, y: Math.round(m.y * 10) / 10,
+            vx: Math.round(m.vx * 100) / 100, vy: Math.round(m.vy * 100) / 100,
+            st: m.state
+          };
+        }
+        this.sendPacket(pkt);
+      }
     },
 
     applyBitmaskToInput(keyMap, downMask, pressedMask, doubleMask, clearFirst) {
@@ -13892,13 +13951,27 @@ window.OD_FIREBASE_CONFIG = {
         GAME.update = function (...args) {
           if (!self.active) return originalUpdate(...args);
           self.preFrameSync();
+          // 히트스톱/동전 연출 중에는 GAME.update가 아무것도 처리하지 않고 끝나므로 버튼 입력이 그냥 사라진다.
+          // 화면마다 히트스톱 타이밍이 달라 한쪽에서만 스킬이 안 나가는(이펙트가 안 보이는) 원인이 된다.
+          const frozen = GAME.phase === 'FIGHT' && ((typeof VFX !== 'undefined' && VFX.hitstopFrames > 0) || !!GAME.gambleFlip);
           try {
             return originalUpdate(...args);
           } finally {
             self.postFrameSync();
+            self.stashFrozenInputs(frozen);
           }
         };
         this._updateSyncPatched = true;
+      }
+
+      // 참가자는 자기 화면에서 판정한 히트스톱을 쓰지 않고, 방장이 보낸 히트스톱(ht)만 따른다.
+      if (!this._hitstopPatched && typeof VFX !== 'undefined' && typeof VFX.triggerHitstop === 'function') {
+        const origHitstop = VFX.triggerHitstop.bind(VFX);
+        VFX.triggerHitstop = function (frames) {
+          if (self.active && self.role === 'GUEST') return;
+          return origHitstop(frames);
+        };
+        this._hitstopPatched = true;
       }
 
       // Intercept Rematch / CharSelect buttons to keep both players synchronized
@@ -13907,7 +13980,8 @@ window.OD_FIREBASE_CONFIG = {
         btnRematch.addEventListener('click', () => {
           if (this.active) {
             this.resetNetBuffers();
-            this.sendPacket({ t: 'REMATCH' });
+            this.epoch = this.newEpoch();
+            this.sendPacket({ t: 'REMATCH', ep: this.epoch });
           }
         }, true);
       }
@@ -13951,12 +14025,20 @@ window.OD_FIREBASE_CONFIG = {
 
       this.tick++;
       this.captureLocalInputPacket();
+      if (this._carry) {
+        this._carry.p.forEach((c) => INPUT.pressed.add(c));
+        this._carry.d.forEach((c) => INPUT.doubleTapped.add(c));
+        this._carry = null;
+      }
 
       // Apply Host authoritative snapshot smoothly on Guest
       if (this.role === 'GUEST' && this.latestSnapshot) {
         this.applySnapshotSmoothly(this.latestSnapshot);
         this.latestSnapshot = null;
       }
+      // 스냅샷이 없는 틱에도 매 틱 조금씩 보정해서 30Hz 계단 현상을 없앤다.
+      if (this.role === 'GUEST') this.smoothTick();
+      else if (this.role === 'HOST') this.smoothGuestOnHost();
     },
 
     postFrameSync() {
@@ -13975,9 +14057,15 @@ window.OD_FIREBASE_CONFIG = {
         return;
       }
 
+      if (this.role === 'GUEST' && GAME.p2) {
+        this.ownHist[this.tick & 127] = { tk: this.tick, x: GAME.p2.x, y: GAME.p2.y };
+      }
+
       // The host is authoritative. Send reliable state at 30Hz so round-end/KO
       // transitions cannot be lost and the guest is corrected before divergence grows.
-      if (this.role === 'HOST' && this.tick % 2 === 0 && GAME.p1 && GAME.p2) {
+      // P2P 직결일 때는 60Hz, Firebase 릴레이일 때만 30Hz로 상태 전송
+      const snapInterval = this.transport === 'P2P' ? 1 : 2;
+      if (this.role === 'HOST' && this.tick % snapInterval === 0 && GAME.p1 && GAME.p2) {
         if (GAME.phase === 'MATCH_OVER') {
           if (!this.matchReturnAt) this.matchReturnAt = performance.now() + 1000;
           if (performance.now() >= this.matchReturnAt) {
@@ -13991,6 +14079,8 @@ window.OD_FIREBASE_CONFIG = {
         }
         this.sendPacket({
           t: 'SNAP',
+          ep: this.epoch,
+          ht: (typeof VFX !== 'undefined' ? VFX.hitstopFrames : 0) || 0,
           f: this.tick,
           ph: GAME.phase,
           pt: GAME.phaseTimer,
@@ -14040,6 +14130,19 @@ window.OD_FIREBASE_CONFIG = {
 
     applySnapshotSmoothly(snap) {
       if (!GAME.p1 || !GAME.p2) return;
+      // 방장의 히트스톱을 그대로 따른다 (새로 걸린 순간만, 전송 지연만큼 줄여서)
+      if (typeof snap.ht === 'number' && typeof VFX !== 'undefined') {
+        if (snap.ht > this._prevHt) {
+          const transit = Math.round(this.rttTicks() / 2) + Math.max(0, this.tick - snap._recvTick);
+          const rem = Math.min(20, snap.ht - transit);
+          if (rem >= 2) VFX.hitstopFrames = Math.max(VFX.hitstopFrames, rem);
+        }
+        this._prevHt = snap.ht;
+      }
+      const prevPhase = GAME.phase, prevRound = GAME.roundNumber;
+      const RESET_PHASES = ['INTRO', 'RETURN', 'OUT'];
+      // 라운드 시작/복귀처럼 게임이 위치를 통째로 리셋하는 순간만 좌표를 즉시 맞춘다.
+      const hardSync = prevRound !== snap.rn || RESET_PHASES.includes(snap.ph) || RESET_PHASES.includes(prevPhase);
       // Phase and score are host-owned: never let the guest decide who won.
       if (typeof snap.ph === 'string') GAME.phase = snap.ph;
       if (typeof snap.pt === 'number') GAME.phaseTimer = snap.pt;
@@ -14080,33 +14183,70 @@ window.OD_FIREBASE_CONFIG = {
         if (snap.switchTimers) GAME.switchTimers = { ...GAME.switchTimers, ...snap.switchTimers };
       }
 
-      const syncOne = (f, s) => {
+      const INVOLUNTARY = ['HITSTUN', 'KNOCKDOWN', 'KO', 'VICTORY'];
+      const syncOne = (f, s, side) => {
         if (!s) return;
-        const dx = s.x - f.x;
-        const dy = s.y - f.y;
-        // Smooth blend for tiny network jitter; instant snap only on teleports
-        if (Math.abs(dx) > 65) f.x = s.x;
-        else if (Math.abs(dx) > 3) f.x += dx * 0.35;
+        // 참가자가 직접 조작하는 캐릭터(2P)는 로컬 예측을 우선한다.
+        const own = this.role === 'GUEST' && f === GAME.p2;
+        const changed = this._lastRefs[side] !== f;   // 교체전 등으로 다른 캐릭터가 됨
+        this._lastRefs[side] = f;
 
-        // 게스트가 직접 조작하는 P2의 점프는 로컬에서 즉시 예측한다.
-        // 호스트의 왕복 지연이 있는 동안 오래된 지상 좌표로 끌어내리면
-        // 게스트 화면에서 점프가 느려 보이므로, 공중 동작 중에는 Y 보정을 잠시 건너뛴다.
-        const guestOwnsThisFighter = this.role === 'GUEST' && f === GAME.p2;
-        const preserveLocalJump = guestOwnsThisFighter && f.state === 'JUMP'
-          && ['IDLE', 'WALK', 'JUMP'].includes(s.st);
-        if (!preserveLocalJump) {
-          if (Math.abs(dy) > 55) f.y = s.y;
-          else if (Math.abs(dy) > 3) f.y += dy * 0.35;
+        // ---- 위치: 좌표를 바로 덮어쓰지 않고 목표/오차만 저장 (실제 이동은 smoothTick) ----
+        if (hardSync || changed) {
+          f.x = s.x; f.y = s.y;
+          this.targets[side] = null;
+          if (own) { this.ownHist = []; this.pendingOwn = null; }
+        } else if (own) {
+          // 호스트 스냅샷은 약 RTT 전의 내 위치를 보여준다 → 그 시점의 내 예측 위치와 비교한 '진짜 오차'만 보정.
+          const past = this.ownHistAt(snap._recvTick - this.rttTicks());
+          const ex = past ? s.x - past.x : s.x - f.x;
+          const ey = past ? s.y - past.y : s.y - f.y;
+          if (INVOLUNTARY.includes(s.st)) {
+            // 맞은 결과(넉백·다운 등)는 방장 기준으로 위치도 맞춘다
+            this.pendingOwn = { x: ex, y: ey, dz: 4, dzy: 6 };
+          } else if (Math.abs(ex) > 120 || Math.abs(ey) > 120) {
+            // 비정상적으로 크게 어긋난 경우만 교정
+            this.pendingOwn = { x: ex, y: ey, dz: 18, dzy: 20 };
+          } else {
+            // 걷기·점프·대시는 참가자 로컬 예측이 기준 (방장이 참가자가 보고한 위치를 따라간다)
+            this.pendingOwn = null;
+          }
+        } else {
+          this.targets[side] = { x: s.x, y: s.y, vx: s.vx || 0, vy: s.vy || 0, tk: snap._recvTick };
         }
 
-        // Authoritative combat animation state: this keeps opponent skills and
-        // attack startup/recovery visible even if local input timing differs.
-        if (typeof s.fc === 'number') f.facing = s.fc;
-        if (typeof s.st === 'string' && f.state !== s.st) f.state = s.st;
-        if (Object.prototype.hasOwnProperty.call(s, 'at')) f.attackType = s.at || null;
-        if (typeof s.tm === 'number' && Number.isFinite(s.tm)) f.stateTimer = s.tm;
-        if (typeof s.vx === 'number') f.vx = f.vx * 0.35 + s.vx * 0.65;
-        if (typeof s.vy === 'number' && !(this.role === 'GUEST' && f === GAME.p2 && f.state === 'JUMP')) f.vy = f.vy * 0.35 + s.vy * 0.65;
+        // ---- 동작 상태 ----
+        if (own) {
+          // 걷기/점프/대시/공격 시작은 로컬 예측이 정답. 피격·다운·KO 같은 '맞은 결과'만 호스트를 따른다.
+          if (INVOLUNTARY.includes(s.st) && f.state !== s.st) {
+            f.state = s.st;
+            f.attackType = s.at || null;
+            if (typeof s.tm === 'number' && Number.isFinite(s.tm)) f.stateTimer = s.tm;
+            if (typeof s.fc === 'number') f.facing = s.fc;
+            if (typeof s.vx === 'number') f.vx = s.vx;
+            if (typeof s.vy === 'number') f.vy = s.vy;
+          }
+        } else {
+          // 상대 캐릭터: 공격·스킬의 '시작'은 입력으로 로컬에서 시작해야 이펙트가 생긴다.
+          // 스냅샷이 먼저 도착해 상태를 ATTACK으로 덮어쓰면 이펙트 없이 모션만 나오므로,
+          // 피격·다운·KO 같은 결과만 즉시 따르고 나머지는 상태가 15틱 이상 계속 다를 때만 맞춘다.
+          if (typeof s.fc === 'number') f.facing = s.fc;
+          if (typeof s.st === 'string' && f.state !== s.st) {
+            this._mis[side]++;
+            if (INVOLUNTARY.includes(s.st) || this._mis[side] >= 15) {
+              f.state = s.st;
+              if (Object.prototype.hasOwnProperty.call(s, 'at')) f.attackType = s.at || null;
+              if (typeof s.tm === 'number' && Number.isFinite(s.tm)) f.stateTimer = s.tm;
+              this._mis[side] = 0;
+            }
+          } else {
+            this._mis[side] = 0;
+          }
+          if (typeof s.vx === 'number') f.vx = f.vx * 0.35 + s.vx * 0.65;
+          if (typeof s.vy === 'number') f.vy = f.vy * 0.35 + s.vy * 0.65;
+        }
+
+        // ---- 전투 수치는 항상 방장(1P) 기준 ----
         f.hp = s.hp;
         f.ult = s.ult;
         f.roundsWon = s.rw;
@@ -14121,14 +14261,106 @@ window.OD_FIREBASE_CONFIG = {
         }
       };
 
-      syncOne(GAME.p1, snap.p1);
-      syncOne(GAME.p2, snap.p2);
+      syncOne(GAME.p1, snap.p1, 'p1');
+      syncOne(GAME.p2, snap.p2, 'p2');
       if (snap.ph === 'MATCH_OVER' && snap.scores) {
         const p1Won = GAME.battleType === 'SWITCH'
           ? Number(snap.scores.P1 || 0) > Number(snap.scores.P2 || 0)
           : Number(snap.p1 && snap.p1.rw || 0) > Number(snap.p2 && snap.p2.rw || 0);
         (p1Won ? GAME.p1 : GAME.p2).state = 'VICTORY';
       }
+    },
+
+    stashFrozenInputs(frozen) {
+      if (!frozen) { this._carry = null; return; }
+      const slots = new Set([...Object.values(P1_KEYS), ...Object.values(P2_KEYS)]);
+      const p = [], d = [];
+      INPUT.pressed.forEach((c) => { if (slots.has(c)) p.push(c); });
+      INPUT.doubleTapped.forEach((c) => { if (slots.has(c)) d.push(c); });
+      if (!p.length && !d.length) return;
+      if (!this._carry) this._carry = { p: [], d: [] };
+      p.forEach((c) => { if (!this._carry.p.includes(c)) this._carry.p.push(c); });
+      d.forEach((c) => { if (!this._carry.d.includes(c)) this._carry.d.push(c); });
+    },
+
+    // ---- 참가자 화면 보간/보정 헬퍼 ----
+    rttTicks() {
+      const ms = this.pingMs || 70;
+      return Math.max(0, Math.min(40, Math.round(ms / (1000 / 60))));
+    },
+
+    ownHistAt(tk) {
+      const e = this.ownHist[tk & 127];
+      return e && e.tk === tk ? e : null;
+    },
+
+    // 매 시뮬레이션 틱마다 실행: 네트워크 수신 주기(30Hz)와 무관하게 60fps로 부드럽게 따라간다.
+    smoothTick() {
+      if (typeof GAME === 'undefined' || !GAME.p1 || !GAME.p2) return;
+      const SNAP_DIST = 70;          // 이 이상 벌어지면(넉백·돌진·순간이동) 즉시 강제 동기화
+      const G = CONFIG.GRAVITY;
+
+      // (A) 상대(원격) 캐릭터: 목표 좌표를 향해 매 프레임 lerp
+      const t = this.targets.p1;
+      const r = GAME.p1;
+      if (t && r) {
+        const age = Math.min(3, Math.max(0, this.tick - t.tk));        // 받은 뒤 지난 틱(과한 외삽 방지)
+        const tx = t.x + t.vx * age;
+        let ty = t.y + t.vy * age + (t.vy !== 0 || t.y < CONFIG.GROUND_Y ? 0.5 * G * age * age : 0);
+        ty = Math.min(CONFIG.GROUND_Y, ty);
+        const ex = tx - r.x, ey = ty - r.y;
+        if (Math.abs(ex) > SNAP_DIST || Math.abs(ey) > SNAP_DIST) {
+          r.x = tx; r.y = ty;
+        } else {
+          if (Math.abs(ex) > 1.5) r.x += ex * 0.38;
+          if (Math.abs(ey) > 1.5) r.y += ey * 0.42;
+        }
+      }
+
+      // (B) 내 캐릭터(2P): 로컬 예측 유지 + 호스트와의 '진짜 오차'만 천천히 흡수
+      const p = this.pendingOwn;
+      const me = GAME.p2;
+      if (p && me) {
+        let dx = 0, dy = 0;
+        if (Math.abs(p.x) > SNAP_DIST || Math.abs(p.y) > SNAP_DIST) {
+          dx = p.x; dy = p.y; this.pendingOwn = null;
+        } else {
+          // 이동·점프 중 미세 오차(18px 이하)는 무시하고, 넘는 부분만 천천히 흡수
+          const dz = p.dz || 18, dzy = p.dzy || 20;
+          if (Math.abs(p.x) > dz) dx = (p.x - Math.sign(p.x) * dz) * 0.25;
+          if (Math.abs(p.y) > dzy) dy = (p.y - Math.sign(p.y) * dzy) * 0.25;
+          if (!dx && !dy) this.pendingOwn = null;
+          else { p.x -= dx; p.y -= dy; }
+        }
+        if (dx || dy) {
+          me.x = Math.max(CONFIG.STAGE_LEFT, Math.min(CONFIG.STAGE_RIGHT, me.x + dx));
+          me.y = Math.min(CONFIG.GROUND_Y, me.y + dy);
+          // 이미 반영한 보정량은 기록에도 반영해 다음 스냅샷과 이중으로 보정되지 않게 한다.
+          for (let i = 0; i < this.ownHist.length; i++) {
+            const h = this.ownHist[i];
+            if (h) { h.x += dx; h.y += dy; }
+          }
+        }
+      }
+    },
+
+    // (방장 화면) 참가자 캐릭터: 입력 재생만으로는 패킷 도착 간격만큼 끊겨 보이므로,
+    // 참가자가 보고한 위치를 향해 매 틱 부드럽게 따라가게 한다. 피격·공격 중에는 방장 판정을 그대로 둔다.
+    smoothGuestOnHost() {
+      const g = this.guestPos, f = typeof GAME !== 'undefined' ? GAME.p2 : null;
+      if (!g || !f || GAME.phase !== 'FIGHT') return;
+      if (this.tick - g.tk > 12) return;                       // 오래된 보고는 사용하지 않음
+      if (g.ji !== f.jobId) return;                            // 교체전 등으로 다른 캐릭터가 됨
+      const LOCO = ['IDLE', 'WALK', 'JUMP', 'DASH', 'CROUCH'];
+      if (!LOCO.includes(f.state) || !LOCO.includes(g.st)) return;
+      const age = Math.min(3, Math.max(0, this.tick - g.tk));
+      const tx = g.x + g.vx * age;
+      let ty = g.y + g.vy * age + (g.vy !== 0 || g.y < CONFIG.GROUND_Y ? 0.5 * CONFIG.GRAVITY * age * age : 0);
+      ty = Math.min(CONFIG.GROUND_Y, ty);
+      const ex = tx - f.x, ey = ty - f.y;
+      if (Math.abs(ex) > 70 || Math.abs(ey) > 70) { f.x = tx; f.y = ty; return; }
+      if (Math.abs(ex) > 1.5) f.x += ex * 0.3;
+      if (Math.abs(ey) > 1.5) f.y += ey * 0.35;
     },
 
     // Coordinate selection completion: only the host starts the match, then tells the guest.
@@ -14156,8 +14388,11 @@ window.OD_FIREBASE_CONFIG = {
         }
         if (beforePhase === 'CHAR_SELECT' && GAME.phase !== 'CHAR_SELECT') {
           GAME.randomPick = { P1: false, P2: false };
+          this.epoch = this.newEpoch();
+          this.clearSmoothing();
           this.sendPacket({
             t: 'START_MATCH',
+            ep: this.epoch,
             jobs: { P1: GAME.selectedJobs.P1, P2: GAME.selectedJobs.P2 },
             teamJobs: GAME.teamJobs,
             pickStage: GAME.pickStage,
