@@ -122,6 +122,13 @@
           class="px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-500/20 hover:bg-sky-500/30 active:scale-95 text-sky-300 border border-sky-400/50 transition cursor-pointer">
           🤖 모드: 1P vs AI [1]
         </button>
+        <button id="btnOnline" type="button"
+          class="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/20 hover:bg-emerald-500/30 active:scale-95 text-emerald-300 border border-emerald-400/50 transition cursor-pointer">
+          🌐 온라인 대전
+        </button>
+        <span id="onlinePingBadge" class="hidden px-2 py-0.5 rounded-full text-[11px] font-arcade font-bold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40">
+          P2P · --ms
+        </span>
         <button id="btnDiff" type="button"
           class="px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-500/20 hover:bg-purple-500/30 active:scale-95 text-purple-300 border border-purple-400/50 transition cursor-pointer">
           ⚡ AI 난이도: 보통 [2]
@@ -205,12 +212,14 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
 /* gstatic이 막혀 있으면 jsdelivr에서 같은 버전을 대신 불러온다 */
 (function(){
   function w(n){document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-'+n+'-compat.js"></scr'+'ipt>');}
   if(typeof firebase==='undefined'){w('app');w('auth');}
   else if(!firebase.auth){w('auth');}
+  if(typeof firebase!=='undefined' && !firebase.database){w('database');}
 })();
 </script>
 <script>
@@ -218,6 +227,7 @@
 window.OD_FIREBASE_CONFIG = {
   apiKey: "AIzaSyB-Hl1_NgCu9CRetCV6riv0hAu7hlOHfBw",
   authDomain: "project-5885092822785266456.firebaseapp.com",
+  databaseURL: "https://project-5885092822785266456-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "project-5885092822785266456",
   storageBucket: "project-5885092822785266456.firebasestorage.app",
   messagingSenderId: "944337055726",
@@ -12791,5 +12801,1111 @@ window.OD_FIREBASE_CONFIG = {
       GAME.init();
     });
   </script>
+<script>
+/* ============================================================================
+ * STICK FIGHTER: ARCADE - Zero-Lag Online Multiplayer (WebRTC P2P + Firebase)
+ * ============================================================================ */
+(function () {
+  'use strict';
+
+  const ICE_SERVERS = [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun2.l.google.com:19302' },
+    { urls: 'stun:stun.cloudflare.com:3478' }
+  ];
+
+  // 8-bit compact action bitmask
+  const BIT = {
+    LEFT: 1 << 0,
+    RIGHT: 1 << 1,
+    UP: 1 << 2,
+    DOWN: 1 << 3,
+    NORMAL: 1 << 4,
+    SKILL1: 1 << 5,
+    SKILL2: 1 << 6,
+    ULTIMATE: 1 << 7
+  };
+
+  const P1_KEYS = {
+    left: 'KeyA', right: 'KeyD', up: 'KeyW', down: 'KeyS',
+    normal: 'KeyX', skill1: 'KeyC', skill2: 'KeyV', ultimate: 'KeyB'
+  };
+
+  const P2_KEYS = {
+    left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', down: 'ArrowDown',
+    normal: 'KeyK', skill1: 'KeyL', skill2: 'Semicolon', ultimate: 'Quote'
+  };
+
+  // Deterministic PRNG for synced random skills (Gambler, Santa, AI Robot, etc.)
+  const _origRandom = Math.random.bind(Math);
+  function setDeterministicSeed(seed) {
+    let a = seed >>> 0;
+    Math.random = function () {
+      a |= 0;
+      a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function restoreRandom() {
+    Math.random = _origRandom;
+  }
+
+  const NET = {
+    active: false,
+    role: null,          // 'HOST' (1P) | 'GUEST' (2P)
+    roomCode: null,
+    roomRef: null,
+    roomsListRef: null,
+    db: null,
+
+    pc: null,
+    dc: null,
+    transport: 'NONE',   // 'P2P' | 'RELAY'
+    pingMs: 0,
+    pingTimer: null,
+
+    tick: 0,
+    roomSeed: 123456,
+    lastSeededRound: -1,
+
+    // Redundant input history (last 3 frames) for packet-loss immunity
+    localHistory: [],
+    remoteAppliedTick: -1,
+    remoteDownMask: 0,
+    remotePressedQueue: [],
+    remoteDoubleQueue: [],
+
+    // Guest physical key tracking (supports BOTH WASD+XCVB and Arrows+KL;')
+    guestPhysicalDown: new Set(),
+    guestPhysicalPressed: new Set(),
+    guestPhysicalDouble: new Set(),
+
+    // Latest authoritative snapshot from Host
+    latestSnapshot: null,
+    unsubCallbacks: [],
+
+    init() {
+      this.injectUI();
+      this.bindGuestPhysicalKeys();
+      this.patchGameLoopAndInput();
+      this.patchCanvasSelectClick();
+      window.addEventListener('beforeunload', () => this.leaveRoom(true));
+    },
+
+    getDb() {
+      if (this.db) return this.db;
+      if (typeof firebase === 'undefined' || !firebase.database) return null;
+      const cfg = window.OD_FIREBASE_CONFIG || {};
+      const dbUrl = cfg.databaseURL || `https://${cfg.projectId}-default-rtdb.firebaseio.com`;
+      try {
+        this.db = firebase.app().database(dbUrl);
+      } catch (e) {
+        this.db = firebase.database();
+      }
+      return this.db;
+    },
+
+    getCurrentUser() {
+      const auth = window.OD && window.OD.auth;
+      const u = auth ? auth.current() : (typeof firebase !== 'undefined' && firebase.auth().currentUser);
+      if (!u) return null;
+      const name = auth && auth.label ? auth.label(u) : (u.displayName || 'PLAYER');
+      return { uid: u.uid, name };
+    },
+
+    // =========================================================================
+    // 1. LOBBY MODAL & HEADER UI
+    // =========================================================================
+    injectUI() {
+      const style = document.createElement('style');
+      style.textContent = `
+        #onlineModal {
+          position: fixed; inset: 0; z-index: 9500;
+          display: flex; align-items: center; justify-content: center; padding: 16px;
+          background: rgba(2, 6, 23, 0.84); backdrop-filter: blur(6px);
+        }
+        #onlineModal[hidden] { display: none; }
+        #onlineModal input, #onlineModal button { user-select: text; -webkit-user-select: text; }
+        .om-card {
+          width: min(560px, 100%); background: rgba(15, 23, 42, 0.96);
+          border: 1px solid rgba(52, 211, 153, 0.45); border-radius: 18px;
+          padding: 24px; box-shadow: 0 24px 60px rgba(0,0,0,0.85), 0 0 35px rgba(16,185,129,0.16);
+          color: #f8fafc;
+        }
+        .om-input {
+          background: rgba(2, 6, 23, 0.85); border: 1px solid #475569; border-radius: 9px;
+          padding: 9px 12px; color: #f8fafc; font-weight: 700; outline: none;
+        }
+        .om-input:focus { border-color: #34d399; box-shadow: 0 0 0 3px rgba(52,211,153,0.2); }
+        .om-room-item {
+          display: flex; align-items: center; justify-content: space-between; gap: 10px;
+          padding: 10px 12px; border-radius: 10px; background: rgba(2, 6, 23, 0.72);
+          border: 1px solid rgba(148, 163, 184, 0.22);
+        }
+      `;
+      document.head.appendChild(style);
+
+      const modal = document.createElement('div');
+      modal.id = 'onlineModal';
+      modal.hidden = true;
+      modal.innerHTML = `
+        <div class="om-card">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h2 class="font-arcade text-lg font-black text-emerald-300 tracking-wider">ONLINE ARENA (P2P)</h2>
+              <p class="text-xs text-slate-400 font-bold">WebRTC 초저지연 직결 · 방 생성 및 실시간 입장</p>
+            </div>
+            <button id="omClose" type="button" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 cursor-pointer">✕ 닫기</button>
+          </div>
+
+          <!-- Lobby View -->
+          <div id="omLobbyView" class="flex flex-col gap-3">
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex flex-col sm:flex-row gap-2">
+              <input id="omRoomTitle" type="text" maxlength="18" placeholder="방 제목 (비우면 자동 생성)" class="om-input flex-1 text-sm" />
+              <button id="omCreateBtn" type="button" class="px-4 py-2 rounded-lg text-xs font-black bg-emerald-500/25 hover:bg-emerald-500/35 text-emerald-200 border border-emerald-400/60 cursor-pointer whitespace-nowrap">
+                ➕ 새 방 만들기
+              </button>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex flex-col sm:flex-row gap-2">
+              <input id="omJoinCode" type="text" maxlength="6" placeholder="방 코드 4자리 (예: A7K2)" class="om-input flex-1 text-sm uppercase font-arcade tracking-widest" />
+              <button id="omJoinBtn" type="button" class="px-4 py-2 rounded-lg text-xs font-black bg-sky-500/25 hover:bg-sky-500/35 text-sky-200 border border-sky-400/60 cursor-pointer whitespace-nowrap">
+                🚪 코드로 입장
+              </button>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-black text-slate-300">📡 대기 중인 공개 방 목록</span>
+                <span id="omRoomCount" class="text-[11px] font-bold text-slate-400">0개 방</span>
+              </div>
+              <div id="omRoomList" class="flex flex-col gap-1.5 max-h-[210px] overflow-y-auto pr-1">
+                <div class="text-center py-6 text-xs text-slate-500 font-bold">열린 방을 불러오는 중...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Waiting / Connected View -->
+          <div id="omActiveView" hidden class="flex flex-col items-center text-center gap-3 py-4">
+            <div class="text-xs font-bold text-slate-400">상대방에게 아래 방 코드를 알려주거나 공개 목록에서 입장을 기다리세요</div>
+            <div class="px-6 py-3 rounded-2xl bg-slate-950 border-2 border-emerald-400/70">
+              <div class="text-[11px] font-bold text-emerald-400 mb-0.5">ROOM CODE</div>
+              <div id="omDisplayCode" class="font-arcade text-3xl font-black tracking-[0.25em] text-amber-300">----</div>
+            </div>
+            <div id="omConnDetail" class="text-xs font-bold text-sky-300">상대 플레이어 접속 대기 중...</div>
+            <div class="flex gap-2 mt-2">
+              <button id="omCopyCodeBtn" type="button" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 cursor-pointer">📋 코드 복사</button>
+              <button id="omLeaveBtn" type="button" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-400/50 cursor-pointer">🚪 방 나가기</button>
+            </div>
+          </div>
+
+          <p id="omStatus" class="mt-3 text-xs font-bold text-amber-300 min-h-[18px]"></p>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      // Block game hotkeys while typing inside modal
+      ['keydown', 'keyup', 'keypress'].forEach((evt) => {
+        modal.addEventListener(evt, (e) => e.stopPropagation());
+      });
+
+      const btnOnline = document.getElementById('btnOnline');
+      if (btnOnline) {
+        btnOnline.addEventListener('click', () => this.openModal());
+      }
+      document.getElementById('omClose').addEventListener('click', () => {
+        modal.hidden = true;
+      });
+      document.getElementById('omCreateBtn').addEventListener('click', () => this.createRoom());
+      document.getElementById('omJoinBtn').addEventListener('click', () => {
+        const code = document.getElementById('omJoinCode').value.trim().toUpperCase();
+        this.joinRoom(code);
+      });
+      document.getElementById('omJoinCode').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const code = e.target.value.trim().toUpperCase();
+          this.joinRoom(code);
+        }
+      });
+      document.getElementById('omCopyCodeBtn').addEventListener('click', () => {
+        if (this.roomCode && navigator.clipboard) {
+          navigator.clipboard.writeText(this.roomCode);
+          this.setStatus(`방 코드 [${this.roomCode}] 복사 완료!`, '#4ade80');
+        }
+      });
+      document.getElementById('omLeaveBtn').addEventListener('click', () => this.leaveRoom(false));
+    },
+
+    setStatus(msg, color = '#fde047') {
+      const el = document.getElementById('omStatus');
+      if (el) {
+        el.textContent = msg || '';
+        el.style.color = color;
+      }
+    },
+
+    openModal() {
+      const user = this.getCurrentUser();
+      if (!user) {
+        alert('먼저 Firebase 계정으로 로그인해 주세요!');
+        return;
+      }
+      const db = this.getDb();
+      if (!db) {
+        alert('Firebase Realtime Database SDK가 로드되지 않았습니다.');
+        return;
+      }
+      document.getElementById('onlineModal').hidden = false;
+      this.updateModalView();
+      if (!this.active) {
+        this.subscribeRoomList();
+      }
+    },
+
+    updateModalView() {
+      const lobby = document.getElementById('omLobbyView');
+      const activeView = document.getElementById('omActiveView');
+      const pingBadge = document.getElementById('onlinePingBadge');
+      const btnOnline = document.getElementById('btnOnline');
+
+      if (this.active) {
+        lobby.hidden = true;
+        activeView.hidden = false;
+        document.getElementById('omDisplayCode').textContent = this.roomCode || '----';
+        if (btnOnline) btnOnline.textContent = `🌐 방 [${this.roomCode}]`;
+        if (pingBadge) {
+          pingBadge.classList.remove('hidden');
+          pingBadge.textContent = this.transport === 'P2P'
+            ? `P2P 직결 · ${this.pingMs || 12}ms`
+            : `연결 중 (${this.transport})`;
+        }
+      } else {
+        lobby.hidden = false;
+        activeView.hidden = true;
+        if (btnOnline) btnOnline.textContent = '🌐 온라인 대전';
+        if (pingBadge) pingBadge.classList.add('hidden');
+      }
+    },
+
+    // =========================================================================
+    // 2. ROOM CREATION, LISTING & JOINING (Firebase Realtime Database)
+    // =========================================================================
+    generateRoomCode() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let code = '';
+      for (let i = 0; i < 4; i++) {
+        code += chars[Math.floor(_origRandom() * chars.length)];
+      }
+      return code;
+    },
+
+    subscribeRoomList() {
+      const db = this.getDb();
+      if (!db) return;
+      if (this.roomsListRef) this.roomsListRef.off();
+
+      this.roomsListRef = db.ref('rooms').orderByChild('meta/createdAt').limitToLast(20);
+      this.roomsListRef.on('value', (snap) => {
+        const listEl = document.getElementById('omRoomList');
+        const countEl = document.getElementById('omRoomCount');
+        if (!listEl) return;
+
+        const rooms = [];
+        const now = Date.now();
+        snap.forEach((child) => {
+          const val = child.val();
+          if (val && val.meta && val.meta.status === 'WAITING' && (now - (val.meta.createdAt || 0)) < 3600000) {
+            rooms.push({ code: child.key, ...val.meta });
+          }
+        });
+        rooms.reverse();
+        countEl.textContent = `${rooms.length}개 방`;
+
+        if (rooms.length === 0) {
+          listEl.innerHTML = `<div class="text-center py-6 text-xs text-slate-500 font-bold">현재 대기 중인 방이 없습니다. 새 방을 만들어 보세요!</div>`;
+          return;
+        }
+
+        listEl.innerHTML = rooms.map((r) => `
+          <div class="om-room-item">
+            <div class="min-w-0">
+              <div class="text-xs font-black text-slate-100 truncate">${this.escapeHtml(r.title)}</div>
+              <div class="text-[11px] font-bold text-slate-400">방장: ${this.escapeHtml(r.hostName)} · 코드 <span class="font-arcade text-amber-300">${r.code}</span></div>
+            </div>
+            <button type="button" data-join="${r.code}" class="px-3 py-1.5 rounded-lg text-xs font-black bg-emerald-500/25 hover:bg-emerald-500/35 text-emerald-200 border border-emerald-400/50 cursor-pointer shrink-0">
+              입장
+            </button>
+          </div>
+        `).join('');
+
+        listEl.querySelectorAll('[data-join]').forEach((btn) => {
+          btn.addEventListener('click', () => this.joinRoom(btn.dataset.join));
+        });
+      }, (err) => {
+        this.setStatus('DB 연결 오류: Firebase 콘솔에서 Realtime Database와 보안 규칙을 확인해 주세요.', '#fb7185');
+        console.error(err);
+      });
+    },
+
+    escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    },
+
+    async createRoom() {
+      const user = this.getCurrentUser();
+      const db = this.getDb();
+      if (!user || !db) return;
+
+      if (this.roomsListRef) {
+        this.roomsListRef.off();
+        this.roomsListRef = null;
+      }
+
+      const code = this.generateRoomCode();
+      const rawTitle = document.getElementById('omRoomTitle').value.trim();
+      const title = rawTitle || `${user.name}의 아케이드 결투장`;
+      const seed = Math.floor(_origRandom() * 2147483646) + 1;
+
+      this.role = 'HOST';
+      this.roomCode = code;
+      this.roomSeed = seed;
+      this.active = true;
+      this.transport = 'SIGNALING';
+      this.resetNetBuffers();
+
+      this.roomRef = db.ref(`rooms/${code}`);
+      await this.roomRef.set({
+        meta: {
+          hostUid: user.uid,
+          hostName: user.name,
+          title,
+          status: 'WAITING',
+          seed,
+          createdAt: firebase.database.ServerValue.TIMESTAMP
+        },
+        select: {
+          p1Job: GAME.selectedJobs.P1,
+          p1Locked: false,
+          p2Job: GAME.selectedJobs.P2,
+          p2Locked: false
+        }
+      });
+
+      // Auto-delete room if host closes browser
+      this.roomRef.onDisconnect().remove();
+
+      this.updateModalView();
+      this.setStatus('방이 생성되었습니다! 상대방 입장을 기다립니다...', '#4ade80');
+      document.getElementById('omConnDetail').textContent = '상대방이 방에 들어오면 자동으로 P2P 직결됩니다...';
+
+      // Wait for Guest to join
+      const guestRef = this.roomRef.child('guest');
+      const onGuest = guestRef.on('value', async (snap) => {
+        const guest = snap.val();
+        if (!guest || !guest.uid) return;
+        guestRef.off('value', onGuest);
+
+        document.getElementById('omConnDetail').textContent = `🎮 [${guest.name}] 님 입장! P2P 초저지연 연결 중...`;
+        this.setStatus(`[${guest.name}] 님과 P2P 연결 수립 중...`, '#38bdf8');
+        await this.roomRef.child('meta/status').set('PLAYING');
+        await this.startWebRTCHost();
+      });
+      this.unsubCallbacks.push(() => guestRef.off('value', onGuest));
+    },
+
+    async joinRoom(code) {
+      if (!code || code.length < 4) {
+        this.setStatus('4자리 방 코드를 입력해 주세요.', '#fb7185');
+        return;
+      }
+      const user = this.getCurrentUser();
+      const db = this.getDb();
+      if (!user || !db) return;
+
+      const roomRef = db.ref(`rooms/${code}`);
+      const snap = await roomRef.once('value');
+      const data = snap.val();
+
+      if (!data || !data.meta) {
+        this.setStatus('존재하지 않는 방 코드입니다.', '#fb7185');
+        return;
+      }
+      if (data.meta.status !== 'WAITING' || (data.guest && data.guest.uid !== user.uid)) {
+        this.setStatus('이미 대전이 시작되었거나 정원이 가득 찬 방입니다.', '#fb7185');
+        return;
+      }
+
+      if (this.roomsListRef) {
+        this.roomsListRef.off();
+        this.roomsListRef = null;
+      }
+
+      this.role = 'GUEST';
+      this.roomCode = code;
+      this.roomRef = roomRef;
+      this.roomSeed = data.meta.seed || 123456;
+      this.active = true;
+      this.transport = 'SIGNALING';
+      this.resetNetBuffers();
+
+      const guestRef = roomRef.child('guest');
+      guestRef.onDisconnect().remove();
+      await guestRef.set({
+        uid: user.uid,
+        name: user.name,
+        joinedAt: firebase.database.ServerValue.TIMESTAMP
+      });
+
+      this.updateModalView();
+      document.getElementById('omConnDetail').textContent = `방장 [${data.meta.hostName}] 님과 P2P 연결 중...`;
+      this.setStatus('P2P 초저지연 터널 연결 중...', '#38bdf8');
+
+      await this.startWebRTCGuest();
+    },
+
+    async leaveRoom(silent = false) {
+      this.unsubCallbacks.forEach((fn) => { try { fn(); } catch (e) {} });
+      this.unsubCallbacks = [];
+
+      if (this.pingTimer) {
+        clearInterval(this.pingTimer);
+        this.pingTimer = null;
+      }
+      if (this.dc) {
+        try { this.dc.close(); } catch (e) {}
+        this.dc = null;
+      }
+      if (this.pc) {
+        try { this.pc.close(); } catch (e) {}
+        this.pc = null;
+      }
+
+      if (this.roomRef) {
+        try {
+          if (this.role === 'HOST') {
+            await this.roomRef.remove();
+          } else if (this.role === 'GUEST') {
+            await this.roomRef.child('guest').remove();
+          }
+        } catch (e) {}
+        this.roomRef = null;
+      }
+
+      this.active = false;
+      this.role = null;
+      this.roomCode = null;
+      this.transport = 'NONE';
+      this.latestSnapshot = null;
+      restoreRandom();
+
+      if (!silent) {
+        this.updateModalView();
+        this.setStatus('온라인 방에서 퇴장했습니다.', '#94a3b8');
+        this.subscribeRoomList();
+      }
+    },
+
+    resetNetBuffers() {
+      this.tick = 0;
+      this.lastSeededRound = -1;
+      this.localHistory = [];
+      this.remoteAppliedTick = -1;
+      this.remoteDownMask = 0;
+      this.remotePressedQueue = [];
+      this.remoteDoubleQueue = [];
+      this.latestSnapshot = null;
+    },
+
+    // =========================================================================
+    // 3. WEBRTC P2P DATA CHANNEL (UDP-like zero-lag transport)
+    // =========================================================================
+    setupPeerConnection() {
+      const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+      this.pc = pc;
+
+      const candPath = this.role === 'HOST' ? 'signal/hostCandidates' : 'signal/guestCandidates';
+      pc.onicecandidate = (e) => {
+        if (e.candidate && this.roomRef) {
+          this.roomRef.child(candPath).push(e.candidate.toJSON());
+        }
+      };
+
+      pc.onconnectionstatechange = () => {
+        if (['disconnected', 'failed', 'closed'].includes(pc.connectionState)) {
+          if (this.active && this.transport === 'P2P') {
+            this.transport = 'RELAY';
+            this.startFirebaseRelayFallback();
+          }
+        }
+      };
+
+      // Listen for peer ICE candidates
+      const peerCandPath = this.role === 'HOST' ? 'signal/guestCandidates' : 'signal/hostCandidates';
+      const peerCandRef = this.roomRef.child(peerCandPath);
+      const onCand = peerCandRef.on('child_added', (snap) => {
+        const cand = snap.val();
+        if (cand && pc.remoteDescription) {
+          pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+        }
+      });
+      this.unsubCallbacks.push(() => peerCandRef.off('child_added', onCand));
+
+      // Fallback timer: if strict firewall blocks WebRTC after 4.5s, switch to RTDB relay seamlessly
+      setTimeout(() => {
+        if (this.active && this.transport !== 'P2P') {
+          this.transport = 'RELAY';
+          this.startFirebaseRelayFallback();
+          this.enterOnlineCharSelect();
+        }
+      }, 4500);
+
+      return pc;
+    },
+
+    bindDataChannel(dc) {
+      this.dc = dc;
+      dc.binaryType = 'arraybuffer';
+
+      dc.onopen = () => {
+        this.transport = 'P2P';
+        this.updateModalView();
+        this.setStatus('⚡ P2P 초저지연 연결 완료! 캐릭터를 선택하세요.', '#4ade80');
+
+        // Start 1-second ping measurement
+        this.pingTimer = setInterval(() => {
+          this.sendPacket({ t: 'PING', ts: performance.now() });
+        }, 1000);
+
+        this.enterOnlineCharSelect();
+      };
+
+      dc.onmessage = (e) => {
+        try {
+          const msg = JSON.parse(e.data);
+          this.handleNetMessage(msg);
+        } catch (err) {}
+      };
+    },
+
+    async startWebRTCHost() {
+      const pc = this.setupPeerConnection();
+      // Unordered + 0 retransmits = lowest possible latency (no TCP head-of-line blocking)
+      const dc = pc.createDataChannel('stickfight-p2p', { ordered: false, maxRetransmits: 0 });
+      this.bindDataChannel(dc);
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      await this.roomRef.child('signal/offer').set({ type: offer.type, sdp: offer.sdp });
+
+      const ansRef = this.roomRef.child('signal/answer');
+      const onAns = ansRef.on('value', async (snap) => {
+        const ans = snap.val();
+        if (ans && !pc.currentRemoteDescription) {
+          ansRef.off('value', onAns);
+          await pc.setRemoteDescription(new RTCSessionDescription(ans));
+        }
+      });
+      this.unsubCallbacks.push(() => ansRef.off('value', onAns));
+    },
+
+    async startWebRTCGuest() {
+      const pc = this.setupPeerConnection();
+      pc.ondatachannel = (e) => {
+        this.bindDataChannel(e.channel);
+      };
+
+      const offerRef = this.roomRef.child('signal/offer');
+      const onOffer = offerRef.on('value', async (snap) => {
+        const offer = snap.val();
+        if (offer && !pc.currentRemoteDescription) {
+          offerRef.off('value', onOffer);
+          await pc.setRemoteDescription(new RTCSessionDescription(offer));
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          await this.roomRef.child('signal/answer').set({ type: answer.type, sdp: answer.sdp });
+        }
+      });
+      this.unsubCallbacks.push(() => offerRef.off('value', onOffer));
+    },
+
+    // Automatic Firebase RTDB relay fallback if strict firewall blocks WebRTC UDP
+    startFirebaseRelayFallback() {
+      if (!this.roomRef) return;
+      const mySlot = this.role === 'HOST' ? 'relay/host' : 'relay/guest';
+      const peerSlot = this.role === 'HOST' ? 'relay/guest' : 'relay/host';
+      this._relayOutRef = this.roomRef.child(mySlot);
+
+      const inRef = this.roomRef.child(peerSlot);
+      const onRelay = inRef.on('value', (snap) => {
+        const msg = snap.val();
+        if (msg) this.handleNetMessage(msg);
+      });
+      this.unsubCallbacks.push(() => inRef.off('value', onRelay));
+    },
+
+    sendPacket(obj) {
+      if (!this.active) return;
+      if (this.dc && this.dc.readyState === 'open') {
+        try {
+          this.dc.send(JSON.stringify(obj));
+          return;
+        } catch (e) {}
+      }
+      if (this.transport === 'RELAY' && this._relayOutRef) {
+        this._relayOutRef.set(obj);
+      }
+    },
+
+    // =========================================================================
+    // 4. ONLINE CHARACTER SELECT & MATCH START SYNC
+    // =========================================================================
+    enterOnlineCharSelect() {
+      const modal = document.getElementById('onlineModal');
+      if (modal) modal.hidden = true;
+
+      if (typeof GAME !== 'undefined') {
+        GAME.mode = 'PVP';
+        GAME.phase = 'CHAR_SELECT';
+        GAME.selectLocked.P1 = false;
+        GAME.selectLocked.P2 = false;
+
+        const badge = document.getElementById('modeBadge');
+        if (badge) badge.textContent = `ONLINE ${this.role === 'HOST' ? '1P (HOST)' : '2P (GUEST)'}`;
+        const p2Foot = document.getElementById('p2FooterControls');
+        if (p2Foot) {
+          p2Foot.innerHTML = `<span class="font-arcade font-black text-emerald-400">ONLINE P2P</span> <span class="text-slate-300 font-bold">내 캐릭터 조작: <span class="kbd-pill">WASD</span> + <span class="kbd-pill">X C V B</span> (방향키도 지원)</span>`;
+        }
+      }
+    },
+
+    syncCharSelectState() {
+      if (!this.active || typeof GAME === 'undefined') return;
+      if (this.role === 'HOST') {
+        this.sendPacket({
+          t: 'SEL',
+          job: GAME.selectedJobs.P1,
+          locked: GAME.selectLocked.P1
+        });
+      } else {
+        this.sendPacket({
+          t: 'SEL',
+          job: GAME.selectedJobs.P2,
+          locked: GAME.selectLocked.P2
+        });
+      }
+    },
+
+    handleNetMessage(msg) {
+      if (!msg || !msg.t) return;
+
+      if (msg.t === 'PING') {
+        this.sendPacket({ t: 'PONG', ts: msg.ts });
+        return;
+      }
+      if (msg.t === 'PONG') {
+        this.pingMs = Math.max(1, Math.round(performance.now() - msg.ts));
+        const badge = document.getElementById('onlinePingBadge');
+        if (badge) badge.textContent = `P2P 직결 · ${this.pingMs}ms`;
+        return;
+      }
+
+      if (msg.t === 'SEL' && typeof GAME !== 'undefined') {
+        if (this.role === 'HOST') {
+          GAME.selectedJobs.P2 = msg.job;
+          GAME.selectLocked.P2 = Boolean(msg.locked);
+        } else {
+          GAME.selectedJobs.P1 = msg.job;
+          GAME.selectLocked.P1 = Boolean(msg.locked);
+        }
+        return;
+      }
+
+      if (msg.t === 'REMATCH' && typeof GAME !== 'undefined') {
+        this.resetNetBuffers();
+        if (typeof GAME.startMatch === 'function') GAME.startMatch();
+        return;
+      }
+
+      if (msg.t === 'GOTO_SELECT') {
+        this.enterOnlineCharSelect();
+        return;
+      }
+
+      if (msg.t === 'IN' && Array.isArray(msg.h)) {
+        // Process redundant frames in chronological order
+        for (let i = msg.h.length - 1; i >= 0; i--) {
+          const item = msg.h[i];
+          if (item.f > this.remoteAppliedTick) {
+            this.remoteAppliedTick = item.f;
+            this.remoteDownMask = item.d;
+            if (item.p) this.remotePressedQueue.push(item.p);
+            if (item.dt) this.remoteDoubleQueue.push(item.dt);
+          }
+        }
+        return;
+      }
+
+      if (msg.t === 'SNAP' && this.role === 'GUEST') {
+        this.latestSnapshot = msg;
+      }
+    },
+
+    // =========================================================================
+    // 5. INPUT BITMASK ENCODING & GUEST KEY TRANSLATION
+    // =========================================================================
+    bindGuestPhysicalKeys() {
+      const KEY_TO_BIT = {
+        KeyA: BIT.LEFT, ArrowLeft: BIT.LEFT,
+        KeyD: BIT.RIGHT, ArrowRight: BIT.RIGHT,
+        KeyW: BIT.UP, ArrowUp: BIT.UP,
+        KeyS: BIT.DOWN, ArrowDown: BIT.DOWN,
+        KeyX: BIT.NORMAL, KeyK: BIT.NORMAL,
+        KeyC: BIT.SKILL1, KeyL: BIT.SKILL1,
+        KeyV: BIT.SKILL2, Semicolon: BIT.SKILL2,
+        KeyB: BIT.ULTIMATE, Quote: BIT.ULTIMATE
+      };
+      const lastTap = new Map();
+
+      window.addEventListener('keydown', (e) => {
+        const bit = KEY_TO_BIT[e.code];
+        if (!bit) return;
+        if (!this.guestPhysicalDown.has(bit)) {
+          this.guestPhysicalDown.add(bit);
+          this.guestPhysicalPressed.add(bit);
+          const now = performance.now();
+          const prev = lastTap.get(bit) || 0;
+          if (now - prev <= 240) {
+            this.guestPhysicalDouble.add(bit);
+            lastTap.set(bit, 0);
+          } else {
+            lastTap.set(bit, now);
+          }
+        }
+      }, true);
+
+      window.addEventListener('keyup', (e) => {
+        const bit = KEY_TO_BIT[e.code];
+        if (bit) this.guestPhysicalDown.delete(bit);
+      }, true);
+
+      window.addEventListener('blur', () => {
+        this.guestPhysicalDown.clear();
+        this.guestPhysicalPressed.clear();
+        this.guestPhysicalDouble.clear();
+      });
+    },
+
+    captureLocalInputPacket() {
+      let down = 0, pressed = 0, dbl = 0;
+
+      if (this.role === 'HOST') {
+        // Host reads P1 keys directly from INPUT
+        if (INPUT.isDown(P1_KEYS.left)) down |= BIT.LEFT;
+        if (INPUT.isDown(P1_KEYS.right)) down |= BIT.RIGHT;
+        if (INPUT.isDown(P1_KEYS.up)) down |= BIT.UP;
+        if (INPUT.isDown(P1_KEYS.down)) down |= BIT.DOWN;
+        if (INPUT.isDown(P1_KEYS.normal)) down |= BIT.NORMAL;
+        if (INPUT.isDown(P1_KEYS.skill1)) down |= BIT.SKILL1;
+        if (INPUT.isDown(P1_KEYS.skill2)) down |= BIT.SKILL2;
+        if (INPUT.isDown(P1_KEYS.ultimate)) down |= BIT.ULTIMATE;
+
+        if (INPUT.wasPressed(P1_KEYS.left)) pressed |= BIT.LEFT;
+        if (INPUT.wasPressed(P1_KEYS.right)) pressed |= BIT.RIGHT;
+        if (INPUT.wasPressed(P1_KEYS.up)) pressed |= BIT.UP;
+        if (INPUT.wasPressed(P1_KEYS.down)) pressed |= BIT.DOWN;
+        if (INPUT.wasPressed(P1_KEYS.normal)) pressed |= BIT.NORMAL;
+        if (INPUT.wasPressed(P1_KEYS.skill1)) pressed |= BIT.SKILL1;
+        if (INPUT.wasPressed(P1_KEYS.skill2)) pressed |= BIT.SKILL2;
+        if (INPUT.wasPressed(P1_KEYS.ultimate)) pressed |= BIT.ULTIMATE;
+
+        if (INPUT.wasDoubleTapped(P1_KEYS.left)) dbl |= BIT.LEFT;
+        if (INPUT.wasDoubleTapped(P1_KEYS.right)) dbl |= BIT.RIGHT;
+      } else {
+        // Guest uses comfortable WASD+XCVB (or Arrows+KL;') and maps them to P2!
+        this.guestPhysicalDown.forEach((b) => { down |= b; });
+        this.guestPhysicalPressed.forEach((b) => { pressed |= b; });
+        this.guestPhysicalDouble.forEach((b) => { dbl |= b; });
+
+        this.guestPhysicalPressed.clear();
+        this.guestPhysicalDouble.clear();
+
+        // Inject Guest's local inputs into P2_KEYS for 0ms local response
+        this.applyBitmaskToInput(P2_KEYS, down, pressed, dbl, true);
+      }
+
+      // Inject remote player's inputs into the opposite slot
+      const remoteTargetKeys = this.role === 'HOST' ? P2_KEYS : P1_KEYS;
+      const rPressed = this.remotePressedQueue.length ? this.remotePressedQueue.shift() : 0;
+      const rDouble = this.remoteDoubleQueue.length ? this.remoteDoubleQueue.shift() : 0;
+      this.applyBitmaskToInput(remoteTargetKeys, this.remoteDownMask, rPressed, rDouble, true);
+
+      this.localHistory.unshift({ f: this.tick, d: down, p: pressed, dt: dbl });
+      if (this.localHistory.length > 3) this.localHistory.pop();
+
+      this.sendPacket({ t: 'IN', h: this.localHistory });
+    },
+
+    applyBitmaskToInput(keyMap, downMask, pressedMask, doubleMask, clearFirst) {
+      const pairs = [
+        [BIT.LEFT, keyMap.left],
+        [BIT.RIGHT, keyMap.right],
+        [BIT.UP, keyMap.up],
+        [BIT.DOWN, keyMap.down],
+        [BIT.NORMAL, keyMap.normal],
+        [BIT.SKILL1, keyMap.skill1],
+        [BIT.SKILL2, keyMap.skill2],
+        [BIT.ULTIMATE, keyMap.ultimate]
+      ];
+      for (const [bit, code] of pairs) {
+        if (clearFirst) {
+          INPUT.down.delete(code);
+          INPUT.pressed.delete(code);
+          INPUT.doubleTapped.delete(code);
+        }
+        if (downMask & bit) INPUT.down.add(code);
+        if (pressedMask & bit) INPUT.pressed.add(code);
+        if (doubleMask & bit) INPUT.doubleTapped.add(code);
+      }
+    },
+
+    // =========================================================================
+    // 6. 60HZ FIXED-STEP LOOP + SMOOTH STATE RECONCILIATION
+    // =========================================================================
+    patchGameLoopAndInput() {
+      const self = this;
+      const origRAF = window.requestAnimationFrame.bind(window);
+      let lastStepTime = performance.now();
+      let accumulator = 0;
+      const FIXED_DT = 1000 / 60;
+
+      // Normalize 60Hz/120Hz/144Hz monitors to identical 60FPS simulation during online play
+      window.requestAnimationFrame = function (cb) {
+        return origRAF(function (now) {
+          if (!self.active || typeof GAME === 'undefined') {
+            lastStepTime = now;
+            accumulator = 0;
+            return cb(now);
+          }
+
+          const dt = Math.min(50, now - lastStepTime);
+          lastStepTime = now;
+          accumulator += dt;
+
+          if (accumulator < FIXED_DT * 0.85) {
+            return window.requestAnimationFrame(cb);
+          }
+          accumulator %= FIXED_DT;
+
+          self.preFrameSync();
+          cb(now);
+          self.postFrameSync();
+        });
+      };
+
+      // Intercept Rematch / CharSelect buttons to keep both players synchronized
+      const btnRematch = document.getElementById('btnRematch');
+      if (btnRematch) {
+        btnRematch.addEventListener('click', () => {
+          if (this.active) {
+            this.resetNetBuffers();
+            this.sendPacket({ t: 'REMATCH' });
+          }
+        }, true);
+      }
+      const btnSelect = document.getElementById('btnSelect');
+      if (btnSelect) {
+        btnSelect.addEventListener('click', () => {
+          if (this.active) {
+            this.sendPacket({ t: 'GOTO_SELECT' });
+          }
+        }, true);
+      }
+    },
+
+    preFrameSync() {
+      if (typeof GAME === 'undefined') return;
+      GAME.mode = 'PVP';
+
+      // Seed PRNG identically on both machines at the start of every round
+      if (GAME.phase === 'FIGHT' && this.lastSeededRound !== GAME.roundNumber) {
+        this.lastSeededRound = GAME.roundNumber;
+        setDeterministicSeed((this.roomSeed ^ (GAME.roundNumber * 2654435761)) >>> 0);
+      }
+
+      if (GAME.phase === 'CHAR_SELECT') {
+        // Lock local player to only edit their own side in CHAR_SELECT
+        if (this.role === 'HOST') {
+          this._savedP2Job = GAME.selectedJobs.P2;
+          this._savedP2Lock = GAME.selectLocked.P2;
+        } else {
+          this._savedP1Job = GAME.selectedJobs.P1;
+          this._savedP1Lock = GAME.selectLocked.P1;
+          // Allow Guest to navigate P2 roster with comfortable WASD + X as well
+          if (INPUT.wasPressed('KeyA')) INPUT.pressed.add('ArrowLeft');
+          if (INPUT.wasPressed('KeyD')) INPUT.pressed.add('ArrowRight');
+          if (INPUT.wasPressed('KeyW')) INPUT.pressed.add('ArrowUp');
+          if (INPUT.wasPressed('KeyS')) INPUT.pressed.add('ArrowDown');
+          if (INPUT.wasPressed('KeyX')) INPUT.pressed.add('KeyK');
+        }
+        return;
+      }
+
+      this.tick++;
+      this.captureLocalInputPacket();
+
+      // Apply Host authoritative snapshot smoothly on Guest
+      if (this.role === 'GUEST' && this.latestSnapshot) {
+        this.applySnapshotSmoothly(this.latestSnapshot);
+        this.latestSnapshot = null;
+      }
+    },
+
+    postFrameSync() {
+      if (typeof GAME === 'undefined') return;
+
+      if (GAME.phase === 'CHAR_SELECT') {
+        if (this.role === 'HOST' && this._savedP2Job) {
+          GAME.selectedJobs.P2 = this._savedP2Job;
+          GAME.selectLocked.P2 = this._savedP2Lock;
+        } else if (this.role === 'GUEST' && this._savedP1Job) {
+          GAME.selectedJobs.P1 = this._savedP1Job;
+          GAME.selectLocked.P1 = this._savedP1Lock;
+        }
+        if (this.tick % 4 === 0) this.syncCharSelectState();
+        this.tick++;
+        return;
+      }
+
+      // Host broadcasts compact state snapshot every 6 frames (10Hz) for zero-drift consistency
+      if (this.role === 'HOST' && this.tick % 6 === 0 && GAME.p1 && GAME.p2) {
+        this.sendPacket({
+          t: 'SNAP',
+          f: this.tick,
+          ph: GAME.phase,
+          rt: GAME.roundTimer,
+          rn: GAME.roundNumber,
+          p1: this.packFighter(GAME.p1),
+          p2: this.packFighter(GAME.p2)
+        });
+      }
+    },
+
+    packFighter(f) {
+      return {
+        x: Math.round(f.x * 10) / 10,
+        y: Math.round(f.y * 10) / 10,
+        vx: Math.round(f.vx * 100) / 100,
+        vy: Math.round(f.vy * 100) / 100,
+        fc: f.facing,
+        hp: f.hp,
+        ult: Math.round(f.ult * 10) / 10,
+        st: f.state,
+        at: f.attackType,
+        tm: f.stateTimer,
+        rw: f.roundsWon,
+        br: f.beltRank || 0,
+        ww: f.isWerewolf ? 1 : 0,
+        rg: Math.round(f.rage || 0)
+      };
+    },
+
+    applySnapshotSmoothly(snap) {
+      if (!GAME.p1 || !GAME.p2) return;
+      if (typeof snap.rt === 'number') GAME.roundTimer = snap.rt;
+
+      const syncOne = (f, s) => {
+        if (!s) return;
+        const dx = s.x - f.x;
+        const dy = s.y - f.y;
+        // Smooth blend for tiny network jitter; instant snap only on teleports
+        if (Math.abs(dx) > 65) f.x = s.x;
+        else if (Math.abs(dx) > 3) f.x += dx * 0.35;
+
+        if (Math.abs(dy) > 55) f.y = s.y;
+        else if (Math.abs(dy) > 3) f.y += dy * 0.35;
+
+        f.hp = s.hp;
+        f.ult = s.ult;
+        f.roundsWon = s.rw;
+        f.beltRank = s.br;
+        if (f.jobId === 'WEREWOLF') {
+          f.isWerewolf = Boolean(s.ww);
+          f.rage = s.rg;
+        }
+        if (s.st === 'KO' && f.state !== 'KO') {
+          f.state = 'KO';
+          f.hp = 0;
+        }
+      };
+
+      syncOne(GAME.p1, snap.p1);
+      syncOne(GAME.p2, snap.p2);
+    },
+
+    // Allow Host/Guest to click the center roster grid directly for their own character
+    patchCanvasSelectClick() {
+      const canvas = document.getElementById('gameCanvas');
+      if (!canvas) return;
+
+      canvas.addEventListener('pointerdown', (e) => {
+        if (!this.active || typeof GAME === 'undefined' || GAME.phase !== 'CHAR_SELECT') return;
+        e.stopImmediatePropagation();
+
+        const rect = canvas.getBoundingClientRect();
+        const mx = ((e.clientX - rect.left) / rect.width) * CONFIG.WIDTH;
+        const my = ((e.clientY - rect.top) / rect.height) * CONFIG.HEIGHT;
+
+        const side = this.role === 'HOST' ? 'P1' : 'P2';
+        const locked = GAME.selectLocked[side];
+
+        // Random button check (P1: x 40..352, P2: x 928..1240, y 606..632)
+        const randX1 = side === 'P1' ? 40 : 928;
+        const randX2 = side === 'P1' ? 352 : 1240;
+        if (!locked && mx >= randX1 && mx <= randX2 && my >= 606 && my <= 632) {
+          const pool = CONFIG.JOB_ORDER;
+          GAME.selectedJobs[side] = pool[Math.floor(_origRandom() * pool.length)];
+          AUDIO.sfxSelectMove();
+          this.syncCharSelectState();
+          return;
+        }
+
+        // Center 4-column character grid (x: 382..898, y: 94..636)
+        const gx = 382, gy = 94, gw = 516, gh = 542;
+        const cols = 4, gap = 7, pad = 12;
+        const cellW = (gw - pad * 2 - gap * (cols - 1)) / cols;
+        const rows = Math.ceil(CONFIG.JOB_ORDER.length / cols);
+        const cellH = (gh - pad * 2 - gap * (rows - 1)) / rows;
+
+        if (mx >= gx + pad && mx <= gx + gw - pad && my >= gy + pad && my <= gy + gh - pad) {
+          const col = Math.floor((mx - (gx + pad)) / (cellW + gap));
+          const row = Math.floor((my - (gy + pad)) / (cellH + gap));
+          const idx = row * cols + col;
+          if (idx >= 0 && idx < CONFIG.JOB_ORDER.length) {
+            if (GAME.selectedJobs[side] === CONFIG.JOB_ORDER[idx]) {
+              GAME.selectLocked[side] = !GAME.selectLocked[side];
+              AUDIO.sfxSelectLock();
+            } else if (!locked) {
+              GAME.selectedJobs[side] = CONFIG.JOB_ORDER[idx];
+              AUDIO.sfxSelectMove();
+            }
+            this.syncCharSelectState();
+          }
+        }
+      }, true);
+    }
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => NET.init());
+  } else {
+    NET.init();
+  }
+})();
+</script>
 </body>
 </html>
