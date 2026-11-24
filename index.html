@@ -117,7 +117,7 @@
         </span>
       </div>
 
-      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+      <div id="headerControlGroup" class="flex flex-wrap items-center gap-1.5 sm:gap-2">
         <button id="btnMode" type="button"
           class="px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-500/20 hover:bg-sky-500/30 active:scale-95 text-sky-300 border border-sky-400/50 transition cursor-pointer">
           🤖 모드: 1P vs AI [1]
@@ -153,6 +153,7 @@
           🚪 로그아웃
         </button>
       </div>
+      <button id="btnBackMain" type="button" class="hidden px-4 py-2 rounded-lg text-sm font-black bg-slate-800 hover:bg-slate-700 text-white border border-slate-500/80">← 메인 메뉴</button>
     </header>
 
     <!-- 16:9 Responsive Game Viewport -->
@@ -7769,8 +7770,8 @@ window.OD_FIREBASE_CONFIG = {
           const col = idx % cols, row = Math.floor(idx / cols);
           const cx = x + pad + col * (cellW + gap);
           const cy = y + pad + row * (cellH + gap);
-          const isP1 = game.selectedJobs.P1 === jid;
-          const isP2 = game.selectedJobs.P2 === jid;
+          const isP1 = game.selectedJobs.P1 === jid && !(game.randomPick && game.randomPick.P1 && game.mode === 'PVP');
+          const isP2 = game.selectedJobs.P2 === jid && !(game.randomPick && game.randomPick.P2 && game.mode === 'PVP');
           ctx.fillStyle = (isP1 || isP2) ? 'rgba(30, 41, 59, 0.98)' : 'rgba(2, 6, 23, 0.78)';
           ctx.beginPath(); ctx.roundRect(cx, cy, cellW, cellH, 10); ctx.fill();
           ctx.strokeStyle = isP1 && isP2 ? '#fde047' : isP1 ? '#f43f5e' : isP2 ? '#38bdf8' : 'rgba(71, 85, 105, 0.55)';
@@ -7811,6 +7812,7 @@ window.OD_FIREBASE_CONFIG = {
 
       drawPlayerSelectPanel(ctx, game, cfg) {
         const { x, y, w, h, selectedJobId, locked, accent, badgeText, keyGuide } = cfg;
+        const concealedRandom = Boolean(game.randomPick && game.randomPick[cfg.side] && game.mode === 'PVP');
         const job = CONFIG.JOBS[selectedJobId] || CONFIG.JOBS.STICKMAN;
         ctx.save();
         ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
@@ -7833,21 +7835,28 @@ window.OD_FIREBASE_CONFIG = {
         for (let i = 0; i < 4; i++) previewNodes.push({
           x: previewX - (8 + i * 9), y: previewY - 124 + Math.sin(tick * 0.16 + i) * 2.5
         });
-        this.drawStickmanPose(ctx, {
-          jobId: selectedJobId, x: previewX, y: previewY,
-          facing: cfg.side === 'P1' ? 1 : -1, state: 'IDLE', attackType: null,
-          stateTimer: 0, animTick: tick, accentColor: accent, glowColor: accent,
-          headbandNodes: previewNodes, awakenTimer: 0, shieldHp: 0, beltRank: 0
-        });
+        if (concealedRandom) {
+          ctx.fillStyle = accent; ctx.font = '900 104px Orbitron, sans-serif';
+          ctx.textAlign = 'center'; ctx.fillText('?', previewX, previewY - 68);
+        } else {
+          this.drawStickmanPose(ctx, {
+            jobId: selectedJobId, x: previewX, y: previewY,
+            facing: cfg.side === 'P1' ? 1 : -1, state: 'IDLE', attackType: null,
+            stateTimer: 0, animTick: tick, accentColor: accent, glowColor: accent,
+            headbandNodes: previewNodes, awakenTimer: 0, shieldHp: 0, beltRank: 0
+          });
+        }
         ctx.textAlign = 'left'; ctx.font = '900 21px "Noto Sans KR", sans-serif';
-        ctx.fillStyle = '#f8fafc'; ctx.fillText(`${job.name} (${job.engName})`, x + 18, y + 248);
+        ctx.fillStyle = '#f8fafc'; ctx.fillText(concealedRandom ? '??? (랜덤 픽)' : `${job.name} (${job.engName})`, x + 18, y + 248);
         ctx.font = '700 12px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#fde047';
-        ctx.fillText(job.tagline, x + 18, y + 268);
-        const statsList = [
-          { label: '최대 체력', val: job.statBars.hp, text: `${job.stats.maxHp}` },
-          { label: '이동 속도', val: job.statBars.speed, text: '' },
-          { label: '공격 리치', val: job.statBars.reach, text: '' }
-        ];
+        ctx.fillText(concealedRandom ? '게임 시작 후 공개됩니다!' : job.tagline, x + 18, y + 268);
+        const statsList = concealedRandom
+          ? [{ label: '최대 체력', val: 0, text: '?' }, { label: '이동 속도', val: 0, text: '?' }, { label: '공격 리치', val: 0, text: '?' }]
+          : [
+              { label: '최대 체력', val: job.statBars.hp, text: `${job.stats.maxHp}` },
+              { label: '이동 속도', val: job.statBars.speed, text: '' },
+              { label: '공격 리치', val: job.statBars.reach, text: '' }
+            ];
         statsList.forEach((st, idx) => {
           const sy = y + 280 + idx * 21;
           ctx.font = '700 11.5px "Noto Sans KR", sans-serif'; ctx.fillStyle = '#cbd5e1';
@@ -7864,10 +7873,10 @@ window.OD_FIREBASE_CONFIG = {
         ctx.fillStyle = 'rgba(2, 6, 23, 0.68)'; ctx.beginPath();
         ctx.roundRect(x + 16, y + 350, w - 32, 154, 12); ctx.fill();
         const skillRows = [
-          { tag: '평타', desc: job.skillSummary.normal, col: '#e2e8f0' },
-          { tag: '기술1', desc: job.skillSummary.skill1, col: '#38bdf8' },
-          { tag: '기술2', desc: job.skillSummary.skill2, col: '#c084fc' },
-          { tag: '궁극기', desc: job.skillSummary.ultimate, col: '#fbbf24' }
+          { tag: '평타', desc: concealedRandom ? '???' : job.skillSummary.normal, col: '#e2e8f0' },
+          { tag: '기술1', desc: concealedRandom ? '???' : job.skillSummary.skill1, col: '#38bdf8' },
+          { tag: '기술2', desc: concealedRandom ? '???' : job.skillSummary.skill2, col: '#c084fc' },
+          { tag: '궁극기', desc: concealedRandom ? '???' : job.skillSummary.ultimate, col: '#fbbf24' }
         ];
         skillRows.forEach((sr, idx) => {
           const ry = y + 376 + idx * 34;
@@ -11992,6 +12001,7 @@ window.OD_FIREBASE_CONFIG = {
       timer: CONFIG.ROUND_TIME,
 
       selectedJobs: { P1: 'STICKMAN', P2: 'SAMURAI' },
+      randomPick: { P1: false, P2: false },
       selectLocked: { P1: false, P2: false },
 
       p1: null,
@@ -12036,6 +12046,7 @@ window.OD_FIREBASE_CONFIG = {
       showMainMenu() {
         this.phase = 'MAIN_MENU';
         this.menuPage = 'HOME';
+        this.settingsCapture = null;
         this.projectiles = [];
         this.gambleFlip = null;
         VFX.reset();
@@ -12218,7 +12229,14 @@ window.OD_FIREBASE_CONFIG = {
             const x = (e.clientX - rect.left) * CONFIG.WIDTH / rect.width;
             const y = (e.clientY - rect.top) * CONFIG.HEIGHT / rect.height;
             if (this.menuPage === 'HOME') {
-              if (x >= 450 && x <= 830 && y >= 380 && y <= 465) this.menuPage = 'MODES';
+              if (x >= 450 && x <= 830 && y >= 330 && y <= 412) this.menuPage = 'MODES';
+              else if (x >= 450 && x <= 830 && y >= 440 && y <= 512) this.menuPage = 'SETTINGS';
+            } else if (this.menuPage === 'SETTINGS') {
+              if (x >= 465 && x <= 815 && y >= 135 && y <= 199) {
+                const muted = AUDIO.toggleMute(); const b=document.getElementById('btnMute'); if(b)b.textContent=muted?'🔇 사운드 OFF [M]':'🔊 사운드 ON [M]';
+              } else if (x >= 300 && x <= 980 && y >= 250 && y <= 600) {
+                const idx=Math.floor((y-250)/42); const fields=['left','right','up','down','normal','skill1','skill2','ultimate']; this.settingsCapture=fields[idx]||null;
+              } else if (y >= 640) { this.menuPage='HOME'; this.settingsCapture=null; }
             } else if (y >= 285 && y <= 385 && x >= 105 && x <= 475) {
               this.chooseBattleType('DUEL');
             } else if (y >= 285 && y <= 385 && x >= 455 && x <= 825) {
@@ -12238,11 +12256,20 @@ window.OD_FIREBASE_CONFIG = {
           AUDIO.ensureContext();
           const code = INPUT.normalizeCode(e);
           if (this.phase === 'MAIN_MENU') {
+            if (this.menuPage === 'SETTINGS') {
+              if (this.settingsCapture) {
+                if (!['Escape','Enter','Space'].includes(code)) { this.P1_CONTROLS[this.settingsCapture]=code; this.settingsCapture=null; }
+                e.preventDefault(); return;
+              }
+              if (code === 'Escape') this.menuPage='HOME';
+              return;
+            }
             if (code === 'Enter' || code === 'Space') {
               if (this.menuPage === 'HOME') this.menuPage = 'MODES';
               else this.chooseBattleType('DUEL');
             } else if (code === 'Digit1' && this.menuPage === 'MODES') this.chooseBattleType('DUEL');
             else if (code === 'Digit2' && this.menuPage === 'MODES') this.chooseBattleType('SWITCH');
+            else if (code === 'Escape' && this.menuPage === 'MODES') this.menuPage='HOME';
             return;
           }
           if (code === 'Digit1') toggleMode();
@@ -12309,6 +12336,8 @@ window.OD_FIREBASE_CONFIG = {
       handleCharacterSelectInput() {
         const jobs = CONFIG.JOB_ORDER;
         const cols = 4;
+        const previousP1Job = this.selectedJobs.P1;
+        const previousP2Job = this.selectedJobs.P2;
         if (!this.selectLocked.P1) {
           const idx1 = jobs.indexOf(this.selectedJobs.P1);
           if (INPUT.wasPressed('KeyA')) {
@@ -12353,6 +12382,10 @@ window.OD_FIREBASE_CONFIG = {
           this.selectLocked.P1 = true; this.selectLocked.P2 = true;
           AUDIO.sfxSelectLock(); this.finishSelection(); return;
         }
+        if (this.randomPick) {
+          if (this.selectedJobs.P1 !== previousP1Job) this.randomPick.P1 = false;
+          if (this.selectedJobs.P2 !== previousP2Job) this.randomPick.P2 = false;
+        }
         if (this.selectLocked.P1 && this.selectLocked.P2) this.finishSelection();
       },
 
@@ -12371,8 +12404,23 @@ window.OD_FIREBASE_CONFIG = {
           c.fillStyle = '#fff'; c.font = '900 27px "Noto Sans KR",sans-serif'; c.fillText(title,x+w/2,y+h/2+10);
         };
         if (this.menuPage === 'HOME') {
-          button(450,380,380,85,'▶ PLAY','#fbbf24');
-          c.fillStyle='#94a3b8'; c.font='16px sans-serif'; c.fillText('플레이를 눌러 대결 방식을 선택하세요',640,525);
+          button(450,330,380,82,'▶ PLAY','#fbbf24');
+          button(450,440,380,72,'⚙ 설정','#38bdf8');
+          c.fillStyle='#94a3b8'; c.font='16px sans-serif'; c.fillText('플레이 또는 설정을 선택하세요',640,555);
+        } else if (this.menuPage === 'SETTINGS') {
+          c.fillStyle='#f8fafc';c.font='900 30px sans-serif';c.fillText('설정',640,105);
+          button(465,135,350,64,`사운드: ${AUDIO.muted ? 'OFF' : 'ON'}`,'#fbbf24');
+          c.textAlign='left'; c.font='bold 17px sans-serif'; c.fillStyle='#cbd5e1';
+          c.fillText('키 설정 — 항목을 누른 뒤 원하는 키를 입력하세요',300,245);
+          const rows = [
+            ['이동 왼쪽', 'P1_CONTROLS','left'],['이동 오른쪽','P1_CONTROLS','right'],
+            ['점프','P1_CONTROLS','up'],['아래','P1_CONTROLS','down'],
+            ['평타','P1_CONTROLS','normal'],['기술 1','P1_CONTROLS','skill1'],
+            ['기술 2','P1_CONTROLS','skill2'],['궁극기','P1_CONTROLS','ultimate']
+          ];
+          rows.forEach((r,i)=>{ const y=275+i*42; c.fillStyle='#101b33';c.strokeStyle=this.settingsCapture===r[2]?'#fbbf24':'#475569';c.lineWidth=1.5;c.beginPath();c.roundRect(300,y-25,680,34,8);c.fill();c.stroke();c.fillStyle='#e2e8f0';c.fillText(r[0],325,y);c.textAlign='right';c.fillStyle=this.settingsCapture===r[2]?'#fbbf24':'#7dd3fc';c.fillText(this.settingsCapture===r[2]?'키를 입력하세요':(this.P1_CONTROLS[r[2]].replace('Key','').replace('Arrow','')||this.P1_CONTROLS[r[2]]),950,y);c.textAlign='left'; });
+          c.textAlign='center'; c.fillStyle='#94a3b8'; c.font='14px sans-serif'; c.fillText('온라인 대전은 WASD + H / J / K / L 키를 사용합니다.',640,635);
+          button(500,655,280,48,'← 뒤로','#64748b');
         } else {
           c.fillStyle='#f8fafc';c.font='900 28px sans-serif';c.fillText('대결 방식 선택',640,245);
           button(105,285,370,100,'1 VS 1','#fb7185');
@@ -12380,7 +12428,7 @@ window.OD_FIREBASE_CONFIG = {
           button(805,285,370,100,'🌐 온라인 대전','#34d399');
           c.fillStyle='#cbd5e1';c.font='17px sans-serif';c.fillText('1대1: AI 또는 로컬 2P     |     스위치: 팀당 2명, 교체 쿨타임 6초',640,440);
           c.fillText('온라인 대전: 방을 만들거나 친구의 방 코드로 입장하세요',640,480);
-          c.fillStyle='#fbbf24';c.fillText('← 뒤로',640,565);
+          c.fillStyle='#fbbf24';c.textAlign='center';c.fillText('← 뒤로',640,565);
         }
         c.restore();
       },
@@ -12858,12 +12906,13 @@ window.OD_FIREBASE_CONFIG = {
     NORMAL: 1 << 4,
     SKILL1: 1 << 5,
     SKILL2: 1 << 6,
-    ULTIMATE: 1 << 7
+    ULTIMATE: 1 << 7,
+    SWAP: 1 << 8
   };
 
   const P1_KEYS = {
     left: 'KeyA', right: 'KeyD', up: 'KeyW', down: 'KeyS',
-    normal: 'KeyX', skill1: 'KeyC', skill2: 'KeyV', ultimate: 'KeyB'
+    normal: 'KeyX', skill1: 'KeyC', skill2: 'KeyV', ultimate: 'KeyB', swap: 'KeyZ'
   };
 
   // 온라인에서는 각 기기에서 WASD + HJKL을 사용한다.
@@ -12875,7 +12924,7 @@ window.OD_FIREBASE_CONFIG = {
 
   const P2_KEYS = {
     left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', down: 'ArrowDown',
-    normal: 'KeyK', skill1: 'KeyL', skill2: 'Semicolon', ultimate: 'Quote'
+    normal: 'KeyK', skill1: 'KeyL', skill2: 'Semicolon', ultimate: 'Quote', swap: 'KeyO'
   };
 
   // Deterministic PRNG for synced random skills (Gambler, Santa, AI Robot, etc.)
@@ -12964,13 +13013,15 @@ window.OD_FIREBASE_CONFIG = {
     injectUI() {
       const style = document.createElement('style');
       style.textContent = `
+        body.online-ui-active #headerControlGroup { display: none !important; }
+        body.online-ui-active #btnBackMain { display: inline-flex !important; align-items: center; justify-content: center; }
         #onlineModal {
           position: fixed; inset: 0; z-index: 9500;
           display: flex; align-items: center; justify-content: center; padding: 16px;
           background: rgba(2, 6, 23, 0.84); backdrop-filter: blur(6px);
         }
         #onlineModal[hidden] { display: none; }
-        #onlineModal input, #onlineModal button { user-select: text; -webkit-user-select: text; }
+        #onlineModal input, #onlineModal select, #onlineModal button { user-select: text; -webkit-user-select: text; }
         .om-card {
           width: min(560px, 100%); background: rgba(15, 23, 42, 0.96);
           border: 1px solid rgba(52, 211, 153, 0.45); border-radius: 18px;
@@ -12982,6 +13033,7 @@ window.OD_FIREBASE_CONFIG = {
           padding: 9px 12px; color: #f8fafc; font-weight: 700; outline: none;
         }
         .om-input:focus { border-color: #34d399; box-shadow: 0 0 0 3px rgba(52,211,153,0.2); }
+        #omBattleType { min-width: 145px; cursor: pointer; }
         .om-room-item {
           display: flex; align-items: center; justify-content: space-between; gap: 10px;
           padding: 10px 12px; border-radius: 10px; background: rgba(2, 6, 23, 0.72);
@@ -13007,6 +13059,7 @@ window.OD_FIREBASE_CONFIG = {
           <div id="omLobbyView" class="flex flex-col gap-3">
             <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex flex-col sm:flex-row gap-2">
               <input id="omRoomTitle" type="text" maxlength="18" placeholder="방 제목 (비우면 자동 생성)" class="om-input flex-1 text-sm" />
+              <select id="omBattleType" class="om-input text-sm" aria-label="온라인 대전 방식"><option value="DUEL">1대1 온라인</option><option value="SWITCH">스위치 대결 온라인</option></select>
               <button id="omCreateBtn" type="button" class="px-4 py-2 rounded-lg text-xs font-black bg-emerald-500/25 hover:bg-emerald-500/35 text-emerald-200 border border-emerald-400/60 cursor-pointer whitespace-nowrap">
                 ➕ 새 방 만들기
               </button>
@@ -13061,6 +13114,13 @@ window.OD_FIREBASE_CONFIG = {
       document.getElementById('omClose').addEventListener('click', () => {
         modal.hidden = true;
       });
+      const backMain = document.getElementById('btnBackMain');
+      if (backMain) backMain.addEventListener('click', async () => {
+        if (this.active) await this.leaveRoom(false);
+        document.getElementById('onlineModal').hidden = true;
+        document.body.classList.remove('online-ui-active');
+        GAME.showMainMenu();
+      });
       document.getElementById('omCreateBtn').addEventListener('click', () => this.createRoom());
       document.getElementById('omJoinBtn').addEventListener('click', () => {
         const code = document.getElementById('omJoinCode').value.trim().toUpperCase();
@@ -13113,6 +13173,7 @@ window.OD_FIREBASE_CONFIG = {
       const pingBadge = document.getElementById('onlinePingBadge');
       const btnOnline = document.getElementById('btnOnline');
 
+      document.body.classList.toggle('online-ui-active', !!this.active);
       if (this.active) {
         lobby.hidden = true;
         activeView.hidden = false;
@@ -13175,7 +13236,7 @@ window.OD_FIREBASE_CONFIG = {
           <div class="om-room-item">
             <div class="min-w-0">
               <div class="text-xs font-black text-slate-100 truncate">${this.escapeHtml(r.title)}</div>
-              <div class="text-[11px] font-bold text-slate-400">방장: ${this.escapeHtml(r.hostName)} · 코드 <span class="font-arcade text-amber-300">${r.code}</span></div>
+              <div class="text-[11px] font-bold text-slate-400">${r.battleType === 'SWITCH' ? '스위치 대결' : '1대1'} · 방장: ${this.escapeHtml(r.hostName)} · 코드 <span class="font-arcade text-amber-300">${r.code}</span></div>
             </div>
             <button type="button" data-join="${r.code}" class="px-3 py-1.5 rounded-lg text-xs font-black bg-emerald-500/25 hover:bg-emerald-500/35 text-emerald-200 border border-emerald-400/50 cursor-pointer shrink-0">
               입장
@@ -13212,6 +13273,9 @@ window.OD_FIREBASE_CONFIG = {
       const rawTitle = document.getElementById('omRoomTitle').value.trim();
       const title = rawTitle || `${user.name}의 아케이드 결투장`;
       const seed = Math.floor(_origRandom() * 2147483646) + 1;
+      const battleType = document.getElementById('omBattleType')?.value === 'SWITCH' ? 'SWITCH' : 'DUEL';
+      GAME.battleType = battleType;
+      GAME.randomPick = { P1: false, P2: false };
 
       this.role = 'HOST';
       this.roomCode = code;
@@ -13226,6 +13290,7 @@ window.OD_FIREBASE_CONFIG = {
           hostUid: user.uid,
           hostName: user.name,
           title,
+          battleType,
           status: 'WAITING',
           seed,
           createdAt: firebase.database.ServerValue.TIMESTAMP
@@ -13291,6 +13356,8 @@ window.OD_FIREBASE_CONFIG = {
       this.roomCode = code;
       this.roomRef = roomRef;
       this.roomSeed = data.meta.seed || 123456;
+      GAME.battleType = data.meta.battleType === 'SWITCH' ? 'SWITCH' : 'DUEL';
+      GAME.randomPick = { P1: false, P2: false };
       this.active = true;
       this.transport = 'SIGNALING';
       this.resetNetBuffers();
@@ -13339,6 +13406,7 @@ window.OD_FIREBASE_CONFIG = {
       }
 
       this.active = false;
+      document.body.classList.remove('online-ui-active');
       this.role = null;
       this.roomCode = null;
       this.transport = 'NONE';
@@ -13361,6 +13429,8 @@ window.OD_FIREBASE_CONFIG = {
       this.remotePressedQueue = [];
       this.remoteDoubleQueue = [];
       this.latestSnapshot = null;
+      this.lastSnapshotTick = -1;
+      this.matchReturnAt = 0;
     },
 
     // =========================================================================
@@ -13437,7 +13507,7 @@ window.OD_FIREBASE_CONFIG = {
     async startWebRTCHost() {
       const pc = this.setupPeerConnection();
       // Unordered + 0 retransmits = lowest possible latency (no TCP head-of-line blocking)
-      const dc = pc.createDataChannel('stickfight-p2p', { ordered: false, maxRetransmits: 0 });
+      const dc = pc.createDataChannel('stickfight-p2p', { ordered: true });
       this.bindDataChannel(dc);
 
       const offer = await pc.createOffer();
@@ -13513,6 +13583,9 @@ window.OD_FIREBASE_CONFIG = {
       if (typeof GAME !== 'undefined') {
         GAME.mode = 'PVP';
         GAME.phase = 'CHAR_SELECT';
+        GAME.randomPick = { P1: false, P2: false };
+        GAME.teamJobs = { P1: [], P2: [] };
+        GAME.pickStage = 0;
         GAME.selectLocked.P1 = false;
         GAME.selectLocked.P2 = false;
 
@@ -13520,7 +13593,7 @@ window.OD_FIREBASE_CONFIG = {
         if (badge) badge.textContent = `ONLINE ${this.role === 'HOST' ? '1P (HOST)' : '2P (GUEST)'}`;
         const p2Foot = document.getElementById('p2FooterControls');
         if (p2Foot) {
-          p2Foot.innerHTML = `<span class="font-arcade font-black text-emerald-400">ONLINE P2P</span> <span class="text-slate-300 font-bold">내 캐릭터 조작: <span class="kbd-pill">W A S D</span> 이동 · <span class="kbd-pill">H</span> 평타 <span class="kbd-pill">J</span> 기술1 <span class="kbd-pill">K</span> 기술2 <span class="kbd-pill">L</span> 궁극기</span>`;
+          p2Foot.innerHTML = `<span class="font-arcade font-black text-emerald-400">ONLINE P2P</span> <span class="text-slate-300 font-bold">내 캐릭터 조작: <span class="kbd-pill">W A S D</span> 이동 · <span class="kbd-pill">H</span> 평타 <span class="kbd-pill">J</span> 기술1 <span class="kbd-pill">K</span> 기술2 <span class="kbd-pill">L</span> 궁극기 · 스위치 교체 <span class="kbd-pill">Z</span></span>`;
         }
       }
     },
@@ -13532,6 +13605,7 @@ window.OD_FIREBASE_CONFIG = {
           t: 'SEL',
           job: GAME.selectedJobs.P1,
           locked: GAME.selectLocked.P1,
+          randomPick: Boolean(GAME.randomPick && GAME.randomPick.P1),
           stage: GAME.pickStage,
           battleType: GAME.battleType
         });
@@ -13540,6 +13614,7 @@ window.OD_FIREBASE_CONFIG = {
           t: 'SEL',
           job: GAME.selectedJobs.P2,
           locked: GAME.selectLocked.P2,
+          randomPick: Boolean(GAME.randomPick && GAME.randomPick.P2),
           stage: GAME.pickStage,
           battleType: GAME.battleType
         });
@@ -13563,10 +13638,11 @@ window.OD_FIREBASE_CONFIG = {
       if (msg.t === 'SEL' && typeof GAME !== 'undefined') {
         if (this.role === 'HOST') {
           GAME.selectedJobs.P2 = msg.job;
-          GAME.selectedJobs.P2 = msg.job;
+          GAME.randomPick.P2 = Boolean(msg.randomPick);
           GAME.selectLocked.P2 = Boolean(msg.locked);
         } else {
           GAME.selectedJobs.P1 = msg.job;
+          GAME.randomPick.P1 = Boolean(msg.randomPick);
           GAME.selectLocked.P1 = Boolean(msg.locked);
         }
         if (Number.isInteger(msg.stage)) GAME.pickStage = msg.stage;
@@ -13574,8 +13650,18 @@ window.OD_FIREBASE_CONFIG = {
         return;
       }
 
+      if (msg.t === 'SEL_STAGE' && this.role === 'GUEST' && typeof GAME !== 'undefined') {
+        GAME.selectedJobs = { P1: msg.jobs.P1, P2: msg.jobs.P2 };
+        GAME.teamJobs = msg.teamJobs || { P1: [], P2: [] };
+        GAME.pickStage = Number.isInteger(msg.stage) ? msg.stage : 1;
+        GAME.randomPick = { P1: false, P2: false };
+        GAME.selectLocked = { P1: false, P2: false };
+        return;
+      }
+
       if (msg.t === 'START_MATCH' && this.role === 'GUEST' && typeof GAME !== 'undefined') {
         GAME.selectedJobs = { P1: msg.jobs.P1, P2: msg.jobs.P2 };
+        GAME.randomPick = { P1: false, P2: false };
         GAME.teamJobs = msg.teamJobs || { P1: [], P2: [] };
         GAME.pickStage = msg.pickStage || 0;
         GAME.battleType = msg.battleType || 'DUEL';
@@ -13590,7 +13676,8 @@ window.OD_FIREBASE_CONFIG = {
         return;
       }
 
-      if (msg.t === 'GOTO_SELECT') {
+      if (msg.t === 'GOTO_SELECT' || msg.t === 'RETURN_SELECT') {
+        this.matchReturnAt = 0;
         this.enterOnlineCharSelect();
         return;
       }
@@ -13610,6 +13697,9 @@ window.OD_FIREBASE_CONFIG = {
       }
 
       if (msg.t === 'SNAP' && this.role === 'GUEST') {
+        // Ignore duplicated or out-of-order state packets.
+        if (Number.isFinite(msg.f) && msg.f <= this.lastSnapshotTick) return;
+        if (Number.isFinite(msg.f)) this.lastSnapshotTick = msg.f;
         this.latestSnapshot = msg;
       }
     },
@@ -13620,7 +13710,8 @@ window.OD_FIREBASE_CONFIG = {
     bindGuestPhysicalKeys() {
       const KEY_TO_BIT = {
         KeyA: BIT.LEFT, KeyD: BIT.RIGHT, KeyW: BIT.UP, KeyS: BIT.DOWN,
-        KeyH: BIT.NORMAL, KeyJ: BIT.SKILL1, KeyK: BIT.SKILL2, KeyL: BIT.ULTIMATE
+        KeyH: BIT.NORMAL, KeyJ: BIT.SKILL1, KeyK: BIT.SKILL2, KeyL: BIT.ULTIMATE,
+        KeyZ: BIT.SWAP
       };
       const lastTap = new Map();
 
@@ -13668,6 +13759,8 @@ window.OD_FIREBASE_CONFIG = {
           if (INPUT.wasPressed(code)) pressed |= bit;
           if ((action === 'left' || action === 'right') && INPUT.wasDoubleTapped(code)) dbl |= bit;
         }
+        if (INPUT.isDown('KeyZ')) down |= BIT.SWAP;
+        if (INPUT.wasPressed('KeyZ')) pressed |= BIT.SWAP;
         // 온라인 전용 입력을 기존 전투 로직의 P1 키 슬롯에 주입한다.
         this.applyBitmaskToInput(P1_KEYS, down, pressed, dbl, true);
       } else {
@@ -13678,6 +13771,11 @@ window.OD_FIREBASE_CONFIG = {
 
         this.guestPhysicalPressed.clear();
         this.guestPhysicalDouble.clear();
+        // On the guest device, physical Z means the local P2 team swap; remove raw P1-Z.
+        if (this.role === 'GUEST') {
+          INPUT.down.delete('KeyZ');
+          INPUT.pressed.delete('KeyZ');
+        }
 
         // Inject Guest's local inputs into P2_KEYS for 0ms local response
         this.applyBitmaskToInput(P2_KEYS, down, pressed, dbl, true);
@@ -13704,7 +13802,8 @@ window.OD_FIREBASE_CONFIG = {
         [BIT.NORMAL, keyMap.normal],
         [BIT.SKILL1, keyMap.skill1],
         [BIT.SKILL2, keyMap.skill2],
-        [BIT.ULTIMATE, keyMap.ultimate]
+        [BIT.ULTIMATE, keyMap.ultimate],
+        [BIT.SWAP, keyMap.swap]
       ];
       for (const [bit, code] of pairs) {
         if (clearFirst) {
@@ -13826,16 +13925,38 @@ window.OD_FIREBASE_CONFIG = {
         return;
       }
 
-      // Host broadcasts compact state snapshot every 6 frames (10Hz) for zero-drift consistency
-      if (this.role === 'HOST' && this.tick % 6 === 0 && GAME.p1 && GAME.p2) {
+      // The host is authoritative. Send reliable state at 30Hz so round-end/KO
+      // transitions cannot be lost and the guest is corrected before divergence grows.
+      if (this.role === 'HOST' && this.tick % 2 === 0 && GAME.p1 && GAME.p2) {
+        if (GAME.phase === 'MATCH_OVER') {
+          if (!this.matchReturnAt) this.matchReturnAt = performance.now() + 1000;
+          if (performance.now() >= this.matchReturnAt) {
+            this.matchReturnAt = 0;
+            this.sendPacket({ t: 'RETURN_SELECT' });
+            this.enterOnlineCharSelect();
+            return;
+          }
+        } else {
+          this.matchReturnAt = 0;
+        }
         this.sendPacket({
           t: 'SNAP',
           f: this.tick,
           ph: GAME.phase,
-          rt: GAME.roundTimer,
+          pt: GAME.phaseTimer,
+          timer: GAME.timer,
           rn: GAME.roundNumber,
+          scores: { ...GAME.roundScores },
+          banner: GAME.bannerText,
+          subBanner: GAME.subBannerText,
+          bannerColor: GAME.bannerColor,
           p1: this.packFighter(GAME.p1),
-          p2: this.packFighter(GAME.p2)
+          p2: this.packFighter(GAME.p2),
+          teamHp: GAME.battleType === 'SWITCH' ? {
+            P1: (GAME.teams.P1 || []).map(f => f.hp),
+            P2: (GAME.teams.P2 || []).map(f => f.hp)
+          } : null,
+          switchTimers: GAME.battleType === 'SWITCH' ? { ...GAME.switchTimers } : null
         });
       }
     },
@@ -13855,13 +13976,39 @@ window.OD_FIREBASE_CONFIG = {
         rw: f.roundsWon,
         br: f.beltRank || 0,
         ww: f.isWerewolf ? 1 : 0,
-        rg: Math.round(f.rage || 0)
+        rg: Math.round(f.rage || 0),
+        ti: GAME.battleType === 'SWITCH' && GAME.teams && GAME.teams[f.id]
+          ? Math.max(0, GAME.teams[f.id].indexOf(f)) : 0
       };
     },
 
     applySnapshotSmoothly(snap) {
       if (!GAME.p1 || !GAME.p2) return;
-      if (typeof snap.rt === 'number') GAME.roundTimer = snap.rt;
+      // Phase and score are host-owned: never let the guest decide who won.
+      if (typeof snap.ph === 'string') GAME.phase = snap.ph;
+      if (typeof snap.pt === 'number') GAME.phaseTimer = snap.pt;
+      if (typeof snap.timer === 'number') GAME.timer = snap.timer;
+      if (typeof snap.rn === 'number') GAME.roundNumber = snap.rn;
+      if (snap.scores) GAME.roundScores = { ...GAME.roundScores, ...snap.scores };
+      if (typeof snap.banner === 'string') GAME.bannerText = snap.banner;
+      if (typeof snap.subBanner === 'string') GAME.subBannerText = snap.subBanner;
+      if (typeof snap.bannerColor === 'string') GAME.bannerColor = snap.bannerColor;
+      if (GAME.battleType === 'SWITCH') {
+        for (const side of ['P1', 'P2']) {
+          const team = GAME.teams && GAME.teams[side];
+          const state = snap[side.toLowerCase()];
+          if (team && state && Number.isInteger(state.ti) && team[state.ti]) {
+            if (side === 'P1') GAME.p1 = team[state.ti];
+            else GAME.p2 = team[state.ti];
+          }
+          if (team && snap.teamHp && Array.isArray(snap.teamHp[side])) {
+            team.forEach((fighter, idx) => {
+              if (typeof snap.teamHp[side][idx] === 'number') fighter.hp = snap.teamHp[side][idx];
+            });
+          }
+        }
+        if (snap.switchTimers) GAME.switchTimers = { ...GAME.switchTimers, ...snap.switchTimers };
+      }
 
       const syncOne = (f, s) => {
         if (!s) return;
@@ -13890,6 +14037,12 @@ window.OD_FIREBASE_CONFIG = {
 
       syncOne(GAME.p1, snap.p1);
       syncOne(GAME.p2, snap.p2);
+      if (snap.ph === 'MATCH_OVER' && snap.scores) {
+        const p1Won = GAME.battleType === 'SWITCH'
+          ? Number(snap.scores.P1 || 0) > Number(snap.scores.P2 || 0)
+          : Number(snap.p1 && snap.p1.rw || 0) > Number(snap.p2 && snap.p2.rw || 0);
+        (p1Won ? GAME.p1 : GAME.p2).state = 'VICTORY';
+      }
     },
 
     // Coordinate selection completion: only the host starts the match, then tells the guest.
@@ -13904,11 +14057,19 @@ window.OD_FIREBASE_CONFIG = {
         const beforePhase = GAME.phase;
         originalFinish();
         if (GAME.phase === 'CHAR_SELECT') {
-          // SWITCH mode advances to its second pick; publish the new stage and unlocked state.
+          // SWITCH mode advances to its second pick; clear concealment for the next pick.
+          GAME.randomPick = { P1: false, P2: false };
+          this.sendPacket({
+            t: 'SEL_STAGE',
+            jobs: { P1: GAME.selectedJobs.P1, P2: GAME.selectedJobs.P2 },
+            teamJobs: GAME.teamJobs,
+            stage: GAME.pickStage
+          });
           this.syncCharSelectState();
           return;
         }
         if (beforePhase === 'CHAR_SELECT' && GAME.phase !== 'CHAR_SELECT') {
+          GAME.randomPick = { P1: false, P2: false };
           this.sendPacket({
             t: 'START_MATCH',
             jobs: { P1: GAME.selectedJobs.P1, P2: GAME.selectedJobs.P2 },
@@ -13952,6 +14113,7 @@ window.OD_FIREBASE_CONFIG = {
         if (!locked && mx >= randX1 && mx <= randX2 && my >= 606 && my <= 632) {
           const pool = CONFIG.JOB_ORDER;
           GAME.selectedJobs[side] = pool[Math.floor(_origRandom() * pool.length)];
+          GAME.randomPick[side] = true;
           AUDIO.sfxSelectMove();
           this.syncCharSelectState();
           return;
@@ -13974,6 +14136,7 @@ window.OD_FIREBASE_CONFIG = {
               AUDIO.sfxSelectLock();
             } else if (!locked) {
               GAME.selectedJobs[side] = CONFIG.JOB_ORDER[idx];
+              GAME.randomPick[side] = false;
               AUDIO.sfxSelectMove();
             }
             this.syncCharSelectState();
