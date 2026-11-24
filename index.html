@@ -11041,6 +11041,34 @@ window.OD_FIREBASE_CONFIG = {
         this.drawBottomMeters(ctx, p1, 44, CONFIG.HEIGHT - 36, false);
         this.drawBottomMeters(ctx, p2, CONFIG.WIDTH - 44 - 340, CONFIG.HEIGHT - 36, true);
 
+        // Skill cooldown cards: larger, high-contrast timers for quick reading.
+        const drawSkillCooldowns = (fighter, x, y, alignRight) => {
+          const cardW = 112, cardH = 42, gap = 8;
+          const items = [
+            { key: 'SKILL1', label: '기술 1', color: '#38bdf8' },
+            { key: 'SKILL2', label: '기술 2', color: '#c084fc' }
+          ];
+          items.forEach((item, i) => {
+            const left = alignRight ? x - (cardW + gap) * (i + 1) : x + (cardW + gap) * i;
+            const remaining = Math.max(0, fighter.cooldowns[item.key] || 0);
+            const ready = remaining <= 0;
+            const seconds = (remaining / 60).toFixed(1);
+            ctx.fillStyle = 'rgba(2, 6, 23, 0.92)';
+            ctx.strokeStyle = ready ? '#4ade80' : item.color;
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.roundRect(left, y, cardW, cardH, 8); ctx.fill(); ctx.stroke();
+            ctx.textAlign = 'center';
+            ctx.font = 'bold 12px "Noto Sans KR", sans-serif';
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillText(item.label, left + cardW / 2, y + 15);
+            ctx.font = '900 17px Orbitron, "Noto Sans KR", sans-serif';
+            ctx.fillStyle = ready ? '#4ade80' : '#fbbf24';
+            ctx.fillText(ready ? '준비 완료' : `${seconds}초`, left + cardW / 2, y + 34);
+          });
+        };
+        drawSkillCooldowns(p1, 44, CONFIG.HEIGHT - 100, false);
+        drawSkillCooldowns(p2, CONFIG.WIDTH - 44, CONFIG.HEIGHT - 100, true);
+
         ctx.restore();
       },
 
@@ -12191,9 +12219,14 @@ window.OD_FIREBASE_CONFIG = {
             const y = (e.clientY - rect.top) * CONFIG.HEIGHT / rect.height;
             if (this.menuPage === 'HOME') {
               if (x >= 450 && x <= 830 && y >= 380 && y <= 465) this.menuPage = 'MODES';
-            } else if (y >= 285 && y <= 385 && x >= 260 && x <= 620) this.chooseBattleType('DUEL');
-            else if (y >= 285 && y <= 385 && x >= 660 && x <= 1020) this.chooseBattleType('SWITCH');
-            else if (y >= 500) this.menuPage = 'HOME';
+            } else if (y >= 285 && y <= 385 && x >= 105 && x <= 475) {
+              this.chooseBattleType('DUEL');
+            } else if (y >= 285 && y <= 385 && x >= 455 && x <= 825) {
+              this.chooseBattleType('SWITCH');
+            } else if (y >= 285 && y <= 385 && x >= 805 && x <= 1175) {
+              const onlineButton = document.getElementById('btnOnline');
+              if (onlineButton) onlineButton.click();
+            } else if (y >= 500) this.menuPage = 'HOME';
           } else if (this.phase === 'CHAR_SELECT') {
             this.handleCanvasClick(e);
           } else if (this.phase === 'MATCH_OVER') {
@@ -12342,10 +12375,11 @@ window.OD_FIREBASE_CONFIG = {
           c.fillStyle='#94a3b8'; c.font='16px sans-serif'; c.fillText('플레이를 눌러 대결 방식을 선택하세요',640,525);
         } else {
           c.fillStyle='#f8fafc';c.font='900 28px sans-serif';c.fillText('대결 방식 선택',640,245);
-          button(260,285,360,100,'1 VS 1','#fb7185');
-          button(660,285,360,100,'2 VS 2 스위치 대결','#38bdf8');
-          c.fillStyle='#cbd5e1';c.font='17px sans-serif';c.fillText('1대1: 기존 AI/2P 설정 가능     |     스위치: 각 팀 2명, 교체 쿨타임 6초',640,440);
-          c.fillText('스위치 교체: 1P [Z] · 2P [O]     |     뒤로: 아래 클릭',640,480);
+          button(105,285,370,100,'1 VS 1','#fb7185');
+          button(455,285,370,100,'2 VS 2 스위치 대결','#38bdf8');
+          button(805,285,370,100,'🌐 온라인 대전','#34d399');
+          c.fillStyle='#cbd5e1';c.font='17px sans-serif';c.fillText('1대1: AI 또는 로컬 2P     |     스위치: 팀당 2명, 교체 쿨타임 6초',640,440);
+          c.fillText('온라인 대전: 방을 만들거나 친구의 방 코드로 입장하세요',640,480);
           c.fillStyle='#fbbf24';c.fillText('← 뒤로',640,565);
         }
         c.restore();
@@ -12832,6 +12866,13 @@ window.OD_FIREBASE_CONFIG = {
     normal: 'KeyX', skill1: 'KeyC', skill2: 'KeyV', ultimate: 'KeyB'
   };
 
+  // 온라인에서는 각 기기에서 WASD + HJKL을 사용한다.
+  // P1_KEYS 자체는 그대로 두어 오프라인 1기기 대전 키 설정을 보존한다.
+  const ONLINE_LOCAL_KEYS = {
+    left: 'KeyA', right: 'KeyD', up: 'KeyW', down: 'KeyS',
+    normal: 'KeyH', skill1: 'KeyJ', skill2: 'KeyK', ultimate: 'KeyL'
+  };
+
   const P2_KEYS = {
     left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', down: 'ArrowDown',
     normal: 'KeyK', skill1: 'KeyL', skill2: 'Semicolon', ultimate: 'Quote'
@@ -12878,7 +12919,7 @@ window.OD_FIREBASE_CONFIG = {
     remotePressedQueue: [],
     remoteDoubleQueue: [],
 
-    // Guest physical key tracking (supports BOTH WASD+XCVB and Arrows+KL;')
+    // Guest physical key tracking (WASD + HJKL)
     guestPhysicalDown: new Set(),
     guestPhysicalPressed: new Set(),
     guestPhysicalDouble: new Set(),
@@ -13479,7 +13520,7 @@ window.OD_FIREBASE_CONFIG = {
         if (badge) badge.textContent = `ONLINE ${this.role === 'HOST' ? '1P (HOST)' : '2P (GUEST)'}`;
         const p2Foot = document.getElementById('p2FooterControls');
         if (p2Foot) {
-          p2Foot.innerHTML = `<span class="font-arcade font-black text-emerald-400">ONLINE P2P</span> <span class="text-slate-300 font-bold">내 캐릭터 조작: <span class="kbd-pill">WASD</span> + <span class="kbd-pill">X C V B</span> (방향키도 지원)</span>`;
+          p2Foot.innerHTML = `<span class="font-arcade font-black text-emerald-400">ONLINE P2P</span> <span class="text-slate-300 font-bold">내 캐릭터 조작: <span class="kbd-pill">W A S D</span> 이동 · <span class="kbd-pill">H</span> 평타 <span class="kbd-pill">J</span> 기술1 <span class="kbd-pill">K</span> 기술2 <span class="kbd-pill">L</span> 궁극기</span>`;
         }
       }
     },
@@ -13578,20 +13619,15 @@ window.OD_FIREBASE_CONFIG = {
     // =========================================================================
     bindGuestPhysicalKeys() {
       const KEY_TO_BIT = {
-        KeyA: BIT.LEFT, ArrowLeft: BIT.LEFT,
-        KeyD: BIT.RIGHT, ArrowRight: BIT.RIGHT,
-        KeyW: BIT.UP, ArrowUp: BIT.UP,
-        KeyS: BIT.DOWN, ArrowDown: BIT.DOWN,
-        KeyX: BIT.NORMAL, KeyK: BIT.NORMAL,
-        KeyC: BIT.SKILL1, KeyL: BIT.SKILL1,
-        KeyV: BIT.SKILL2, Semicolon: BIT.SKILL2,
-        KeyB: BIT.ULTIMATE, Quote: BIT.ULTIMATE
+        KeyA: BIT.LEFT, KeyD: BIT.RIGHT, KeyW: BIT.UP, KeyS: BIT.DOWN,
+        KeyH: BIT.NORMAL, KeyJ: BIT.SKILL1, KeyK: BIT.SKILL2, KeyL: BIT.ULTIMATE
       };
       const lastTap = new Map();
 
       window.addEventListener('keydown', (e) => {
         const bit = KEY_TO_BIT[e.code];
         if (!bit) return;
+        if (this.active) e.preventDefault();
         if (!this.guestPhysicalDown.has(bit)) {
           this.guestPhysicalDown.add(bit);
           this.guestPhysicalPressed.add(bit);
@@ -13622,29 +13658,20 @@ window.OD_FIREBASE_CONFIG = {
       let down = 0, pressed = 0, dbl = 0;
 
       if (this.role === 'HOST') {
-        // Host reads P1 keys directly from INPUT
-        if (INPUT.isDown(P1_KEYS.left)) down |= BIT.LEFT;
-        if (INPUT.isDown(P1_KEYS.right)) down |= BIT.RIGHT;
-        if (INPUT.isDown(P1_KEYS.up)) down |= BIT.UP;
-        if (INPUT.isDown(P1_KEYS.down)) down |= BIT.DOWN;
-        if (INPUT.isDown(P1_KEYS.normal)) down |= BIT.NORMAL;
-        if (INPUT.isDown(P1_KEYS.skill1)) down |= BIT.SKILL1;
-        if (INPUT.isDown(P1_KEYS.skill2)) down |= BIT.SKILL2;
-        if (INPUT.isDown(P1_KEYS.ultimate)) down |= BIT.ULTIMATE;
-
-        if (INPUT.wasPressed(P1_KEYS.left)) pressed |= BIT.LEFT;
-        if (INPUT.wasPressed(P1_KEYS.right)) pressed |= BIT.RIGHT;
-        if (INPUT.wasPressed(P1_KEYS.up)) pressed |= BIT.UP;
-        if (INPUT.wasPressed(P1_KEYS.down)) pressed |= BIT.DOWN;
-        if (INPUT.wasPressed(P1_KEYS.normal)) pressed |= BIT.NORMAL;
-        if (INPUT.wasPressed(P1_KEYS.skill1)) pressed |= BIT.SKILL1;
-        if (INPUT.wasPressed(P1_KEYS.skill2)) pressed |= BIT.SKILL2;
-        if (INPUT.wasPressed(P1_KEYS.ultimate)) pressed |= BIT.ULTIMATE;
-
-        if (INPUT.wasDoubleTapped(P1_KEYS.left)) dbl |= BIT.LEFT;
-        if (INPUT.wasDoubleTapped(P1_KEYS.right)) dbl |= BIT.RIGHT;
+        // 방장은 자기 기기의 WASD+HJKL 입력을 P1 조작으로 변환한다.
+        for (const [action, bit] of [
+          ['left', BIT.LEFT], ['right', BIT.RIGHT], ['up', BIT.UP], ['down', BIT.DOWN],
+          ['normal', BIT.NORMAL], ['skill1', BIT.SKILL1], ['skill2', BIT.SKILL2], ['ultimate', BIT.ULTIMATE]
+        ]) {
+          const code = ONLINE_LOCAL_KEYS[action];
+          if (INPUT.isDown(code)) down |= bit;
+          if (INPUT.wasPressed(code)) pressed |= bit;
+          if ((action === 'left' || action === 'right') && INPUT.wasDoubleTapped(code)) dbl |= bit;
+        }
+        // 온라인 전용 입력을 기존 전투 로직의 P1 키 슬롯에 주입한다.
+        this.applyBitmaskToInput(P1_KEYS, down, pressed, dbl, true);
       } else {
-        // Guest uses comfortable WASD+XCVB (or Arrows+KL;') and maps them to P2!
+        // 게스트도 자기 기기의 WASD+HJKL을 P2 입력으로 변환한다.
         this.guestPhysicalDown.forEach((b) => { down |= b; });
         this.guestPhysicalPressed.forEach((b) => { pressed |= b; });
         this.guestPhysicalDouble.forEach((b) => { dbl |= b; });
