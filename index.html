@@ -13507,7 +13507,7 @@ window.OD_FIREBASE_CONFIG = {
     async startWebRTCHost() {
       const pc = this.setupPeerConnection();
       // Unordered + 0 retransmits = lowest possible latency (no TCP head-of-line blocking)
-      const dc = pc.createDataChannel('stickfight-p2p', { ordered: true });
+      const dc = pc.createDataChannel('stickfight-p2p', { ordered: false, maxRetransmits: 0 });
       this.bindDataChannel(dc);
 
       const offer = await pc.createOffer();
@@ -13564,6 +13564,9 @@ window.OD_FIREBASE_CONFIG = {
       if (!this.active) return;
       if (this.dc && this.dc.readyState === 'open') {
         try {
+          // 실시간 게임은 오래된 패킷보다 최신 입력/상태가 중요하다.
+          // 대기열이 과도하게 쌓이면 오래된 패킷은 버려 지연 누적을 막는다.
+          if (this.dc.bufferedAmount > 96 * 1024) return;
           this.dc.send(JSON.stringify(obj));
           return;
         } catch (e) {}
@@ -13783,8 +13786,12 @@ window.OD_FIREBASE_CONFIG = {
 
       // Inject remote player's inputs into the opposite slot
       const remoteTargetKeys = this.role === 'HOST' ? P2_KEYS : P1_KEYS;
-      const rPressed = this.remotePressedQueue.length ? this.remotePressedQueue.shift() : 0;
-      const rDouble = this.remoteDoubleQueue.length ? this.remoteDoubleQueue.shift() : 0;
+      // 여러 네트워크 패킷이 한꺼번에 도착해도 과거 입력을 프레임마다
+      // 하나씩 재생하지 않는다. 누적 입력을 한 시뮬레이션 틱에 합쳐 지연을 방지한다.
+      let rPressed = 0;
+      let rDouble = 0;
+      while (this.remotePressedQueue.length) rPressed |= (this.remotePressedQueue.shift() || 0);
+      while (this.remoteDoubleQueue.length) rDouble |= (this.remoteDoubleQueue.shift() || 0);
       this.applyBitmaskToInput(remoteTargetKeys, this.remoteDownMask, rPressed, rDouble, true);
 
       this.localHistory.unshift({ f: this.tick, d: down, p: pressed, dt: dbl });
@@ -13822,34 +13829,24 @@ window.OD_FIREBASE_CONFIG = {
     // =========================================================================
     patchGameLoopAndInput() {
       const self = this;
-      const origRAF = window.requestAnimationFrame.bind(window);
-      let lastStepTime = performance.now();
-      let accumulator = 0;
-      const FIXED_DT = 1000 / 60;
 
-      // Normalize 60Hz/120Hz/144Hz monitors to identical 60FPS simulation during online play
-      window.requestAnimationFrame = function (cb) {
-        return origRAF(function (now) {
-          if (!self.active || typeof GAME === 'undefined') {
-            lastStepTime = now;
-            accumulator = 0;
-            return cb(now);
-          }
-
-          const dt = Math.min(50, now - lastStepTime);
-          lastStepTime = now;
-          accumulator += dt;
-
-          if (accumulator < FIXED_DT * 0.85) {
-            return window.requestAnimationFrame(cb);
-          }
-          accumulator %= FIXED_DT;
-
+      // GAME.loop 자체가 이미 60Hz 고정 스텝 accumulator를 갖고 있다.
+      // requestAnimationFrame을 한 번 더 제한하면 저주사율/느린 기기에서
+      // 게임 업데이트가 이중으로 제한되어 점프와 이동이 느려지는 문제가 생긴다.
+      // 실제 시뮬레이션 틱마다 입력 수신 -> 게임 업데이트 -> 상태 전송을 실행한다.
+      if (!this._updateSyncPatched && typeof GAME !== 'undefined' && typeof GAME.update === 'function') {
+        const originalUpdate = GAME.update.bind(GAME);
+        GAME.update = function (...args) {
+          if (!self.active) return originalUpdate(...args);
           self.preFrameSync();
-          cb(now);
-          self.postFrameSync();
-        });
-      };
+          try {
+            return originalUpdate(...args);
+          } finally {
+            self.postFrameSync();
+          }
+        };
+        this._updateSyncPatched = true;
+      }
 
       // Intercept Rematch / CharSelect buttons to keep both players synchronized
       const btnRematch = document.getElementById('btnRematch');
@@ -13956,7 +13953,13 @@ window.OD_FIREBASE_CONFIG = {
             P1: (GAME.teams.P1 || []).map(f => f.hp),
             P2: (GAME.teams.P2 || []).map(f => f.hp)
           } : null,
-          switchTimers: GAME.battleType === 'SWITCH' ? { ...GAME.switchTimers } : null
+          switchTimers: GAME.battleType === 'SWITCH' ? { ...GAME.switchTimers } : null,
+          gambleFlip: GAME.gambleFlip ? {
+            owner: GAME.gambleFlip.owner === GAME.p1 ? 'P1' : 'P2',
+            frames: GAME.gambleFlip.frames,
+            result: GAME.gambleFlip.result,
+            resolved: Boolean(GAME.gambleFlip.resolved)
+          } : null
         });
       }
     },
@@ -13993,6 +13996,20 @@ window.OD_FIREBASE_CONFIG = {
       if (typeof snap.banner === 'string') GAME.bannerText = snap.banner;
       if (typeof snap.subBanner === 'string') GAME.subBannerText = snap.subBanner;
       if (typeof snap.bannerColor === 'string') GAME.bannerColor = snap.bannerColor;
+      // 도박꾼 궁극기의 전체 화면 동전 연출을 호스트 기준으로 공유한다.
+      if (Object.prototype.hasOwnProperty.call(snap, 'gambleFlip')) {
+        if (snap.gambleFlip && (snap.gambleFlip.owner === 'P1' || snap.gambleFlip.owner === 'P2')) {
+          const owner = snap.gambleFlip.owner === 'P1' ? GAME.p1 : GAME.p2;
+          GAME.gambleFlip = {
+            owner,
+            frames: Math.max(0, Number(snap.gambleFlip.frames) || 0),
+            result: snap.gambleFlip.result === 'HEADS' ? 'HEADS' : 'TAILS',
+            resolved: Boolean(snap.gambleFlip.resolved)
+          };
+        } else {
+          GAME.gambleFlip = null;
+        }
+      }
       if (GAME.battleType === 'SWITCH') {
         for (const side of ['P1', 'P2']) {
           const team = GAME.teams && GAME.teams[side];
@@ -14018,8 +14035,16 @@ window.OD_FIREBASE_CONFIG = {
         if (Math.abs(dx) > 65) f.x = s.x;
         else if (Math.abs(dx) > 3) f.x += dx * 0.35;
 
-        if (Math.abs(dy) > 55) f.y = s.y;
-        else if (Math.abs(dy) > 3) f.y += dy * 0.35;
+        // 게스트가 직접 조작하는 P2의 점프는 로컬에서 즉시 예측한다.
+        // 호스트의 왕복 지연이 있는 동안 오래된 지상 좌표로 끌어내리면
+        // 게스트 화면에서 점프가 느려 보이므로, 공중 동작 중에는 Y 보정을 잠시 건너뛴다.
+        const guestOwnsThisFighter = this.role === 'GUEST' && f === GAME.p2;
+        const preserveLocalJump = guestOwnsThisFighter && f.state === 'JUMP'
+          && ['IDLE', 'WALK', 'JUMP'].includes(s.st);
+        if (!preserveLocalJump) {
+          if (Math.abs(dy) > 55) f.y = s.y;
+          else if (Math.abs(dy) > 3) f.y += dy * 0.35;
+        }
 
         f.hp = s.hp;
         f.ult = s.ult;
