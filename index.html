@@ -15135,7 +15135,7 @@ window.OD_FIREBASE_CONFIG = {
             this.pendingOwn = null;
           }
         } else {
-          this.targets[side] = { x: s.x, y: s.y, vx: s.vx || 0, vy: s.vy || 0, tk: snap._recvTick };
+          this.targets[side] = { x: s.x, y: s.y, vx: s.vx || 0, vy: s.vy || 0, st: s.st, tk: snap._recvTick };
         }
 
         // ---- 동작 상태 ----
@@ -15254,7 +15254,13 @@ window.OD_FIREBASE_CONFIG = {
         let ty = t.y + t.vy * age + (t.vy !== 0 || t.y < CONFIG.GROUND_Y ? 0.5 * G * age * age : 0);
         ty = Math.min(CONFIG.GROUND_Y, ty);
         const ex = tx - r.x, ey = ty - r.y;
-        if (Math.abs(ex) > SNAP_DIST || Math.abs(ey) > SNAP_DIST) {
+        const plat = CONFIG.PLATFORM;
+        const targetOnPlatform = Math.abs(ty - plat.y) <= 2 && tx >= plat.x - 14 && tx <= plat.x + plat.width + 14;
+        const currentOnPlatform = Math.abs(r.y - plat.y) <= 2 && r.x >= plat.x - 14 && r.x <= plat.x + plat.width + 14;
+        const floorTransition = (targetOnPlatform && r.y >= CONFIG.GROUND_Y - 2) || (currentOnPlatform && ty >= CONFIG.GROUND_Y - 2);
+        if (floorTransition || Math.abs(ex) > SNAP_DIST || Math.abs(ey) > SNAP_DIST) {
+          // 플랫폼/지상 층 전환은 수직 lerp로 반쯤 끼워 넣지 않고 즉시 층에 맞춰
+          // 원격 캐릭터가 플랫폼 가장자리에서 튕기거나 점프가 버벅이는 현상을 방지.
           r.x = tx; r.y = ty;
         } else {
           if (Math.abs(ex) > 1.5) r.x += ex * 0.38;
@@ -15303,7 +15309,11 @@ window.OD_FIREBASE_CONFIG = {
       let ty = g.y + g.vy * age + (g.vy !== 0 || g.y < CONFIG.GROUND_Y ? 0.5 * CONFIG.GRAVITY * age * age : 0);
       ty = Math.min(CONFIG.GROUND_Y, ty);
       const ex = tx - f.x, ey = ty - f.y;
-      if (Math.abs(ex) > 70 || Math.abs(ey) > 70) { f.x = tx; f.y = ty; return; }
+      const plat = CONFIG.PLATFORM;
+      const targetOnPlatform = Math.abs(ty - plat.y) <= 2 && tx >= plat.x - 14 && tx <= plat.x + plat.width + 14;
+      const currentOnPlatform = Math.abs(f.y - plat.y) <= 2 && f.x >= plat.x - 14 && f.x <= plat.x + plat.width + 14;
+      const floorTransition = (targetOnPlatform && f.y >= CONFIG.GROUND_Y - 2) || (currentOnPlatform && ty >= CONFIG.GROUND_Y - 2);
+      if (floorTransition || Math.abs(ex) > 70 || Math.abs(ey) > 70) { f.x = tx; f.y = ty; return; }
       if (Math.abs(ex) > 1.5) f.x += ex * 0.3;
       if (Math.abs(ey) > 1.5) f.y += ey * 0.35;
     },
