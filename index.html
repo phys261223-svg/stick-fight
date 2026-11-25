@@ -15251,18 +15251,23 @@ window.OD_FIREBASE_CONFIG = {
       if (t && r) {
         const age = Math.min(3, Math.max(0, this.tick - t.tk));        // 받은 뒤 지난 틱(과한 외삽 방지)
         const tx = t.x + t.vx * age;
-        let ty = t.y + t.vy * age + (t.vy !== 0 || t.y < CONFIG.GROUND_Y ? 0.5 * G * age * age : 0);
+        const plat = CONFIG.PLATFORM;
+        // 플랫폼 착지 상태는 스냅샷의 y/vy로 확정한다. 중력 외삽을 적용하면
+        // 지연된 vy=0 스냅샷도 매 프레임 조금씩 아래로 밀려 2층에서 흔들린다.
+        const snapshotOnPlatform = Math.abs(t.y - plat.y) <= 2 && Math.abs(t.vy) <= 1.2 && t.x >= plat.x - 14 && t.x <= plat.x + plat.width + 14;
+        let ty = snapshotOnPlatform ? plat.y : t.y + t.vy * age + (t.vy !== 0 || t.y < CONFIG.GROUND_Y ? 0.5 * G * age * age : 0);
         ty = Math.min(CONFIG.GROUND_Y, ty);
         const ex = tx - r.x, ey = ty - r.y;
-        const plat = CONFIG.PLATFORM;
-        const targetOnPlatform = Math.abs(ty - plat.y) <= 2 && tx >= plat.x - 14 && tx <= plat.x + plat.width + 14;
+        const targetOnPlatform = snapshotOnPlatform || (Math.abs(ty - plat.y) <= 2 && tx >= plat.x - 14 && tx <= plat.x + plat.width + 14);
         const currentOnPlatform = Math.abs(r.y - plat.y) <= 2 && r.x >= plat.x - 14 && r.x <= plat.x + plat.width + 14;
         const floorTransition = (targetOnPlatform && r.y >= CONFIG.GROUND_Y - 2) || (currentOnPlatform && ty >= CONFIG.GROUND_Y - 2);
         if (floorTransition || Math.abs(ex) > SNAP_DIST || Math.abs(ey) > SNAP_DIST) {
           // 플랫폼/지상 층 전환은 수직 lerp로 반쯤 끼워 넣지 않고 즉시 층에 맞춰
           // 원격 캐릭터가 플랫폼 가장자리에서 튕기거나 점프가 버벅이는 현상을 방지.
           r.x = tx; r.y = ty;
+          if (snapshotOnPlatform) r.vy = 0;
         } else {
+          if (snapshotOnPlatform) { r.y = plat.y; r.vy = 0; }
           if (Math.abs(ex) > 1.5) r.x += ex * 0.38;
           if (Math.abs(ey) > 1.5) r.y += ey * 0.42;
         }
@@ -15306,16 +15311,19 @@ window.OD_FIREBASE_CONFIG = {
       if (!LOCO.includes(f.state) || !LOCO.includes(g.st)) return;
       const age = Math.min(3, Math.max(0, this.tick - g.tk));
       const tx = g.x + g.vx * age;
-      let ty = g.y + g.vy * age + (g.vy !== 0 || g.y < CONFIG.GROUND_Y ? 0.5 * CONFIG.GRAVITY * age * age : 0);
+      const plat = CONFIG.PLATFORM;
+      // 참가자의 보고가 2층 착지(vy≈0)라면 중력 외삽으로 층 아래로 밀지 않는다.
+      const snapshotOnPlatform = Math.abs(g.y - plat.y) <= 2 && Math.abs(g.vy) <= 1.2 && g.x >= plat.x - 14 && g.x <= plat.x + plat.width + 14;
+      let ty = snapshotOnPlatform ? plat.y : g.y + g.vy * age + (g.vy !== 0 || g.y < CONFIG.GROUND_Y ? 0.5 * CONFIG.GRAVITY * age * age : 0);
       ty = Math.min(CONFIG.GROUND_Y, ty);
       const ex = tx - f.x, ey = ty - f.y;
-      const plat = CONFIG.PLATFORM;
-      const targetOnPlatform = Math.abs(ty - plat.y) <= 2 && tx >= plat.x - 14 && tx <= plat.x + plat.width + 14;
+      const targetOnPlatform = snapshotOnPlatform || (Math.abs(ty - plat.y) <= 2 && tx >= plat.x - 14 && tx <= plat.x + plat.width + 14);
       const currentOnPlatform = Math.abs(f.y - plat.y) <= 2 && f.x >= plat.x - 14 && f.x <= plat.x + plat.width + 14;
       const floorTransition = (targetOnPlatform && f.y >= CONFIG.GROUND_Y - 2) || (currentOnPlatform && ty >= CONFIG.GROUND_Y - 2);
-      if (floorTransition || Math.abs(ex) > 70 || Math.abs(ey) > 70) { f.x = tx; f.y = ty; return; }
+      if (floorTransition || Math.abs(ex) > 70 || Math.abs(ey) > 70) { f.x = tx; f.y = ty; if (snapshotOnPlatform) f.vy = 0; return; }
+      if (snapshotOnPlatform) { f.y = plat.y; f.vy = 0; }
       if (Math.abs(ex) > 1.5) f.x += ex * 0.3;
-      if (Math.abs(ey) > 1.5) f.y += ey * 0.35;
+      if (!snapshotOnPlatform && Math.abs(ey) > 1.5) f.y += ey * 0.35;
     },
 
     // =========================================================================
