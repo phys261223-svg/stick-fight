@@ -585,7 +585,7 @@ window.OD_FIREBASE_CONFIG = {
       },
 
       // Selectable Stickman Classes
-      JOB_ORDER: ['STICKMAN', 'SAMURAI', 'VIKING', 'NINJA', 'TAOIST', 'KNIGHT', 'PIRATE', 'REAPER', 'WEREWOLF', 'SONG_MASTER', 'TAEKWONDO', 'POSEIDON', 'GAMBLER', 'HUNTER', 'BEGGAR', 'AI_ROBOT', 'PASTOR', 'SANTA', 'DRAGON_KNIGHT', 'MONK', 'GOJO'],
+      JOB_ORDER: ['STICKMAN', 'SAMURAI', 'VIKING', 'NINJA', 'TAOIST', 'KNIGHT', 'PIRATE', 'REAPER', 'WEREWOLF', 'SONG_MASTER', 'TAEKWONDO', 'POSEIDON', 'GAMBLER', 'HUNTER', 'BEGGAR', 'AI_ROBOT', 'PASTOR', 'SANTA', 'DRAGON_KNIGHT', 'MONK', 'GOJO', 'TIME_MAGE', 'NECROMANCER'],
       JOBS: {
         AI_ROBOT: {
           id:'AI_ROBOT',name:'AI 로봇',engName:'AI ROBOT',tagline:'적응형 전투 인공지능 · 진화와 과부하',
@@ -1650,7 +1650,7 @@ window.OD_FIREBASE_CONFIG = {
               guardBreak: true,
               hitstop: 12,
               shake: 18,
-              lungeX: 14.0,
+              lungeX: 24.0,
               hitbox: { offsetX: 22, offsetY: -145, width: 155, height: 140 }
             }
           }
@@ -1871,7 +1871,7 @@ window.OD_FIREBASE_CONFIG = {
           skillSummary: {
             normal: '농구공 던지기',
             skill1: '코트 돌파 (벽까지 돌진 · 충돌 시 넉백)',
-            skill2: '페이크 스텝 (지속시간 50% 회피)',
+            skill2: '페이크 스텝 (지속시간 40% 회피)',
             ultimate: '메테오 슬램덩크'
           },
           stats: { maxHp: 1000, walkSpeed: 6.7, backWalkSpeed: 5.2, dashSpeed: 16.8 },
@@ -2187,7 +2187,7 @@ window.OD_FIREBASE_CONFIG = {
           id:'SANTA', name:'산타클로스', engName:'SANTA CLAUS', tagline:'크리스마스의 선물 · 루돌프와 함께하는 전투',
           gearSummary:'빨간 산타복 · 흰 수염 · 빨간 선물 보따리',
           statBars:{hp:3,speed:3,reach:4},
-          skillSummary:{normal:'선물 보따리에서 선물 발사',skill1:'루돌프 썰매 선물 폭격·무기 랜덤 획득',skill2:'눈보라: 피해 누적 시 1초 빙결',ultimate:'루돌프 탑승: 회복·공격·방어·속도 강화'},
+          skillSummary:{normal:'선물 보따리에서 선물 발사',skill1:'루돌프 썰매가 상공을 지나며 선물 폭탄 투하',skill2:'눈보라: 지속 피해 및 누적 피해 빙결',ultimate:'루돌프 탑승: 회복·공격·방어·속도 강화'},
           stats:{maxHp:1000,walkSpeed:6.0,backWalkSpeed:4.7,dashSpeed:15}, firstNormal:'SANTA_GIFT',
           attacks:{
             SANTA_GIFT:{name:'SANTA_GIFT',startup:6,active:4,recovery:11,damage:0,projectile:{visualType:'SANTA_GIFT',speed:15,radius:23,damage:44,ultGainAttacker:7,ultGainDefender:4,hitstun:14,blockstun:10,knockbackX:4,hitstop:4,shake:5},nextNormal:'SANTA_GIFT',canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
@@ -2250,6 +2250,56 @@ window.OD_FIREBASE_CONFIG = {
             DRAGON_GRAB:{name:'DRAGON_GRAB',startup:0,active:1,recovery:0,damage:170}
           }
         }
+        ,
+        TIME_MAGE: {
+          id:'TIME_MAGE', name:'시간술사', engName:'CHRONOMANCER',
+          tagline:'시간의 흐름을 조율하는 시계 창술사',
+          gearSummary:'청록 네온 · 황금 시계바늘 창 · 모노클 · 회전 톱니바퀴',
+          statBars:{hp:3,speed:4,reach:4},
+          skillSummary:{
+            normal:'초침 찌르기 → 분침 올려 베기 → 시침 내려찍기 + 0.6초 뒤 잔상 타격',
+            skill1:'시간 되감기: 2.5초 전 위치로 이동하고 잃은 체력의 50% 회복, 복귀 후 0.3초 무적',
+            skill2:'시한폭탄: 적에게 3초 폭탄 부착, 폭발 전 피격 횟수에 따라 피해 증가',
+            ultimate:'타임 스톱: 2.5초 정지, 정지 중 피해를 모아 해제 순간 1.2배로 폭발'
+          },
+          stats:{maxHp:1020,walkSpeed:6.2,backWalkSpeed:4.9,dashSpeed:15.5},
+          firstNormal:'TIME_SECOND',
+          attacks:{
+            TIME_SECOND:{name:'TIME_SECOND',startup:4,active:4,recovery:8,damage:34,ultGainAttacker:5,ultGainDefender:3,hitstun:9,blockstun:7,knockbackX:2.0,hitstop:2,shake:3,lungeX:2,hitbox:{offsetX:42,offsetY:-112,width:82,height:28},nextNormal:'TIME_MINUTE',canCancelInto:['TIME_MINUTE','SKILL1','SKILL2','ULTIMATE']},
+            TIME_MINUTE:{name:'TIME_MINUTE',startup:5,active:5,recovery:9,damage:42,ultGainAttacker:6,ultGainDefender:4,hitstun:12,blockstun:8,knockbackX:3.5,knockbackY:-2,hitstop:3,shake:4,hitbox:{offsetX:38,offsetY:-132,width:100,height:54},nextNormal:'TIME_HOUR',canCancelInto:['TIME_HOUR','SKILL1','SKILL2','ULTIMATE']},
+            TIME_HOUR:{name:'TIME_HOUR',startup:8,active:6,recovery:17,damage:78,ultGainAttacker:10,ultGainDefender:6,hitstun:20,blockstun:12,knockbackX:8.5,knockbackY:-5,knockdown:true,hitstop:7,shake:9,hitbox:{offsetX:36,offsetY:-102,width:112,height:86},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
+            TIME_SWORD_SHOT:{name:'TIME_SWORD_SHOT',startup:5,active:1,recovery:12,damage:0,ultGainAttacker:0,ultGainDefender:0,hitstun:0,blockstun:0,knockbackX:0,hitstop:0,shake:0,hitbox:null},
+            SKILL1:{name:'SKILL1',startup:1,active:1,recovery:10,cooldown:360,skillStyle:'TIME_REWIND',ultGainOnCast:8},
+            SKILL2:{name:'SKILL2',startup:1,active:1,recovery:10,cooldown:420,skillStyle:'TIME_BOMB',ultGainOnCast:8},
+            ULTIMATE:{name:'ULTIMATE',startup:1,active:1,recovery:18,cooldown:0,ultStyle:'TIME_STOP'}
+          }
+        },
+        NECROMANCER: {
+          id:'NECROMANCER', name:'네크로맨서', engName:'NECROMANCER',
+          tagline:'망자의 군단을 지휘하는 암흑 소환술사',
+          gearSummary:'검은 후드 로브 · 해골 장식 · 보랏빛 룬 · 영혼의 지팡이',
+          statBars:{hp:3,speed:3,reach:5},
+          skillSummary:{
+            normal:'원거리 검은 뼈 창 3연발 / 근거리 뼈 창 3연타',
+            skill1:'망자의 사슬: 사슬 적중 후 재사용해 적을 끌어오거나 적 앞으로 돌진',
+            skill2:'영혼의 낫: 보랏빛 낫을 연속으로 휘둘러 피해를 주고 피해량의 40% 회복',
+            ultimate:'일어나라: 그림자 병사 3마리 소환 (와이번 최대 1마리)'
+          },
+          stats:{maxHp:1080,walkSpeed:5.9,backWalkSpeed:4.6,dashSpeed:14.8},
+          firstNormal:'NECRO_BONE1',
+          attacks:{
+            NECRO_BONE1:{name:'NECRO_BONE1',startup:6,active:2,recovery:8,damage:0,projectile:{visualType:'NECRO_BONE',speed:15.5,radius:13,damage:31,ultGainAttacker:5,ultGainDefender:3,hitstun:10,blockstun:7,knockbackX:2.5,hitstop:2,shake:3},nextNormal:'NECRO_BONE2',canCancelInto:['NECRO_BONE2','SKILL1','SKILL2','ULTIMATE']},
+            NECRO_BONE2:{name:'NECRO_BONE2',startup:7,active:2,recovery:9,damage:0,projectile:{visualType:'NECRO_BONE',speed:16.5,radius:14,damage:35,ultGainAttacker:6,ultGainDefender:3,hitstun:11,blockstun:8,knockbackX:3,hitstop:3,shake:4},nextNormal:'NECRO_BONE3',canCancelInto:['NECRO_BONE3','SKILL1','SKILL2','ULTIMATE']},
+            NECRO_BONE3:{name:'NECRO_BONE3',startup:9,active:2,recovery:15,damage:0,projectile:{visualType:'NECRO_BONE',speed:18,radius:16,damage:46,ultGainAttacker:8,ultGainDefender:4,hitstun:15,blockstun:9,knockbackX:5,knockbackY:-1,hitstop:4,shake:5},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
+            NECRO_MELEE1:{name:'NECRO_MELEE1',startup:5,active:4,recovery:8,damage:38,ultGainAttacker:5,ultGainDefender:3,hitstun:11,blockstun:8,knockbackX:2,hitstop:3,shake:3,hitbox:{offsetX:23,offsetY:-112,width:78,height:34},nextNormal:'NECRO_MELEE2',canCancelInto:['NECRO_MELEE2','SKILL1','SKILL2','ULTIMATE']},
+            NECRO_MELEE2:{name:'NECRO_MELEE2',startup:6,active:5,recovery:10,damage:49,ultGainAttacker:6,ultGainDefender:4,hitstun:14,blockstun:9,knockbackX:3.5,knockbackY:-1,hitstop:4,shake:5,hitbox:{offsetX:22,offsetY:-126,width:96,height:58},nextNormal:'NECRO_MELEE3',canCancelInto:['NECRO_MELEE3','SKILL1','SKILL2','ULTIMATE']},
+            NECRO_MELEE3:{name:'NECRO_MELEE3',startup:9,active:6,recovery:16,damage:76,ultGainAttacker:9,ultGainDefender:5,hitstun:20,blockstun:12,knockbackX:8,knockbackY:-4,knockdown:true,hitstop:7,shake:9,hitbox:{offsetX:25,offsetY:-112,width:106,height:88},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
+            SKILL1:{name:'SKILL1',startup:1,active:1,recovery:8,cooldown:36,skillStyle:'NECRO_CHAIN',ultGainOnCast:6},
+            SKILL2:{name:'SKILL2',startup:1,active:1,recovery:8,cooldown:360,skillStyle:'NECRO_SCYTHE',ultGainOnCast:8},
+            ULTIMATE:{name:'ULTIMATE',startup:1,active:1,recovery:18,cooldown:0,ultStyle:'NECRO_LEGION'}
+          }
+        }
+
       }
     };
 
@@ -2905,7 +2955,7 @@ window.OD_FIREBASE_CONFIG = {
           PIRATE: ['#fbbf24', '⚓'], REAPER: ['#a78bfa', '☠'], WEREWOLF: ['#f97316', '狼'],
           SONG_MASTER: ['#f0abfc', '♫'], TAEKWONDO: ['#67e8f9', '踢'], POSEIDON: ['#22d3ee', '♆'],
           GAMBLER: ['#facc15', '♠'], HUNTER: ['#a3e635', '✧'], BEGGAR: ['#86efac', '₩'],
-          AI_ROBOT: ['#22d3ee', 'AI'], GOJO: ['#60a5fa', '無'], PASTOR: ['#fde68a', '✝'], MONK: ['#fbbf24', '卍'], SANTA: ['#fb7185', '❄']
+          AI_ROBOT: ['#22d3ee', 'AI'], GOJO: ['#60a5fa', '無'], PASTOR: ['#fde68a', '✝'], MONK: ['#fbbf24', '卍'], SANTA: ['#fb7185', '❄'], NECROMANCER: ['#a855f7', '☠']
         };
         const [c, glyph] = palette[f.jobId] || (f.jobId === 'DRAGON_KNIGHT' ? ['#fb6b32', '竜'] : [f.accentColor || '#fbbf24', '✦']);
         const ult = type === 'ULTIMATE';
@@ -3451,6 +3501,11 @@ window.OD_FIREBASE_CONFIG = {
           this.rotation = Math.atan2(this.vy, this.vx);
         }
         if (this.pierceHitTimer > 0) this.pierceHitTimer--;
+        if (this.visualType === 'TIME_BOMB' && this.age > 105) {
+          this.active=false;
+          VFX.spawnHitSparks(this.x,this.y,'#FFD700',12,.8);
+          return;
+        }
         if (this.visualType === 'BASKETBALL') {
           this.rotation += 0.34 * this.facing;
           this.vy += this.gravity;
@@ -3466,6 +3521,7 @@ window.OD_FIREBASE_CONFIG = {
         this.trail.push({ x: this.x, y: this.y });
         if (this.trail.length > 7) this.trail.shift();
 
+        if (this.visualType === 'TIME_BOMB') this.vy += this.gravity;
         this.x += this.vx;
         this.y += this.vy;
 
@@ -3670,6 +3726,19 @@ window.OD_FIREBASE_CONFIG = {
         this.cloneTargetX = x;
         this.ragTargetX = x;
         this.ultimateTickTimer = 0;
+        this.timeBomb = null;
+        this.timeStopTimer = 0;
+        this.timeStopOwner = null;
+        this.timeStopStoredDamage = 0;
+        this.timeStopSparkCooldown = 0;
+        this.timeMageGuardTimer = 0;
+        this.necroSoulScytheTimer = 0; this.necroSoulScytheTick = 0;
+        this.necroChainTarget = null; this.necroChainPending = false;
+        if (this.jobId === 'TIME_MAGE') {
+          this.timeHistory = [];
+          this.timeEchoPending = null;
+          this.timeSwordCharges = 0;
+        }
         if(this.jobId==='GOJO'){this.gojoDomainTimer=0;this.gojoDomainRadius=0;this.gojoDomainX=this.x;this.gojoDomainY=this.y-70;this.gojoRedTimer=0;this.gojoRedTarget=null;this.gojoRedBurstDone=false;}
         this.cooldowns = { SKILL1: 0, SKILL2: 0 };
         this.normalChainCooldown = 0;
@@ -4095,6 +4164,66 @@ window.OD_FIREBASE_CONFIG = {
       update(opponent, projectiles, canControl) {
         this.opponent = opponent;
         this.animTick++;
+
+        // Chronomancer: retain 2.5 seconds of position/HP history for rewind.
+        if (this.jobId === 'TIME_MAGE') {
+          this.timeHistory = this.timeHistory || [];
+          this.timeHistory.push({x:this.x,y:this.y,hp:this.hp});
+          if (this.timeHistory.length > 151) this.timeHistory.shift();
+          if (this.timeEchoPending) {
+            this.timeEchoPending.timer--;
+            if (this.timeEchoPending.timer <= 0) {
+              const echo = this.timeEchoPending; this.timeEchoPending = null;
+              if (echo.target && echo.target.hp > 0 && Math.abs(echo.target.x-echo.x) <= 70 && Math.abs(echo.target.y-echo.y) <= 95) {
+                COMBAT_ENGINE.applyHit(this, echo.target, {damage:echo.damage,ultGainAttacker:0,ultGainDefender:0,hitstun:12,blockstun:8,knockbackX:4,knockbackY:0,knockdown:false,guardBreak:false,hitstop:4,shake:5,direction:this.facing,sourceX:this.x,isHeavy:true,isSkill:false});
+                VFX.spawnHitSparks(echo.x,echo.y,'#00D2FF',16,1.0);
+                VFX.shockwaves.push({x:echo.x,y:echo.y,radius:8,maxRadius:62,life:13,maxLife:13,color:'#00D2FF'});
+              }
+            }
+          }
+        }
+
+        // A time-stopped fighter cannot move, attack, or receive ordinary updates.
+        if (this.timeStopTimer > 0) {
+          this.timeStopTimer--;
+          if (this.timeStopSparkCooldown > 0) this.timeStopSparkCooldown--;
+          this.vx = 0; this.vy = 0;
+          if (this.timeStopTimer <= 0) {
+            const owner = this.timeStopOwner, stored = this.timeStopStoredDamage || 0;
+            this.timeStopOwner = null; this.timeStopStoredDamage = 0;
+            if (owner && owner.jobId === 'TIME_MAGE') {
+              owner.timeMageGuardTimer = 240;
+              VFX.spawnFloatingText(owner.x,owner.y-190,'시간의 수호 · 4초간 피해 55% 감소','#00D2FF');
+              VFX.shockwaves.push({x:owner.x,y:owner.y-80,radius:8,maxRadius:115,life:18,maxLife:18,color:'#00D2FF'});
+            }
+            if (owner && this.hp > 0 && stored > 0) {
+              const burst = Math.round(stored * 1.2);
+              this.hp = Math.max(0, this.hp - burst);
+              VFX.triggerScreenFlash('#00D2FF',0.22);
+              VFX.shockwaves.push({x:this.x,y:this.y-82,radius:12,maxRadius:180,life:22,maxLife:22,color:'#FFD700'});
+              VFX.spawnHitSparks(this.x,this.y-85,'#FFD700',30,1.35);
+              VFX.spawnFloatingText(this.x,this.y-168,`시간 폭발! -${burst}`,'#00D2FF');
+              if (this.hp <= 0) { this.state='KO'; this.stateTimer=0; }
+            }
+          } else {
+            return;
+          }
+        }
+
+        // Chronomancer's attached bomb counts down on its victim and scales with hits.
+        if (this.timeBomb) {
+          this.timeBomb.timer--;
+          if (this.timeBomb.timer <= 0) {
+            const bomb = this.timeBomb; this.timeBomb = null;
+            const damage = Math.round(Math.min(360, bomb.baseDamage + bomb.stacks * bomb.damagePerStack) * (bomb.owner && bomb.owner.getDamageMultiplier ? bomb.owner.getDamageMultiplier() : 1) * 1.08);
+            this.hp = Math.max(0, this.hp - damage);
+            VFX.shockwaves.push({x:this.x,y:this.y-80,radius:12,maxRadius:145,life:20,maxLife:20,color:'#FFD700'});
+            VFX.spawnHitSparks(this.x,this.y-82,'#FFD700',26,1.25);
+            VFX.spawnFloatingText(this.x,this.y-165,`시한폭탄 -${damage}`,'#FFD700');
+            VFX.triggerShake(12);
+            if (this.hp <= 0) { this.state='KO'; this.stateTimer=0; }
+          }
+        }
         if(this.aiSealTimer>0){this.aiSealTimer--;if(!this.aiSealTimer)this.aiSealSlot=null;}
         if(this.aiStunTimer>0){this.aiStunTimer--;this.vx=0;}
         if(this.aiEvolveTimer>0){this.aiEvolveTimer--;}
@@ -4639,6 +4768,11 @@ window.OD_FIREBASE_CONFIG = {
 
       startAttack(type, projectiles) {
         if(this.aiStunTimer>0)return;
+        if (this.jobId === 'TIME_MAGE' && (this.timeSwordCharges || 0) > 0 && ['TIME_SECOND','TIME_MINUTE','TIME_HOUR'].includes(type)) {
+          type = 'TIME_SWORD_SHOT';
+          this.timeSwordCharges--;
+          VFX.spawnFloatingText(this.x,this.y-174,`시간 검 발사! ${5-this.timeSwordCharges}/5`,'#FFD700');
+        }
         if(this.aiSealTimer>0 && this.aiSealSlot===type){VFX.spawnFloatingText(this.x,this.y-160,'AI 기술 봉쇄!','#f87171');return;}
         if(this.jobId==='AI_ROBOT' && type==='AI_BLADE1' && this.opponent && Math.abs(this.opponent.x-this.x)>=205)type='AI_RING1';
         // Regular Taekwondo attacks cycle: front kick -> roundhouse -> roundhouse.
@@ -4771,6 +4905,29 @@ window.OD_FIREBASE_CONFIG = {
 
         // Skill 1 Variants
         if (type === 'SKILL1') {
+          if (spec.skillStyle === 'TIME_REWIND') {
+            this.cooldowns.SKILL1 = spec.cooldown;
+            const history = this.timeHistory || [];
+            const past = history.length >= 150 ? history[Math.max(0,history.length-151)] : history[0];
+            if (past) {
+              const lost = Math.max(0, past.hp - this.hp);
+              this.x = Math.max(CONFIG.STAGE_LEFT+40,Math.min(CONFIG.STAGE_RIGHT-40,past.x));
+              this.y = Math.min(CONFIG.GROUND_Y,past.y);
+              this.vx = 0; this.vy = 0;
+              const heal = Math.round(lost * 0.5);
+              this.hp = Math.min(this.maxHp,this.hp+heal);
+              this.invulnTimer = Math.max(this.invulnTimer,18);
+              this.timeSwordCharges = 5;
+              this.timeSwordChargeAge = 0;
+              VFX.spawnAfterimage(this,'#00D2FF');
+              VFX.spawnHitSparks(this.x,this.y-85,'#00D2FF',30,1.2);
+              VFX.shockwaves.push({x:this.x,y:this.y-80,radius:10,maxRadius:130,life:22,maxLife:22,color:'#00D2FF'});
+              VFX.shockwaves.push({x:this.x,y:this.y-80,radius:22,maxRadius:92,life:18,maxLife:18,color:'#FFD700'});
+              VFX.spawnFloatingText(this.x,this.y-170,`시간 되감기 +${heal} HP · 시간 검 5개 생성`,'#00D2FF');
+            }
+            this.state='IDLE'; this.attackType=null; this.stateTimer=0;
+            AUDIO.sfxWhiff(); return;
+          }
           if (spec.skillStyle === 'BEG_STENCH') {
             this.cooldowns.SKILL1=spec.cooldown;this.gainUlt(spec.ultGainOnCast||0);
             if (this.opponent && Math.abs(this.opponent.x-this.x)<=spec.range && this.opponent.hp>0) {
@@ -4902,6 +5059,23 @@ window.OD_FIREBASE_CONFIG = {
 
         // Skill 2 Variants
         if (type === 'SKILL2') {
+          if (spec.skillStyle === 'TIME_BOMB') {
+            this.cooldowns.SKILL2 = spec.cooldown;
+            const bombSpec={visualType:'TIME_BOMB',speed:10.5,vy:0,gravity:.28,radius:22,damage:0,ultGainAttacker:0,ultGainDefender:0,hitstun:0,blockstun:0,knockbackX:0,hitstop:0,shake:0};
+            const bomb=new Projectile(this,this.x+this.facing*42,this.y-96,this.facing,bombSpec,true);
+            // Aim the throw toward the opponent with a predictable ballistic arc.
+            const target=this.opponent;
+            const flightFrames=target?Math.max(10,Math.min(40,Math.abs(target.x-bomb.x)/bombSpec.speed)):24;
+            const targetY=target?target.y-94:bomb.y;
+            bomb.vy=(targetY-bomb.y)/flightFrames-bombSpec.gravity*(flightFrames+1)/2;
+            bomb.vy=Math.max(-8,Math.min(3,bomb.vy));
+            bomb.timeBombProjectile=true;
+            projectiles.push(bomb);
+            VFX.spawnHitSparks(this.x+this.facing*42,this.y-126,'#FFD700',16,1.0);
+            VFX.spawnFloatingText(this.x,this.y-174,'시한폭탄 투척!','#FFD700');
+            this.state='IDLE'; this.attackType=null; this.stateTimer=0;
+            AUDIO.sfxWhiff(); return;
+          }
           if (spec.skillStyle === 'BEG_PLEAD') {
             this.cooldowns.SKILL2=spec.cooldown;this.gainUlt(spec.ultGainOnCast||0);
             this.begPleadTimer=spec.buffDuration;
@@ -5053,6 +5227,20 @@ window.OD_FIREBASE_CONFIG = {
         if (type === 'ULTIMATE') {
           this.ult = 0;
 
+          if (spec.ultStyle === 'TIME_STOP') {
+            if (this.opponent && this.opponent.hp > 0) {
+              this.opponent.timeStopTimer = 150;
+              this.opponent.timeStopOwner = this;
+              this.opponent.timeStopStoredDamage = 0;
+              VFX.triggerScreenFlash('#FFD700',0.52);
+              VFX.shockwaves.push({x:this.opponent.x,y:this.opponent.y-82,radius:10,maxRadius:300,life:36,maxLife:36,color:'#FFD700'});
+              VFX.shockwaves.push({x:this.opponent.x,y:this.opponent.y-82,radius:24,maxRadius:230,life:30,maxLife:30,color:'#00D2FF'});
+              VFX.spawnHitSparks(this.opponent.x,this.opponent.y-90,'#FFD700',42,1.6);
+              VFX.spawnFloatingText(this.opponent.x,this.opponent.y-175,'CHRONO DOMAIN · TIME STOP!','#FFD700');
+            }
+            this.state='IDLE'; this.attackType=null; this.stateTimer=0;
+            AUDIO.sfxUltimateFlash(); return;
+          }
           if (spec.ultStyle === 'BEG_COIN_RAIN') {
             this.begCoinRainTimer=spec.rainDuration;this.begCoinRainTick=0;this.begCoins=[];
             VFX.spawnFloatingText(this.x,this.y-180,'동전 폭우!', '#fde047');
@@ -5290,6 +5478,37 @@ window.OD_FIREBASE_CONFIG = {
 
         // 2. Startup Frame Triggers
         if (this.stateTimer === frames.startup) {
+          if (this.jobId === 'NECROMANCER' && this.attackType.startsWith('NECRO_BONE') && spec.projectile) {
+            const sx=this.x+this.facing*48, sy=this.y-112+(this.attackType==='NECRO_BONE2'?-8:0);
+            const bone=new Projectile(this,sx,sy,this.facing,spec.projectile,false);
+            bone.necroBone=true; projectiles.push(bone);
+            VFX.spawnHitSparks(sx,sy,'#c4b5fd',12,.8);
+            VFX.spawnSlashArc({x:sx,y:sy,radius:34,startAngle:-.7,endAngle:.7,facing:this.facing,color:'#a78bfa',lineWidth:5,life:8});
+            AUDIO.sfxWhiff();
+          }
+          if (this.jobId === 'NECROMANCER' && this.attackType.startsWith('NECRO_MELEE')) {
+            const heavy=this.attackType==='NECRO_MELEE3';
+            VFX.spawnSlashArc({x:this.x+this.facing*38,y:this.y-112,radius:heavy?116:88,startAngle:this.attackType==='NECRO_MELEE2'?.85:-1.05,endAngle:heavy?1.0:.78,facing:this.facing,color:'#a855f7',lineWidth:heavy?22:14,life:heavy?16:11});
+            VFX.spawnHitSparks(this.x+this.facing*(heavy?92:68),this.y-108,heavy?'#e9d5ff':'#c4b5fd',heavy?22:12,1.0);
+            if(heavy)VFX.shockwaves.push({x:this.x+this.facing*76,y:this.y-78,radius:8,maxRadius:84,life:14,maxLife:14,color:'#7e22ce'});
+            AUDIO.sfxSwordSlash();
+          }
+          if (this.jobId === 'TIME_MAGE' && this.attackType === 'TIME_SWORD_SHOT') {
+            const bladeSpec={visualType:'TIME_SWORD',speed:15.5,radius:17,damage:58,ultGainAttacker:6,ultGainDefender:4,hitstun:15,blockstun:10,knockbackX:6.5,knockbackY:-1,hitstop:5,shake:7};
+            const blade=new Projectile(this,this.x+this.facing*46,this.y-112,this.facing,bladeSpec,false);
+            blade.timeSwordProjectile=true;projectiles.push(blade);
+            VFX.spawnHitSparks(this.x+this.facing*48,this.y-112,'#FFD700',18,1.0);
+            VFX.shockwaves.push({x:this.x+this.facing*42,y:this.y-112,radius:7,maxRadius:42,life:10,maxLife:10,color:'#FFD700'});
+            AUDIO.sfxSwordSlash();
+          }
+          if (this.jobId === 'TIME_MAGE' && ['TIME_SECOND','TIME_MINUTE','TIME_HOUR'].includes(this.attackType)) {
+            const heavy=this.attackType==='TIME_HOUR';
+            const col='#00D2FF';
+            VFX.spawnSlashArc({x:this.x+this.facing*(heavy?48:34),y:this.y-(heavy?112:105),radius:heavy?116:88,startAngle:heavy?-1.15:-.8,endAngle:heavy?.9:.72,facing:this.facing,color:col,lineWidth:heavy?20:12,life:heavy?16:11});
+            VFX.spawnHitSparks(this.x+this.facing*(heavy?92:62),this.y-108,heavy?'#FFD700':col,heavy?18:10,heavy?1.05:.72);
+            if(heavy)VFX.shockwaves.push({x:this.x+this.facing*74,y:this.y-75,radius:8,maxRadius:78,life:14,maxLife:14,color:'#FFD700'});
+            AUDIO.sfxSwordSlash();
+          }
           if (this.jobId === 'DRAGON_KNIGHT' && ['DRAGON_SWING','DRAGON_SLAM','DRAGON_THRUST'].includes(this.attackType)) {
             const thrust=this.attackType==='DRAGON_THRUST';
             VFX.spawnSlashArc({x:this.x+this.facing*(thrust?62:35),y:this.y-(this.attackType==='DRAGON_SLAM'?118:104),radius:thrust?118:96,startAngle:thrust?-.22:-1.0,endAngle:thrust?.22:.78,facing:this.facing,color:this.attackType==='DRAGON_SLAM'?'#fde68a':'#fb923c',lineWidth:thrust?12:17,life:13});
@@ -5473,27 +5692,29 @@ window.OD_FIREBASE_CONFIG = {
             AUDIO.sfxReaperScythe();
           } else if (spec.ultStyle === 'REAPER_EXECUTE') {
             VFX.spawnSlashArc({
-              x: this.x + this.facing * 32,
-              y: this.y - 88,
-              radius: 132,
-              startAngle: -1.35,
-              endAngle: 1.05,
+              x: this.x + this.facing * 48,
+              y: this.y - 92,
+              radius: 154,
+              startAngle: -1.45,
+              endAngle: 0.92,
               facing: this.facing,
-              color: this.accentColor,
-              lineWidth: 26,
-              life: 16
+              color: '#c4b5fd',
+              lineWidth: 32,
+              life: 19
             });
             VFX.spawnSlashArc({
-              x: this.x + this.facing * 32,
-              y: this.y - 88,
-              radius: 112,
-              startAngle: 1.15,
-              endAngle: -1.15,
+              x: this.x + this.facing * 54,
+              y: this.y - 92,
+              radius: 126,
+              startAngle: 1.12,
+              endAngle: -1.12,
               facing: this.facing,
               color: '#090d16',
-              lineWidth: 18,
-              life: 15
+              lineWidth: 20,
+              life: 17
             });
+            VFX.spawnHitSparks(this.x + this.facing * 86, this.y - 92, '#e9d5ff', 24, 1.25);
+            VFX.shockwaves.push({x:this.x+this.facing*70,y:this.y-82,radius:10,maxRadius:112,life:16,maxLife:16,color:'#a78bfa'});
             AUDIO.sfxReaperExecute();
           }
 
@@ -6036,6 +6257,22 @@ window.OD_FIREBASE_CONFIG = {
             });
           } else {
             this.vx *= 0.65;
+          }
+        } else if (spec.ultStyle === 'REAPER_EXECUTE') {
+          // Reaper Ultimate: commit to a fast forward dash, then let the existing
+          // ultimate hitbox deliver the original slash damage and execute check.
+          if (this.stateTimer <= frames.startup + frames.active && opponent && opponent.hp > 0) {
+            const toward = opponent.x >= this.x ? 1 : -1;
+            this.facing = toward;
+            const gap = Math.abs(opponent.x - this.x);
+            const desiredGap = 58;
+            this.vx = gap > desiredGap ? toward * Math.min(25, gap - desiredGap) : 0;
+            if (this.stateTimer % 2 === 0) VFX.spawnAfterimage(this, '#a78bfa');
+            if (this.stateTimer === frames.startup - 1) {
+              VFX.spawnHitSparks(this.x + toward * 48, this.y - 88, '#c4b5fd', 16, 1.0);
+            }
+          } else {
+            this.vx = 0;
           }
         } else if (spec.ultStyle === 'VIKING_RAGNAROK') {
           // Phase A: Ascent into sky
@@ -6992,6 +7229,8 @@ window.OD_FIREBASE_CONFIG = {
           for (let j = i + 1; j < projectiles.length; j++) {
             const b = projectiles[j];
             if (!b.active || a.owner === b.owner) continue;
+            // Chronomancer's thrown clock bomb is a protected objective projectile.
+            if (a.timeBombProjectile || b.timeBombProjectile) continue;
             if (this.rectsOverlap(a.getHitbox(), b.getHitbox())) {
               const midX = (a.x + b.x) / 2;
               const midY = (a.y + b.y) / 2;
@@ -7062,6 +7301,15 @@ window.OD_FIREBASE_CONFIG = {
           if (defender.state === 'KO' || defender.invulnTimer > 0) continue;
 
           if (this.rectsOverlap(projBox, defender.getHurtbox())) {
+            if (proj.timeBombProjectile) {
+              proj.active=false;
+              defender.timeBomb={owner:proj.owner,timer:180,stacks:0,baseDamage:105,damagePerStack:16};
+              VFX.spawnFloatingText(defender.x,defender.y-178,'시한폭탄 부착! 3','#FFD700');
+              VFX.spawnHitSparks(defender.x,defender.y-92,'#FFD700',24,1.15);
+              VFX.shockwaves.push({x:defender.x,y:defender.y-84,radius:8,maxRadius:72,life:14,maxLife:14,color:'#FFD700'});
+              AUDIO.sfxGuard();
+              continue;
+            }
             if (proj.persistAfterHit && proj.hasHitTarget) continue;
             if (proj.persistAfterHit) { proj.hasHitTarget = true; }
             else if (proj.piercing) {
@@ -7111,6 +7359,16 @@ window.OD_FIREBASE_CONFIG = {
       },
 
       applyHit(attacker, defender, info) {
+        // Chronomancer effects: attacks during Time Stop are banked for the release burst.
+        if (defender.timeStopTimer > 0 && defender.timeStopOwner === attacker) {
+          defender.timeStopStoredDamage = (defender.timeStopStoredDamage || 0) + Math.max(0,info.damage || 0);
+          // Throttle impact particles while frozen; damage still accumulates on every hit.
+          if ((defender.timeStopSparkCooldown || 0) <= 0) {
+            VFX.spawnHitSparks(defender.x,defender.y-84,'#00D2FF',5,.55);
+            defender.timeStopSparkCooldown = 5;
+          }
+          return {connected:true,guarded:false};
+        }
         const hitX = (attacker.x + defender.x) / 2;
         const hitY = defender.y - 84;
 
@@ -7246,6 +7504,11 @@ window.OD_FIREBASE_CONFIG = {
           return { connected: true, guarded: true };
         }
 
+        // Only unguarded hits increase the attached bomb's eventual explosion.
+        if (defender.timeBomb && defender.timeBomb.owner === attacker && attacker.jobId === 'TIME_MAGE') {
+          defender.timeBomb.stacks = Math.min(16,(defender.timeBomb.stacks || 0) + 1);
+        }
+
         // Clean Hit!
         let remainingDamage = defender.gambleBuffTimer > 0 ? Math.round(incomingDamage * 0.7) : incomingDamage;
 
@@ -7295,6 +7558,9 @@ window.OD_FIREBASE_CONFIG = {
           VFX.spawnFloatingText(defender.x, defender.y - 158, rootTag, '#4ade80');
         }
 
+        if (attacker.jobId === 'TIME_MAGE' && attacker.attackType === 'TIME_HOUR' && !info.isSkill) {
+          attacker.timeEchoPending = {timer:36,target:defender,x:defender.x,y:defender.y,damage:Math.max(1,Math.round((info.damage||78)*0.55))};
+        }
         attacker.gainUlt(info.ultGainAttacker);
         defender.gainUlt(info.ultGainDefender);
 
@@ -7536,6 +7802,22 @@ window.OD_FIREBASE_CONFIG = {
       },
 
       drawStage(ctx, game) {
+        const timeStopVictim = [game.p1,game.p2].find(f => f && f.timeStopTimer > 0 && f.timeStopOwner && f.timeStopOwner.jobId === 'TIME_MAGE');
+        if (timeStopVictim) {
+          const t=(timeStopVictim.timeStopTimer||0);
+          const bg=ctx.createLinearGradient(0,0,0,CONFIG.HEIGHT);bg.addColorStop(0,'#020617');bg.addColorStop(.48,'#102044');bg.addColorStop(1,'#3b2608');ctx.fillStyle=bg;ctx.fillRect(0,0,CONFIG.WIDTH,CONFIG.HEIGHT);
+          const cx=CONFIG.WIDTH/2,cy=CONFIG.HEIGHT*.43;
+          const halo=ctx.createRadialGradient(cx,cy,18,cx,cy,470);halo.addColorStop(0,'rgba(255,215,0,.24)');halo.addColorStop(.48,'rgba(0,210,255,.12)');halo.addColorStop(1,'rgba(2,6,23,0)');ctx.fillStyle=halo;ctx.fillRect(0,0,CONFIG.WIDTH,CONFIG.HEIGHT);
+          ctx.save();ctx.translate(cx,cy);ctx.rotate((150-t)*.0025);ctx.strokeStyle='rgba(255,215,0,.72)';ctx.lineWidth=5;ctx.shadowColor='#FFD700';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(0,0,235,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;ctx.strokeStyle='rgba(0,210,255,.48)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,270,0,Math.PI*2);ctx.stroke();
+          for(let i=0;i<16;i++){const a=i*Math.PI/8;ctx.lineWidth=i%2===0?6:2;ctx.beginPath();ctx.moveTo(Math.cos(a)*216,Math.sin(a)*216);ctx.lineTo(Math.cos(a)*(i%2===0?238:228),Math.sin(a)*(i%2===0?238:228));ctx.stroke();}
+          ctx.strokeStyle='rgba(255,215,0,.8)';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(-Math.PI/2+(150-t)*.018)*150,Math.sin(-Math.PI/2+(150-t)*.018)*150);ctx.stroke();ctx.restore();
+          // A compact, deterministic star field avoids recalculating 90 trigonometric positions every frame.
+          if(!this.timeStopStars){this.timeStopStars=Array.from({length:36},(_,i)=>({x:((i*137.508)%997)/997*CONFIG.WIDTH,y:((i*271.337+83)%991)/991*CONFIG.HEIGHT,size:i%7===0?3:1.5,color:i%3===0?'#FFD700':'#00D2FF',alpha:.32+(i%4)*.1}));}
+          for(const star of this.timeStopStars){ctx.globalAlpha=star.alpha;ctx.fillStyle=star.color;ctx.fillRect(star.x,star.y,star.size,star.size);}
+          ctx.globalAlpha=1;const floor=ctx.createLinearGradient(0,CONFIG.GROUND_Y,0,CONFIG.HEIGHT);floor.addColorStop(0,'rgba(255,215,0,.18)');floor.addColorStop(1,'rgba(2,6,23,.96)');ctx.fillStyle=floor;ctx.fillRect(0,CONFIG.GROUND_Y,CONFIG.WIDTH,CONFIG.HEIGHT-CONFIG.GROUND_Y);ctx.strokeStyle='rgba(255,215,0,.78)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,CONFIG.GROUND_Y);ctx.lineTo(CONFIG.WIDTH,CONFIG.GROUND_Y);ctx.stroke();
+          ctx.save();ctx.textAlign='center';ctx.font='900 28px Orbitron,sans-serif';ctx.fillStyle='#FFD700';ctx.shadowColor='#FFD700';ctx.shadowBlur=22;ctx.fillText('CHRONO DOMAIN',CONFIG.WIDTH/2,68);ctx.font='700 13px sans-serif';ctx.fillStyle='#a5f3fc';ctx.fillText('TIME HAS STOPPED',CONFIG.WIDTH/2,91);ctx.restore();
+          return;
+        }
         const gojoDomain = [game.p1, game.p2].some(f => f && f.jobId === 'GOJO' && f.gojoDomainTimer > 0);
         if (gojoDomain) {
           // Infinite Void: replace the arena with a bright, colorful outer-space scene.
@@ -8633,6 +8915,32 @@ window.OD_FIREBASE_CONFIG = {
       },
 
       drawFighter(ctx, fighter) {
+        if (fighter.jobId === 'TIME_MAGE' && fighter.timeHistory && fighter.timeHistory.length > 2) {
+          const past = fighter.timeHistory[Math.max(0,fighter.timeHistory.length-150)];
+          if (past) { ctx.save();ctx.globalAlpha=.24;ctx.strokeStyle='#00D2FF';ctx.fillStyle='rgba(0,210,255,.10)';ctx.lineWidth=3;ctx.shadowColor='#00D2FF';ctx.shadowBlur=16;ctx.beginPath();ctx.ellipse(past.x,past.y-72,23,58,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore(); }
+        }
+        if (fighter.timeBomb) {
+          ctx.save();const pulse=1+Math.sin((180-fighter.timeBomb.timer)*.22)*.14;ctx.strokeStyle='#FFD700';ctx.fillStyle='rgba(255,215,0,.12)';ctx.lineWidth=3;ctx.shadowColor='#FFD700';ctx.shadowBlur=22;ctx.beginPath();ctx.arc(fighter.x,fighter.y-148,18*pulse,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.strokeStyle='#fff1a6';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(fighter.x-11,fighter.y-148);ctx.lineTo(fighter.x+11,fighter.y-148);ctx.moveTo(fighter.x,fighter.y-159);ctx.lineTo(fighter.x,fighter.y-137);ctx.stroke();ctx.fillStyle='#fff1a6';ctx.font='900 14px sans-serif';ctx.textAlign='center';ctx.fillText((fighter.timeBomb.timer/60).toFixed(1),fighter.x,fighter.y-174);ctx.restore();
+        }
+        if (fighter.jobId==='TIME_MAGE' && fighter.timeSwordCharges>0) {
+          ctx.save();const t=(fighter.animTick||0)*.045;
+          for(let i=0;i<fighter.timeSwordCharges;i++){const a=t+i*Math.PI*2/5;const sx=fighter.x+Math.cos(a)*62, sy=fighter.y-112+Math.sin(a)*25;ctx.save();ctx.translate(sx,sy);ctx.rotate(a+Math.PI/2);ctx.shadowColor='#FFD700';ctx.shadowBlur=22;ctx.fillStyle='#fff4b8';ctx.strokeStyle='#b7791f';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(0,-27);ctx.lineTo(-6,-8);ctx.lineTo(-3,13);ctx.lineTo(0,18);ctx.lineTo(3,13);ctx.lineTo(6,-8);ctx.closePath();ctx.fill();ctx.stroke();ctx.strokeStyle='#FFD700';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-10,10);ctx.lineTo(10,10);ctx.stroke();ctx.restore();}
+          ctx.restore();
+        }
+        if (fighter.timeStopTimer > 0) {
+          ctx.save();ctx.strokeStyle='#00D2FF';ctx.lineWidth=3;ctx.shadowColor='#00D2FF';ctx.shadowBlur=18;ctx.beginPath();ctx.arc(fighter.x,fighter.y-82,54,0,Math.PI*2);ctx.stroke();ctx.restore();
+        }
+        if (fighter.jobId==='TIME_MAGE' && fighter.timeMageGuardTimer>0) {
+          ctx.save();const pulse=1+Math.sin(fighter.animTick*.22)*.04;ctx.strokeStyle='#00D2FF';ctx.lineWidth=5;ctx.shadowColor='#00D2FF';ctx.shadowBlur=24;ctx.globalAlpha=.82;ctx.beginPath();ctx.ellipse(fighter.x,fighter.y-80,48*pulse,94*pulse,0,0,Math.PI*2);ctx.stroke();ctx.strokeStyle='#FFD700';ctx.lineWidth=2;ctx.beginPath();ctx.arc(fighter.x,fighter.y-80,57*pulse,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#e0faff';ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillText(`시간의 수호 ${Math.ceil(fighter.timeMageGuardTimer/60)}s`,fighter.x,fighter.y-192);ctx.restore();
+        }
+        if (fighter.jobId==='NECROMANCER' && fighter.necroSoulScytheTimer>0) {
+          ctx.save();const phase=fighter.animTick*.18;const sx=fighter.x+fighter.facing*76,sy=fighter.y-116;
+          ctx.translate(sx,sy);ctx.rotate(Math.sin(phase)*.28);ctx.shadowColor='#a855f7';ctx.shadowBlur=26;
+          ctx.strokeStyle='#24143b';ctx.lineWidth=10;ctx.beginPath();ctx.moveTo(-8,52);ctx.lineTo(13,-55);ctx.stroke();
+          ctx.strokeStyle='#c4b5fd';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-8,52);ctx.lineTo(13,-55);ctx.stroke();
+          ctx.fillStyle='rgba(126,34,206,.22)';ctx.strokeStyle='#d8b4fe';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(13,-55);ctx.bezierCurveTo(72,-95,90,-36,52,-8);ctx.bezierCurveTo(63,-49,35,-50,13,-55);ctx.closePath();ctx.fill();ctx.stroke();
+          ctx.restore();
+        }
         // Ground contact shadow
         const distFromGround = Math.max(0, CONFIG.GROUND_Y - fighter.y);
         const shadowScale = Math.max(0.35, 1 - distFromGround / 280);
@@ -8646,6 +8954,16 @@ window.OD_FIREBASE_CONFIG = {
         // Dragon transformation fully replaces the human sprite; the dragon is
         // rendered in the foreground by drawDragonKnightEffects().
         if (fighter.jobId === 'DRAGON_KNIGHT' && fighter.dragonFormTimer > 0) return;
+
+        // During Chronomancer's time stop, the frozen victim is rendered in radiant gold.
+        const frozenByTimeMage = fighter.timeStopTimer > 0 && fighter.timeStopOwner && fighter.timeStopOwner.jobId === 'TIME_MAGE';
+        if (frozenByTimeMage) {
+          ctx.save();ctx.globalAlpha=.96;
+          this.drawStickmanPose(ctx,{...fighter,accentColor:'#FFD700',glowColor:'#FFD700',color:'#FFD700'});
+          ctx.restore();
+          ctx.save();ctx.globalAlpha=.28;ctx.strokeStyle='#fff1a6';ctx.lineWidth=4;ctx.shadowColor='#FFD700';ctx.shadowBlur=28;ctx.beginPath();ctx.ellipse(fighter.x,fighter.y-80,46,92,0,0,Math.PI*2);ctx.stroke();ctx.restore();
+          return;
+        }
 
         // Flashing invulnerability frames
         if (fighter.invulnTimer > 0 && Math.floor(fighter.invulnTimer / 2) % 2 === 0 && fighter.state !== 'ATTACK') {
@@ -8701,7 +9019,23 @@ window.OD_FIREBASE_CONFIG = {
         const patch=(color,stroke='#172033',w=17)=>{ctx.fillStyle=color;ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+shoulderX-w,y+shoulderY+3);ctx.lineTo(x+shoulderX+w,y+shoulderY+3);ctx.lineTo(x+hipX+w*.8,y+hipY+6);ctx.lineTo(x+hipX-w*.8,y+hipY+6);ctx.closePath();ctx.fill();ctx.stroke();};
         const band=(color)=>{line(x+hipX-14,y+hipY,x+hipX+14,y+hipY,color,5);};
         const boot=(foot,color)=>{line(x+foot.x-dir*6,y+foot.y-9,x+foot.x+dir*10,y+foot.y-2,color,7);};
-        if(j==='PASTOR'){
+        if(j==='TIME_MAGE'){
+          const cyan='#00D2FF', gold='#FFD700';
+          ctx.fillStyle='rgba(0,210,255,.18)';ctx.strokeStyle=cyan;ctx.lineWidth=2.5;
+          ctx.beginPath();ctx.moveTo(x+shoulderX-19,y+shoulderY);ctx.lineTo(x+shoulderX+19,y+shoulderY);ctx.lineTo(x+hipX+22,y+hipY+18);ctx.lineTo(x+hipX-22,y+hipY+18);ctx.closePath();ctx.fill();ctx.stroke();
+          line(x+shoulderX,y+shoulderY+4,x+hipX,y+hipY+12,gold,3);
+          // Floating golden gear behind the shoulder.
+          ctx.save();ctx.translate(x-dir*27,y-145);ctx.rotate((f.animTick||0)*.012);ctx.strokeStyle=gold;ctx.lineWidth=3;ctx.shadowColor=gold;ctx.shadowBlur=10;
+          ctx.beginPath();ctx.arc(0,0,19,0,Math.PI*2);ctx.stroke();
+          for(let k=0;k<8;k++){const a=k*Math.PI/4;line(Math.cos(a)*17,Math.sin(a)*17,Math.cos(a)*25,Math.sin(a)*25,gold,4);}
+          ctx.beginPath();ctx.arc(0,0,6,0,Math.PI*2);ctx.stroke();ctx.restore();
+          // Monocle on the visible side of the face.
+          const mx=x+headX+dir*9,my=y+headY+1;ctx.strokeStyle=gold;ctx.lineWidth=2.5;ctx.shadowColor=gold;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(mx,my,7,0,Math.PI*2);ctx.stroke();
+          line(mx+dir*5,my+6,mx+dir*11,my+15,gold,1.5);
+          // Oversized golden clock-hand spear held in the leading hand.
+          const wx=x+frontHand.x+dir*10,wy=y+frontHand.y-20;ctx.save();ctx.translate(wx,wy);ctx.rotate(-dir*.55);ctx.strokeStyle=gold;ctx.fillStyle='#fff1a6';ctx.lineWidth=5;ctx.shadowColor=gold;ctx.shadowBlur=14;
+          ctx.beginPath();ctx.moveTo(0,34);ctx.lineTo(0,-54);ctx.stroke();ctx.beginPath();ctx.moveTo(0,-75);ctx.lineTo(-10,-48);ctx.lineTo(0,-54);ctx.lineTo(10,-48);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+        }else if(j==='PASTOR'){
           // 목회자: 긴 검은 수단, 흰 로만 칼라, 십자가, 손에 든 성경책
           ctx.fillStyle='#111827';ctx.strokeStyle='#e5e7eb';ctx.lineWidth=2.5;
           ctx.beginPath();ctx.moveTo(x+shoulderX-17,y+shoulderY+1);ctx.lineTo(x+shoulderX+17,y+shoulderY+1);ctx.lineTo(x+hipX+24,y+hipY+19);ctx.lineTo(x+hipX-24,y+hipY+19);ctx.closePath();ctx.fill();ctx.stroke();
@@ -8859,6 +9193,11 @@ window.OD_FIREBASE_CONFIG = {
           line(x+shoulderX-13,y+shoulderY+3,x+hipX+8,y+hipY,'#fef3c7',4);
           for(const foot of [frontFoot,backFoot])boot(foot,'#3f241e');
           ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(x+hipX,y+hipY,4,0,Math.PI*2);ctx.fill();
+        }else if(j==='NECROMANCER'){
+          ctx.save();ctx.fillStyle='rgba(15,10,28,.98)';ctx.strokeStyle='#7e22ce';ctx.lineWidth=3;
+          ctx.beginPath();ctx.moveTo(x+shoulderX-24,y+shoulderY-8);ctx.lineTo(x+shoulderX+24,y+shoulderY-8);ctx.lineTo(x+hipX+34,y+hipY+30);ctx.lineTo(x+hipX-34,y+hipY+30);ctx.closePath();ctx.fill();ctx.stroke();
+          ctx.strokeStyle='#c4b5fd';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+shoulderX,y+shoulderY+2);ctx.lineTo(x+hipX,y+hipY+22);ctx.stroke();
+          ctx.fillStyle='#a855f7';ctx.beginPath();ctx.arc(x+hipX,y+hipY+2,5,0,Math.PI*2);ctx.fill();ctx.restore();
         }else if(j==='REAPER'){
           ctx.fillStyle='#080c17';ctx.strokeStyle='#475569';ctx.lineWidth=2;ctx.beginPath();
           ctx.moveTo(x+shoulderX-23,y+shoulderY-11);ctx.lineTo(x+shoulderX+23,y+shoulderY-11);
@@ -8898,9 +9237,19 @@ window.OD_FIREBASE_CONFIG = {
           for(const hand of [frontHand,backHand]){ctx.fillStyle=metal;ctx.fillRect(x+hand.x-7,y+hand.y-6,14,12);ctx.strokeStyle=neon;ctx.strokeRect(x+hand.x-7,y+hand.y-6,14,12);}
           ctx.shadowBlur=0;
         }else if(j==='SONG_MASTER'){
-          patch('#ea580c','#fff7ed',16);band('#111827');
-          ctx.fillStyle='#fff7ed';ctx.font='900 16px sans-serif';ctx.textAlign='center';ctx.fillText('23',torsoX,torsoY+8);
-          for(const foot of [frontFoot,backFoot])boot(foot,'#fb923c');
+          const jersey=f.songFuryForm?'#ef2020':(f.songRageForm?'#c2410c':'#ea580c');
+          const trim=f.songFuryForm?'#fee2e2':(f.songRageForm?'#ffedd5':'#fff7ed');
+          patch(jersey,trim,16);band(f.songFuryForm?'#450a0a':(f.songRageForm?'#7f1d1d':'#111827'));
+          ctx.fillStyle=trim;ctx.font='900 16px sans-serif';ctx.textAlign='center';ctx.fillText('23',torsoX,torsoY+8);
+          for(const foot of [frontFoot,backFoot])boot(foot,f.songFuryForm?'#7f1d1d':(f.songRageForm?'#9a3412':'#fb923c'));
+          if(f.songRageForm){
+            ctx.save();const pulse=1+Math.sin(t*.28)*.08;
+            ctx.globalAlpha=f.songFuryForm?.48:.25;ctx.strokeStyle=f.songFuryForm?'#ff2020':'#fb923c';
+            ctx.lineWidth=f.songFuryForm?5:3;ctx.shadowColor=ctx.strokeStyle;ctx.shadowBlur=f.songFuryForm?24:13;
+            ctx.beginPath();ctx.ellipse(f.x,f.y-74,38*pulse,82*pulse,0,0,Math.PI*2);ctx.stroke();
+            if(f.songFuryForm){ctx.globalAlpha=.8;ctx.strokeStyle='#ffb4b4';ctx.lineWidth=2;for(let k=-1;k<=1;k++){ctx.beginPath();ctx.moveTo(f.x+k*15,f.y-158);ctx.lineTo(f.x+k*25,f.y-188-Math.sin(t*.2+k)*5);ctx.stroke();}}
+            ctx.restore();
+          }
         }else if(j==='TAEKWONDO'){
           // Keep the existing dobok and rank belt unobstructed; add sports wrist wraps.
           for(const h of [frontHand,backHand])line(x+h.x-5,y+h.y,x+h.x+5,y+h.y,'#0f172a',5);
@@ -9479,11 +9828,11 @@ window.OD_FIREBASE_CONFIG = {
         ctx.shadowBlur = f.awakenTimer > 0 || f.pirateBuffTimer > 0 || f.knightBuffTimer > 0 || isWolfForm ? 24 : 14;
         ctx.shadowColor = isWolfForm ? f.accentColor : (f.awakenTimer > 0 ? (f.id === 'P1' ? '#f43f5e' : '#38bdf8') : (f.pirateBuffTimer > 0 || f.knightBuffTimer > 0 ? '#fde047' : f.glowColor));
 
-        const bodyColor = isWolfForm ? '#334155' : (jobId === 'REAPER' ? '#cbd5e1' : '#f8fafc');
+        const bodyColor = isWolfForm ? '#334155' : (jobId === 'SONG_MASTER' && f.songFuryForm ? '#ef4444' : (jobId === 'SONG_MASTER' && f.songRageForm ? '#f97316' : (jobId === 'REAPER' ? '#cbd5e1' : '#f8fafc')));
         const limbWidth = isWolfForm ? 8.5 : 6.5;
 
         // Back Arm & Back Leg
-        ctx.strokeStyle = isWolfForm ? '#1e293b' : '#94a3b8';
+        ctx.strokeStyle = isWolfForm ? '#1e293b' : (jobId === 'SONG_MASTER' && f.songFuryForm ? '#991b1b' : (jobId === 'SONG_MASTER' && f.songRageForm ? '#9a3412' : '#94a3b8'));
         ctx.lineWidth = limbWidth;
         this.drawLimb(ctx, f.x + shoulderX, f.y + shoulderY, f.x + backHand.x, f.y + backHand.y, -dir * 8);
         this.drawLimb(ctx, f.x + hipX, f.y + hipY, f.x + backFoot.x, f.y + backFoot.y, dir * 10);
@@ -9611,7 +9960,7 @@ window.OD_FIREBASE_CONFIG = {
         }
         // Song Master Basketball Jersey & Shorts
         if (jobId === 'SONG_MASTER') {
-          ctx.fillStyle = f.accentColor;
+          ctx.fillStyle = f.songFuryForm ? '#ef2020' : (f.songRageForm ? '#c2410c' : f.accentColor);
           ctx.beginPath();
           ctx.moveTo(f.x + shoulderX - 9, f.y + shoulderY + 2);
           ctx.lineTo(f.x + shoulderX + 9, f.y + shoulderY + 2);
@@ -9619,7 +9968,7 @@ window.OD_FIREBASE_CONFIG = {
           ctx.lineTo(f.x + hipX - 10, f.y + hipY + 2);
           ctx.closePath();
           ctx.fill();
-          ctx.fillStyle = '#1e293b';
+          ctx.fillStyle = f.songFuryForm ? '#450a0a' : (f.songRageForm ? '#7f1d1d' : '#1e293b');
           ctx.fillRect(f.x + hipX - 11, f.y + hipY, 22, 16);
         }
 
@@ -9894,6 +10243,13 @@ window.OD_FIREBASE_CONFIG = {
           ctx.beginPath();
           ctx.arc(f.x + headX + dir * 3, f.y + headY - 13, 3.5, 0, Math.PI * 2);
           ctx.fill();
+        } else if (jobId === 'NECROMANCER') {
+          // Deep hood, skull mask and violet runic eyes.
+          ctx.fillStyle='#090611';ctx.strokeStyle='#a855f7';ctx.lineWidth=3;ctx.shadowColor='#7e22ce';ctx.shadowBlur=16;
+          ctx.beginPath();ctx.moveTo(f.x+headX-23,f.y+headY-2);ctx.quadraticCurveTo(f.x+headX,f.y+headY-37,f.x+headX+23,f.y+headY-2);ctx.lineTo(f.x+headX+18,f.y+headY+17);ctx.lineTo(f.x+headX-18,f.y+headY+17);ctx.closePath();ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+          ctx.fillStyle='#e9d5ff';ctx.beginPath();ctx.ellipse(f.x+headX,f.y+headY+7,11,9,0,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle='#4c1d95';ctx.fillRect(f.x+headX-8,f.y+headY+3,5,4);ctx.fillRect(f.x+headX+3,f.y+headY+3,5,4);
+          ctx.strokeStyle='#7e22ce';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(f.x+headX,f.y+headY+12);ctx.lineTo(f.x+headX,f.y+headY+17);ctx.stroke();
         } else if (jobId === 'REAPER') {
           // Black Grim Reaper Hood & Glowing Eyes
           ctx.fillStyle = '#090d16';
@@ -9950,8 +10306,17 @@ window.OD_FIREBASE_CONFIG = {
           this.drawPirateGear(ctx, f, frontHand, dir);
         } else if (jobId === 'REAPER') {
           this.drawReaperScythe(ctx, f, frontHand, dir);
+        } else if (jobId === 'NECROMANCER') {
+          const sx=f.x+frontHand.x+dir*8, sy=f.y+frontHand.y;
+          ctx.save();ctx.translate(sx,sy);ctx.rotate(-dir*.22);ctx.shadowColor='#a855f7';ctx.shadowBlur=18;
+          ctx.strokeStyle='#24143b';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(0,25);ctx.lineTo(0,-58);ctx.stroke();
+          ctx.strokeStyle='#c4b5fd';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,24);ctx.lineTo(0,-58);ctx.stroke();
+          ctx.fillStyle='#6b21a8';ctx.strokeStyle='#e9d5ff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-66,12,0,Math.PI*2);ctx.fill();ctx.stroke();
+          ctx.fillStyle='#f5f3ff';ctx.beginPath();ctx.arc(-4,-68,3,0,Math.PI*2);ctx.arc(4,-68,3,0,Math.PI*2);ctx.fill();
+          for(let k=0;k<3;k++){const a=f.animTick*.035+k*Math.PI*2/3;ctx.fillStyle='#c4b5fd';ctx.beginPath();ctx.arc(Math.cos(a)*19,-66+Math.sin(a)*19,2.5,0,Math.PI*2);ctx.fill();}
+          ctx.restore();
         } else if (jobId === 'SONG_MASTER') {
-          if (f.state !== 'ATTACK' || f.attackType !== 'BASKET_THROW' || f.stateTimer < 5) {
+          if (!f.songRageForm && (f.state !== 'ATTACK' || f.attackType !== 'BASKET_THROW' || f.stateTimer < 5)) {
             const bx = f.x + frontHand.x + dir * 8;
             const by = f.y + frontHand.y;
             ctx.fillStyle = '#ea580c';
@@ -9961,6 +10326,10 @@ window.OD_FIREBASE_CONFIG = {
             ctx.arc(bx, by, 13, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
+          }
+          if(f.songFuryForm){
+            ctx.save();ctx.strokeStyle='#7f1d1d';ctx.lineWidth=4;ctx.lineCap='round';
+            ctx.beginPath();ctx.moveTo(f.x-8,f.y-132);ctx.lineTo(f.x-2,f.y-128);ctx.moveTo(f.x+8,f.y-132);ctx.lineTo(f.x+2,f.y-128);ctx.stroke();ctx.restore();
           }
         }
 
@@ -10514,6 +10883,31 @@ window.OD_FIREBASE_CONFIG = {
           if (!proj.active) continue;
           ctx.save();
 
+          if (proj.visualType === 'NECRO_BONE') {
+            ctx.save();ctx.translate(proj.x,proj.y);ctx.rotate(proj.rotation);ctx.shadowColor='#a855f7';ctx.shadowBlur=18;
+            ctx.strokeStyle='#312e45';ctx.lineWidth=10;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-20,0);ctx.lineTo(20,0);ctx.stroke();
+            ctx.strokeStyle='#e9d5ff';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(-18,0);ctx.lineTo(17,0);ctx.stroke();
+            for(const end of [-1,1]){ctx.fillStyle='#f5f3ff';ctx.beginPath();ctx.arc(end*19,0,6,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(end*16,-4);ctx.lineTo(end*25,-10);ctx.lineTo(end*24,3);ctx.closePath();ctx.fill();}
+            ctx.restore();ctx.restore();continue;
+          }
+          if (proj.visualType === 'NECRO_CHAIN') {
+            ctx.save();ctx.translate(proj.x,proj.y);ctx.rotate(proj.rotation);ctx.shadowColor='#7e22ce';ctx.shadowBlur=20;ctx.strokeStyle='#1f1530';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(-34,0);ctx.lineTo(30,0);ctx.stroke();ctx.strokeStyle='#c4b5fd';ctx.lineWidth=3;ctx.setLineDash([8,5]);ctx.beginPath();ctx.moveTo(-34,0);ctx.lineTo(30,0);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#e9d5ff';ctx.beginPath();ctx.arc(34,0,8,0,Math.PI*2);ctx.fill();ctx.restore();ctx.restore();continue;
+          }
+          if (proj.visualType === 'TIME_BOMB') {
+            ctx.save();ctx.translate(proj.x,proj.y);ctx.rotate(proj.rotation);
+            const pulse=1+Math.sin(proj.age*.35)*.12;
+            ctx.shadowColor='#FFD700';ctx.shadowBlur=24;
+            const orb=ctx.createRadialGradient(-5,-6,2,0,0,24*pulse);orb.addColorStop(0,'#fffde7');orb.addColorStop(.3,'#FFD700');orb.addColorStop(.72,'#b7791f');orb.addColorStop(1,'rgba(120,53,15,0)');
+            ctx.fillStyle=orb;ctx.beginPath();ctx.arc(0,0,24*pulse,0,Math.PI*2);ctx.fill();
+            ctx.strokeStyle='#fff1a6';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,16*pulse,0,Math.PI*2);ctx.stroke();
+            ctx.strokeStyle='#78350f';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-12,0);ctx.lineTo(12,0);ctx.moveTo(0,-12);ctx.lineTo(0,12);ctx.stroke();
+            ctx.fillStyle='#fff7cc';ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('⏱',0,1);ctx.restore();ctx.restore();continue;
+          }
+          if (proj.visualType === 'TIME_SWORD') {
+            ctx.save();ctx.translate(proj.x,proj.y);ctx.rotate(proj.rotation);ctx.shadowColor='#FFD700';ctx.shadowBlur=24;
+            ctx.fillStyle='#fff8c7';ctx.strokeStyle='#b7791f';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(29,0);ctx.lineTo(4,-9);ctx.lineTo(-18,-5);ctx.lineTo(-25,0);ctx.lineTo(-18,5);ctx.lineTo(4,9);ctx.closePath();ctx.fill();ctx.stroke();
+            ctx.strokeStyle='#FFD700';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-12,0);ctx.lineTo(-29,0);ctx.stroke();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(26,0);ctx.stroke();ctx.restore();ctx.restore();continue;
+          }
           if(['DRAGON_SPEAR','DRAGON_FIRE'].includes(proj.visualType)){
             ctx.save();ctx.translate(proj.x,proj.y);ctx.rotate(proj.rotation);ctx.shadowColor='#fb5b24';ctx.shadowBlur=20;
             if(proj.visualType==='DRAGON_SPEAR'){
@@ -11436,9 +11830,9 @@ window.OD_FIREBASE_CONFIG = {
     // Character-by-character balance pass. Cooldowns are authored in frames
     // at 60 FPS; damage scaling is applied once at the shared hit-resolution point.
     const CHARACTER_DAMAGE_SCALE = {
-      GOJO:0.78, STICKMAN:0.94, SAMURAI:1.00, VIKING:0.88, NINJA:0.94,
+      GOJO:0.78, STICKMAN:0.94, SAMURAI:0.82, VIKING:0.88, NINJA:0.94,
       TAOIST:0.92, KNIGHT:0.96, PIRATE:0.92, REAPER:0.88,
-      WEREWOLF:0.88, SONG_MASTER:0.84, POSEIDON:0.92,
+      WEREWOLF:0.88, SONG_MASTER:1.00, POSEIDON:0.92, TIME_MAGE:1.08, NECROMANCER:0.95,
       TAEKWONDO:0.88, GAMBLER:0.88, HUNTER:0.94, BEGGAR:0.92,
       AI_ROBOT:0.92, PASTOR:0.92, SANTA:0.90, DRAGON_KNIGHT:0.92
     };
@@ -11450,9 +11844,9 @@ window.OD_FIREBASE_CONFIG = {
       TAOIST:{cooldowns:{SKILL1:210,SKILL2:210},overrides:{SKILL1:{damage:58,rootDuration:72},SKILL2:{projectile:{damage:28}},ULTIMATE:{rainDuration:420,strikeInterval:78,lightningDamage:48}}},
       KNIGHT:{cooldowns:{SKILL1:300,SKILL2:240},overrides:{SKILL1:{guardDuration:180},SKILL2:{damage:105,buffDuration:300,damageMult:1.18},ULTIMATE:{bannerDuration:420,bannerHp:200,damageReduction:0.30}}},
       PIRATE:{cooldowns:{SKILL1:420,SKILL2:480},overrides:{PIRATE_GUN_SHOT:{projectile:{damage:58}},SKILL1:{gunDuration:360},SKILL2:{buffDuration:300,speedMult:1.18,damageMult:1.18},ULTIMATE:{cannonDamage:60}}},
-      REAPER:{cooldowns:{SKILL1:150,SKILL2:240},overrides:{REAPER_SLASH3:{healOnHit:24},SKILL1:{scytheDamageOut:60,scytheDamageReturn:48,healOnHit:14},SKILL2:{ghostHp:45,ghostDamage:14,ghostDuration:480},ULTIMATE:{damage:175,executeThreshold:0.12}}},
+      REAPER:{cooldowns:{SKILL1:150,SKILL2:240},overrides:{REAPER_SLASH3:{healOnHit:24},SKILL1:{scytheDamageOut:60,scytheDamageReturn:48,healOnHit:9,hitstun:11,blockstun:8},SKILL2:{ghostHp:45,ghostDamage:14,ghostDuration:480},ULTIMATE:{damage:175,executeThreshold:0.12}}},
       WEREWOLF:{cooldowns:{SKILL1:90,SKILL2:150},overrides:{SKILL1:{wolfCooldown:120,damage:98},SKILL2:{wolfCooldown:210,damage:92,healOnHit:50,rootDuration:84}}},
-      SONG_MASTER:{cooldowns:{SKILL1:150,SKILL2:360},overrides:{BASKET_THROW:{projectile:{damage:52}},SKILL1:{damage:90},SKILL2:{buffDuration:240,dodgeChance:0.40},ULTIMATE:{damage:210}}},
+      SONG_MASTER:{cooldowns:{SKILL1:150,SKILL2:360},overrides:{BASKET_THROW:{projectile:{damage:65}},SKILL1:{damage:118},SKILL2:{buffDuration:240,dodgeChance:0.40},ULTIMATE:{damage:245}}},
       POSEIDON:{cooldowns:{SKILL1:210,SKILL2:210},overrides:{SKILL1:{damage:30,slowDuration:180},SKILL2:{projectile:{damage:68,slowDuration:180}},ULTIMATE:{shieldHp:300,krakenStrikes:7,strikeInterval:60,strikeDamage:55}}},
       TAEKWONDO:{cooldowns:{SKILL1:360,SKILL2:420},overrides:{SKILL1:{buffDuration:300},SKILL2:{buffDuration:300,defMult:0.75,projectile:{damage:115}},ULTIMATE:{healAmount:80,pushRadius:210}}},
       GAMBLER:{cooldowns:{SKILL1:150,SKILL2:270},overrides:{SKILL1:{projectile:{damage:55}},ULTIMATE:{buffDuration:360,damageMult:1.25,speedMult:1.18,defenseMult:0.80,healAmount:120}}},
@@ -11460,7 +11854,7 @@ window.OD_FIREBASE_CONFIG = {
       BEGGAR:{cooldowns:{SKILL1:360,SKILL2:480},overrides:{SKILL1:{duration:150},SKILL2:{buffDuration:120},ULTIMATE:{rainDuration:240,coinInterval:14,silverDamage:18,goldDamage:30}}},
       AI_ROBOT:{cooldowns:{SKILL1:360,SKILL2:300},overrides:{SKILL1:{sealDuration:150,evolvedDuration:210}}},
       PASTOR:{cooldowns:{SKILL1:420,SKILL2:540},overrides:{SKILL1:{duration:210,healPerTick:8,damagePerTick:14},SKILL2:{duration:132},ULTIMATE:{active:120,damage:110,stun:102}}},
-      SANTA:{cooldowns:{SKILL1:480,SKILL2:540},overrides:{SKILL1:{duration:160,dropDamage:18},SKILL2:{duration:210,freezeThreshold:180,freezeDuration:48},ULTIMATE:{rideDuration:330,rideHp:280,healAmount:80,damageMult:1.15,defenseMult:0.85,speedMult:1.10}}},
+      SANTA:{cooldowns:{SKILL1:480,SKILL2:540},overrides:{SKILL1:{duration:180,dropDamage:55},SKILL2:{duration:240,freezeThreshold:145,freezeDuration:72},ULTIMATE:{rideDuration:330,rideHp:280,healAmount:80,damageMult:1.15,defenseMult:0.85,speedMult:1.10}}},
       DRAGON_KNIGHT:{cooldowns:{SKILL1:390,SKILL2:480},overrides:{SKILL1:{projectile:{damage:142,knockbackX:29}},SKILL2:{breathDuration:150,pulseInterval:10,pulseDamage:22,healRatio:0.35},ULTIMATE:{transformDuration:480}}}
     };
     for (const [jobId, tuning] of Object.entries(CHARACTER_BALANCE)) {
@@ -11704,9 +12098,32 @@ window.OD_FIREBASE_CONFIG = {
     COMBAT_ENGINE.applyHit = function(attacker, defender, info) {
       if (info && typeof info.damage === 'number' && info.damage > 0) {
         const scale = CHARACTER_DAMAGE_SCALE[attacker && attacker.jobId] || 0.92;
-        info = {...info, damage: Math.max(1, Math.round(info.damage * scale))};
+        let adjustedDamage = info.damage * scale;
+        // Song Master Rage: +20% damage while the 50% HP melee form is active.
+        if (attacker && attacker.jobId === 'SONG_MASTER' && attacker.songRageForm) {
+          adjustedDamage *= 1.20;
+        }
+        // Song Master Fury: take 25% less damage while at or below 20% HP.
+        if (defender && defender.jobId === 'SONG_MASTER' && defender.songFuryForm) {
+          adjustedDamage *= 0.75;
+        }
+        if (defender && defender.jobId === 'TIME_MAGE' && defender.timeMageGuardTimer > 0) {
+          adjustedDamage *= 0.45;
+        }
+        info = {...info, damage: Math.max(1, Math.round(adjustedDamage))};
       }
       return applyHitBeforeBalance(attacker, defender, info);
+    };
+
+    // Hunter, AI Robot, and Gambler normal attacks deal damage only.
+    const applyHitBeforeDamageOnlyNormals = COMBAT_ENGINE.applyHit.bind(COMBAT_ENGINE);
+    COMBAT_ENGINE.applyHit = function(attacker, defender, info) {
+      if (attacker && info && !info.isSkill &&
+          ['HUNTER','AI_ROBOT','GAMBLER'].includes(attacker.jobId) &&
+          attacker.attackType && attacker.isNormalAttackType(attacker.attackType)) {
+        info = {...info, hitstun:0, blockstun:0, knockbackX:0, knockbackY:0, knockdown:false, hitstop:0, shake:0};
+      }
+      return applyHitBeforeDamageOnlyNormals(attacker, defender, info);
     };
 
     // AI normal-chain nerf: first and second hits still deal damage/stun,
@@ -11740,9 +12157,141 @@ window.OD_FIREBASE_CONFIG = {
       return result;
     };
 
+    // Song Master: low-HP basketball brawler transformation.
+    // This is deliberately isolated to SONG_MASTER; other fighters keep their original logic.
+    const SONG_MASTER_JOB = CONFIG.JOBS.SONG_MASTER;
+    SONG_MASTER_JOB.attacks.SONG_RAGE_PUNCH1 = {
+      name:'SONG_RAGE_PUNCH1', startup:5, active:4, recovery:9, damage:52,
+      ultGainAttacker:7, ultGainDefender:4, hitstun:13, blockstun:9,
+      knockbackX:3.5, knockbackY:-1, hitstop:5, shake:6,
+      hitbox:{offsetX:18,offsetY:-119,width:92,height:58},
+      nextNormal:'SONG_RAGE_PUNCH2',canCancelInto:['SONG_RAGE_PUNCH2','SKILL1','SKILL2','ULTIMATE']
+    };
+    SONG_MASTER_JOB.attacks.SONG_RAGE_PUNCH2 = {
+      name:'SONG_RAGE_PUNCH2', startup:5, active:4, recovery:10, damage:60,
+      ultGainAttacker:8, ultGainDefender:4, hitstun:15, blockstun:10,
+      knockbackX:4.5, knockbackY:-2, hitstop:6, shake:7,
+      hitbox:{offsetX:20,offsetY:-124,width:104,height:62},
+      nextNormal:'SONG_RAGE_PUNCH3',canCancelInto:['SONG_RAGE_PUNCH3','SKILL1','SKILL2','ULTIMATE']
+    };
+    SONG_MASTER_JOB.attacks.SONG_RAGE_PUNCH3 = {
+      name:'SONG_RAGE_PUNCH3', startup:7, active:5, recovery:16, damage:92,
+      ultGainAttacker:12, ultGainDefender:6, hitstun:22, blockstun:14,
+      knockbackX:15, knockbackY:-8, knockdown:true, hitstop:9, shake:12,
+      hitbox:{offsetX:22,offsetY:-130,width:122,height:76},
+      canCancelInto:['SKILL1','SKILL2','ULTIMATE']
+    };
+
+    function activateSongMasterRage(f) {
+      if (!f || f.jobId !== 'SONG_MASTER' || f.hp <= 0 || f.songRageForm || f.hp > f.maxHp * 0.50) return;
+      f.songRageForm = true;
+      f.firstNormal = 'SONG_RAGE_PUNCH1';
+      f.songRageComboReady = true;
+      VFX.triggerScreenFlash('#fb923c',0.28);
+      VFX.triggerShake(13);
+      VFX.shockwaves.push({x:f.x,y:f.y-78,radius:12,maxRadius:220,life:22,maxLife:22,color:'#fb923c'});
+      VFX.shockwaves.push({x:f.x,y:CONFIG.GROUND_Y-8,radius:8,maxRadius:285,life:20,maxLife:20,color:'#f97316'});
+      VFX.spawnHitSparks(f.x,f.y-88,'#fb923c',34,1.45);
+      VFX.spawnFloatingText(f.x,f.y-190,'분노 폭발! 근접 모드','#fb923c');
+      const enemy=f.opponent;
+      if(enemy && enemy.hp>0 && Math.abs(enemy.x-f.x)<310 && Math.abs(enemy.y-f.y)<150){
+        const dir=enemy.x>=f.x?1:-1;
+        enemy.vx=dir*23; enemy.vy=-9;
+        enemy.state='HITSTUN'; enemy.stateTimer=0; enemy.hitstunTimer=Math.max(enemy.hitstunTimer||0,26);
+        VFX.spawnHitSparks(enemy.x,enemy.y-86,'#fb923c',28,1.3);
+        VFX.shockwaves.push({x:enemy.x,y:enemy.y-82,radius:10,maxRadius:145,life:18,maxLife:18,color:'#fb923c'});
+        VFX.spawnFloatingText(enemy.x,enemy.y-165,'분노의 충격파!','#fdba74');
+      }
+      AUDIO.sfxHitHeavy();
+    }
+
+    function activateSongMasterFury(f) {
+      if (!f || f.jobId !== 'SONG_MASTER' || f.hp <= 0 || f.songFuryForm || f.hp > f.maxHp * 0.20) return;
+      f.songFuryForm = true;
+      VFX.triggerScreenFlash('#ef4444',0.34);
+      VFX.triggerShake(16);
+      VFX.shockwaves.push({x:f.x,y:f.y-80,radius:10,maxRadius:250,life:24,maxLife:24,color:'#ef4444'});
+      VFX.spawnHitSparks(f.x,f.y-92,'#ff1f1f',42,1.55);
+      VFX.spawnFloatingText(f.x,f.y-198,'초분노 상태 · 상태이상 면역','#ff3030');
+      AUDIO.sfxHitHeavy();
+    }
+
+    const songMasterResetBase = Fighter.prototype.resetForRound;
+    Fighter.prototype.resetForRound = function(x,facing) {
+      const result=songMasterResetBase.call(this,x,facing);
+      if(this.jobId==='SONG_MASTER'){
+        this.songRageForm=false; this.songFuryForm=false;
+        this.songRageComboReady=false; this.firstNormal='BASKET_THROW';
+      }
+      return result;
+    };
+
+    function clearSongMasterStatus(f) {
+      if(!f || !f.songFuryForm) return;
+      f.rootTimer=0; f.customStun=0; f.customFreeze=0;
+      f.aiStunTimer=0; f.aiSealTimer=0; f.aiSealSlot=null;
+      f.revertStunTimer=0; f.gambleSlowTimer=0; f.poseidonSlowTimer=0; f.poseidonSlowStacks=0;
+      f.slowTimer=0; f.hitstunTimer=0; f.blockstunTimer=0;
+      // Time stop is also a hard crowd-control status, so the 20% form can break it.
+      f.timeStopTimer=0; f.timeStopOwner=null; f.timeStopStoredDamage=0; f.timeStopSparkCooldown=0;
+      if(f.state==='HITSTUN') { f.state=f.isGrounded()?'IDLE':'JUMP'; f.stateTimer=0; }
+    }
+
+    const songMasterUpdateBase = Fighter.prototype.update;
+    Fighter.prototype.update = function(opponent,projectiles,canControl) {
+      if(this.jobId==='SONG_MASTER'){
+        activateSongMasterRage(this);
+        activateSongMasterFury(this);
+        clearSongMasterStatus(this);
+      }
+      const result=songMasterUpdateBase.call(this,opponent,projectiles,canControl);
+      if(this.jobId==='SONG_MASTER'){
+        activateSongMasterRage(this);
+        activateSongMasterFury(this);
+        clearSongMasterStatus(this);
+      }
+      return result;
+    };
+
+    // At 20% HP, Song Master ignores status effects but still takes damage and knockback.
+    const songMasterStatusBase = COMBAT_ENGINE.applyHit.bind(COMBAT_ENGINE);
+    COMBAT_ENGINE.applyHit = function(attacker,defender,info) {
+      const immune=Boolean(defender && defender.jobId==='SONG_MASTER' && defender.hp<=defender.maxHp*0.20);
+      if(immune && info){
+        info={...info,hitstun:0,blockstun:0,rootDuration:0,aiStun:0,slowDuration:0,freezeDuration:0};
+      }
+      const result=songMasterStatusBase(attacker,defender,info);
+      if(immune && defender){
+        clearSongMasterStatus(defender);
+      }
+      if(result && result.connected && !result.guarded && attacker && attacker.jobId==='SONG_MASTER' && attacker.songRageForm && attacker.isNormalAttackType(attacker.attackType)){
+        const hx=(attacker.x+defender.x)*.5, hy=defender.y-88;
+        VFX.spawnHitSparks(hx,hy,attacker.songFuryForm?'#ff2424':'#fb923c',24,1.15);
+        VFX.shockwaves.push({x:hx,y:hy,radius:8,maxRadius:92,life:13,maxLife:13,color:attacker.songFuryForm?'#ff2424':'#fb923c'});
+        VFX.triggerShake(attacker.songFuryForm?9:6);
+      }
+      return result;
+    };
+
     function updateNewCharacterEffects(game) {
       const fighters = [game.p1,game.p2].filter(Boolean);
       for (const f of fighters) {
+        if(f.timeMageGuardTimer>0)f.timeMageGuardTimer--;
+        if(f.necroSoulScytheTimer>0){
+          f.necroSoulScytheTimer--;f.necroSoulScytheTick=(f.necroSoulScytheTick||0)+1;
+          const enemy=f.opponent;
+          if(f.necroSoulScytheTick%22===0){
+            VFX.spawnSlashArc({x:f.x+(enemy&&enemy.x<f.x?-1:1)*82,y:f.y-108,radius:138,startAngle:-1.22,endAngle:1.0,facing:enemy&&enemy.x<f.x?-1:1,color:'#a855f7',lineWidth:27,life:16});
+            VFX.spawnHitSparks(f.x+(enemy&&enemy.x<f.x?-1:1)*118,f.y-106,'#d8b4fe',18,1.0);
+            if(enemy&&enemy.hp>0&&enemy.invulnTimer<=0&&Math.abs(enemy.x-f.x)<205&&Math.abs(enemy.y-f.y)<125){
+              const before=enemy.hp;const res=COMBAT_ENGINE.applyHit(f,enemy,{damage:32,isSkill:true,ultGainAttacker:0,ultGainDefender:1,hitstun:9,blockstun:7,knockbackX:2.5,knockbackY:0,knockdown:false,hitstop:3,shake:5,direction:enemy.x>=f.x?1:-1,sourceX:f.x,isHeavy:false});
+              const dealt=Math.max(0,before-enemy.hp);const healed=Math.min(f.maxHp-f.hp,Math.round(dealt*.40));
+              if(res&&res.connected&&!res.guarded&&healed>0){f.hp+=healed;VFX.spawnFloatingText(f.x,f.y-165,`영혼 흡수 +${healed} HP`,'#c4b5fd');VFX.spawnHitSparks(f.x,f.y-82,'#c4b5fd',9,.7);}
+            }
+          }
+          if(f.necroSoulScytheTimer===0)VFX.spawnFloatingText(f.x,f.y-174,'영혼의 낫 종료','#a855f7');
+        }
+        if(f.necroChainTarget && (f.necroChainTarget.hp<=0 || f.necroChainTarget.necroChainOwner!==f || (f.necroChainTarget.necroChainTimer||0)<=0))f.necroChainTarget=null;
         if(f.jobId==='GOJO'){
           if(f.gojoImpactVfxCooldown>0)f.gojoImpactVfxCooldown--;
           if(f.gojoDomainTimer>0){
@@ -11791,7 +12340,30 @@ window.OD_FIREBASE_CONFIG = {
             }else{VFX.spawnFloatingText(px,CONFIG.GROUND_Y-160,'여래신장 회피!','#fde68a');VFX.spawnHitSparks(px,CONFIG.GROUND_Y-24,'#fbbf24',24,1.0);}
           }
         }
-        if (f.santaSnowTimer>0) f.santaSnowTimer--;
+        if (f.santaSnowTimer>0) {
+          f.santaSnowTimer--;
+          if(f.jobId==='SANTA'){
+            f.santaSnowTick=(f.santaSnowTick||0)+1;
+            if(f.santaSnowTick%20===0){
+              const target=f.opponent;
+              if(target && target.hp>0 && (target.customFreeze||0)<=0){
+                const snowDamage=8;
+                target.hp=Math.max(0,target.hp-snowDamage);
+                f.santaFreezeMeter=(f.santaFreezeMeter||0)+snowDamage;
+                VFX.spawnHitSparks(target.x,target.y-80,'#bfdbfe',8,.65);
+                VFX.spawnFloatingText(target.x,target.y-145,`눈보라 -${snowDamage}`,'#bfdbfe');
+                if(f.santaFreezeMeter>=f.attacks.SKILL2.freezeThreshold){
+                  target.customFreeze=f.attacks.SKILL2.freezeDuration;target.vx=0;target.vy=0;
+                  target.state='HITSTUN';target.stateTimer=f.attacks.SKILL2.freezeDuration;
+                  f.santaFreezeMeter=0;
+                  VFX.spawnFloatingText(target.x,target.y-175,'❄ 얼어붙었다! ❄','#bfdbfe');
+                }
+              }
+            }
+          }
+        } else if(f.jobId==='SANTA') {
+          f.santaSnowTick=0;
+        }
         if (f.santaRideTimer>0) {
           f.santaRideTimer--;
           if(f.santaRideTimer<=0){f.santaDamageMult=1;f.santaDefenseMult=1;f.santaSpeedMult=1;}
@@ -11805,38 +12377,78 @@ window.OD_FIREBASE_CONFIG = {
           f.hp=Math.min(f.maxHp,f.hp+0.10);
         }
       }
+      for(const f of fighters){if(f.necroChainTimer>0){f.necroChainTimer--;if(f.necroChainTimer<=0){f.necroChainOwner=null;}}}
+      if(game.necroMinions){
+        for(let i=game.necroMinions.length-1;i>=0;i--){
+          const m=game.necroMinions[i],owner=m.owner,target=m.target||owner?.opponent;
+          if(!m.active||!owner||owner.state==='KO'||m.life<=0||m.hp<=0){VFX.spawnSmokePoof(m.x,m.y-20,6,'rgba(126,34,206,.55)');game.necroMinions.splice(i,1);continue;}
+          m.life--;m.age++;if(m.flash>0)m.flash--;if(m.attackCooldown>0)m.attackCooldown--;if(m.breathTimer>0)m.breathTimer--;
+          if(!target||target.hp<=0)continue;
+          const dx=target.x-m.x,dist=Math.abs(dx);m.facing=dx>=0?1:-1;
+          if(m.type==='WYVERN'){
+            m.y=CONFIG.GROUND_Y-205+Math.sin(m.age*.09)*18;
+            m.x+=Math.max(-4.2,Math.min(4.2,dx*.035));
+            if(m.attackCooldown<=0 && dist<470){
+              m.attackCooldown=78;m.breathTimer=20;m.breathTargetX=target.x;m.breathTargetY=target.y-100;VFX.spawnHitSparks(target.x,target.y-115,'#a855f7',25,1.15);VFX.shockwaves.push({x:target.x,y:target.y-75,radius:20,maxRadius:150,life:18,maxLife:18,color:'#7e22ce'});
+              if(dist<165 && Math.abs(target.y-m.y)<250 && target.invulnTimer<=0){COMBAT_ENGINE.applyHit(owner,target,{damage:48,isSkill:true,ultGainAttacker:2,ultGainDefender:2,hitstun:17,blockstun:10,knockbackX:6,knockbackY:-3,hitstop:5,shake:8,direction:m.facing,sourceX:m.x,isHeavy:true});}
+              VFX.spawnFloatingText(target.x,target.y-165,'와이번 영혼 화염!','#c4b5fd');
+            }
+          }else{
+            const speed=m.type==='SOLDIER'?5.8:m.type==='ARMORED'?3.25:3.6;
+            const preferred=m.type==='ARMORED'?76:42;
+            if(dist>preferred){m.x+=Math.sign(dx)*Math.min(speed,dist-preferred);m.y=CONFIG.GROUND_Y-(m.type==='ORC'?65:54);}
+            else if(m.attackCooldown<=0){
+              m.attackCooldown=m.type==='SOLDIER'?31:m.type==='ARMORED'?55:72;
+              const damage=m.type==='SOLDIER'?22:m.type==='ARMORED'?17:52;
+              const heavy=m.type==='ORC';
+              if(target.invulnTimer<=0){COMBAT_ENGINE.applyHit(owner,target,{damage,isSkill:true,ultGainAttacker:2,ultGainDefender:2,hitstun:heavy?18:11,blockstun:heavy?12:8,knockbackX:heavy?14:3.2,knockbackY:heavy?-6:0,knockdown:heavy,hitstop:heavy?7:3,shake:heavy?10:4,direction:m.facing,sourceX:m.x,isHeavy:heavy});}
+              VFX.spawnSlashArc({x:m.x+m.facing*36,y:m.y-55,radius:heavy?92:56,startAngle:-.9,endAngle:.75,facing:m.facing,color:heavy?'#a855f7':'#c4b5fd',lineWidth:heavy?18:9,life:10});
+            }
+          }
+        }
+      }
       if (SPECIAL_FX.heaven>0) SPECIAL_FX.heaven--;
       if (SPECIAL_FX.snow>0) SPECIAL_FX.snow--;
       const sleigh=SPECIAL_FX.reindeer;
       if(sleigh && sleigh.timer>0){
         sleigh.timer--; sleigh.x += sleigh.direction*14;
         sleigh.dropTick=(sleigh.dropTick||0)+1;
-        if(sleigh.dropTick%12===0){
-          SPECIAL_FX.giftDrops.push({x:sleigh.x+(Math.random()-.5)*110,y:170+(Math.random()-.5)*18,vx:(Math.random()-.5)*.55,vy:1.45,spin:Math.random()*6.28,life:260,owner:sleigh.owner});
+        if(sleigh.dropTick%8===0){
+          SPECIAL_FX.giftDrops.push({x:sleigh.x+(Math.random()-.5)*150,y:150+(Math.random()-.5)*22,vx:(Math.random()-.5)*.8,vy:2.0,spin:Math.random()*6.28,life:260,owner:sleigh.owner});
         }
         if(sleigh.timer<=0 || sleigh.x<-330 || sleigh.x>1610) SPECIAL_FX.reindeer=null;
       }
       for(let i=SPECIAL_FX.giftDrops.length-1;i>=0;i--){
         const d=SPECIAL_FX.giftDrops[i];d.vy=Math.min(3.35,d.vy+.009);d.x+=d.vx;d.y+=d.vy;d.spin+=.035;d.life--;
         const target=d.owner&&d.owner.opponent;
-        if(target && target.hp>0 && Math.abs(target.x-d.x)<48 && Math.abs((target.y-88)-d.y)<66){
-          const dropDamage=d.owner.attacks.SKILL1.dropDamage;target.hp=Math.max(0,target.hp-dropDamage);target.vx=(target.x>=d.x?1:-1)*6.5;target.vy=-3.5;
-          VFX.spawnHitSparks(target.x,target.y-78,'#fbbf24',18,1.0);VFX.spawnFloatingText(target.x,target.y-145,`선물 명중! -${dropDamage}`,'#fde68a');
-          const sleighState=SPECIAL_FX.reindeer;
-          if(d.owner && !d.owner.santaSkill1WeaponGranted){
-            const loot=['GUN','KNUCKLE','SWORD','SHIELD'][Math.floor(Math.random()*4)];
-            d.owner.santaWeapon=loot;d.owner.santaWeaponTimer=480;d.owner.santaSkill1WeaponGranted=true; if(sleighState && sleighState.owner===d.owner) sleighState.weaponGranted=true;
-            VFX.spawnFloatingText(d.owner.x,d.owner.y-190,`선물 획득: ${loot}`,'#fde68a');
-          }
+        const landed = d.y >= CONFIG.GROUND_Y-18;
+        const bombHit = target && target.hp>0 && Math.abs(target.x-d.x)<104 &&
+          (landed || Math.abs((target.y-88)-d.y)<92);
+        if(bombHit){
+          const dropDamage=d.owner.attacks.SKILL1.dropDamage;
+          target.hp=Math.max(0,target.hp-dropDamage);
+          target.vx=(target.x>=d.x?1:-1)*7.5;target.vy=-5.0;
+          VFX.spawnHitSparks(d.x,Math.min(d.y,CONFIG.GROUND_Y-24),'#fbbf24',30,1.35);
+          VFX.shockwaves.push({x:d.x,y:Math.min(d.y,CONFIG.GROUND_Y-24),radius:12,maxRadius:104,life:18,maxLife:18,color:'#fbbf24'});
+          VFX.spawnFloatingText(target.x,target.y-145,`선물 폭탄! -${dropDamage}`,'#fde68a');
           SPECIAL_FX.giftDrops.splice(i,1);continue;
         }
-        if(d.life<=0||d.y>CONFIG.HEIGHT+30||d.x<-40||d.x>CONFIG.WIDTH+40)SPECIAL_FX.giftDrops.splice(i,1);
+        if(landed || d.life<=0||d.y>CONFIG.HEIGHT+30||d.x<-40||d.x>CONFIG.WIDTH+40){
+          if(landed){
+            VFX.spawnHitSparks(d.x,CONFIG.GROUND_Y-24,'#fbbf24',18,1.0);
+            VFX.shockwaves.push({x:d.x,y:CONFIG.GROUND_Y-24,radius:8,maxRadius:68,life:12,maxLife:12,color:'#fbbf24'});
+          }
+          SPECIAL_FX.giftDrops.splice(i,1);
+        }
       }
     }
 
     function drawNewCharacterEffects(ctx,game) {
       if(!['FIGHT','INTRO'].includes(game.phase)){ SPECIAL_FX.giftDrops.length=0; SPECIAL_FX.reindeer=null; return; }
       for(const f of [game.p1,game.p2].filter(Boolean)){
+        if(f.necroChainTarget && f.necroChainTarget.hp>0 && f.necroChainTarget.necroChainOwner===f){
+          ctx.save();ctx.strokeStyle='#a855f7';ctx.lineWidth=5;ctx.shadowColor='#7e22ce';ctx.shadowBlur=16;ctx.setLineDash([12,7]);ctx.beginPath();ctx.moveTo(f.x,f.y-95);ctx.lineTo(f.necroChainTarget.x,f.necroChainTarget.y-95);ctx.stroke();ctx.setLineDash([]);ctx.restore();
+        }
         if(f.jobId==='GOJO'){
           ctx.save();
           if(f.gojoDomainTimer>0){
@@ -11904,6 +12516,28 @@ window.OD_FIREBASE_CONFIG = {
           ctx.save();ctx.translate(f.x,f.y-18);ctx.fillStyle='#8b4513';ctx.strokeStyle='#fbbf24';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,62,25,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#78350f';ctx.beginPath();ctx.ellipse(f.facing*42,-23,19,15,-.3,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.strokeStyle='#fbbf24';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(f.facing*45,-34);ctx.lineTo(f.facing*56,-51);ctx.moveTo(f.facing*45,-34);ctx.lineTo(f.facing*32,-51);ctx.stroke();ctx.fillStyle='#dc2626';ctx.beginPath();ctx.arc(f.facing*54,-25,4,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#78350f';ctx.lineWidth=5;for(let k=-1;k<=1;k+=2){ctx.beginPath();ctx.moveTo(k*28,14);ctx.lineTo(k*31,39);ctx.stroke();}ctx.fillStyle='#fff';ctx.font='bold 15px sans-serif';ctx.textAlign='center';ctx.fillText(`루돌프 HP ${Math.ceil(f.santaRideHp)}`,0,-58);ctx.restore();
         }
         if(f.jobId==='SANTA' && f.santaWeaponTimer>0){ctx.save();ctx.fillStyle='#fde68a';ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.fillText(`🎁 ${f.santaWeapon}`,f.x,f.y-185);ctx.restore();
+        }
+      }
+      if(game.necroMinions){
+        for(const m of game.necroMinions){
+          ctx.save();ctx.translate(m.x,m.y);const wy=m.type==='WYVERN';
+          const col=m.type==='ORC'?'#7e22ce':m.type==='ARMORED'?'#64748b':m.type==='WYVERN'?'#a855f7':'#c4b5fd';
+          ctx.globalAlpha=.96;ctx.shadowColor=col;ctx.shadowBlur=16;ctx.fillStyle=m.flash>0?'#fff':col;ctx.strokeStyle='#1e1030';ctx.lineWidth=3;
+          if(wy){
+            if(m.breathTimer>0){ctx.save();ctx.globalAlpha=Math.min(1,m.breathTimer/7);ctx.translate(m.facing*24,-8);ctx.rotate(m.facing===1?0:Math.PI);const flame=ctx.createLinearGradient(0,0,175,0);flame.addColorStop(0,'rgba(192,132,252,.85)');flame.addColorStop(.5,'rgba(126,34,206,.55)');flame.addColorStop(1,'rgba(76,29,149,0)');ctx.fillStyle=flame;ctx.shadowColor='#a855f7';ctx.shadowBlur=24;ctx.beginPath();ctx.moveTo(0,-15);ctx.quadraticCurveTo(74,-62,178,0);ctx.quadraticCurveTo(75,65,0,15);ctx.closePath();ctx.fill();ctx.strokeStyle='#e9d5ff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(4,0);ctx.quadraticCurveTo(80,-20,160,0);ctx.stroke();ctx.restore();}
+            ctx.beginPath();ctx.moveTo(-34,0);ctx.lineTo(-62,-24);ctx.lineTo(-54,9);ctx.lineTo(-24,15);ctx.lineTo(0,0);ctx.lineTo(28,-12);ctx.lineTo(60,-36);ctx.lineTo(49,5);ctx.lineTo(20,19);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#e9d5ff';ctx.beginPath();ctx.arc(8,-5,7,0,Math.PI*2);ctx.fill();ctx.fillStyle='#7e22ce';ctx.beginPath();ctx.arc(10,-6,3,0,Math.PI*2);ctx.fill();
+          }
+          else{
+            ctx.beginPath();ctx.moveTo(-17,-55);ctx.lineTo(17,-55);ctx.lineTo(25,-5);ctx.lineTo(0,7);ctx.lineTo(-25,-5);ctx.closePath();ctx.fill();ctx.stroke();
+            ctx.beginPath();ctx.arc(0,-67,m.type==='ORC'?18:15,0,Math.PI*2);ctx.fill();ctx.stroke();
+            ctx.fillStyle='#e9d5ff';ctx.fillRect(-9,-71,5,4);ctx.fillRect(4,-71,5,4);
+            ctx.strokeStyle=col;ctx.lineWidth=m.type==='ORC'?9:6;ctx.beginPath();ctx.moveTo(-8,-4);ctx.lineTo(-18,23);ctx.moveTo(8,-4);ctx.lineTo(18,23);ctx.stroke();
+            if(m.type==='ARMORED'){ctx.fillStyle='#475569';ctx.strokeStyle='#cbd5e1';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(m.facing*17-9,-53,21,47,7);ctx.fill();ctx.stroke();ctx.fillStyle='#c4b5fd';ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillText('✦',m.facing*17+1,-27);}
+            if(m.type==='ORC'){ctx.strokeStyle='#d8b4fe';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(m.facing*22,-34);ctx.lineTo(m.facing*42,-78);ctx.stroke();ctx.fillStyle='#64748b';ctx.beginPath();ctx.moveTo(m.facing*42,-90);ctx.lineTo(m.facing*55,-78);ctx.lineTo(m.facing*42,-64);ctx.lineTo(m.facing*30,-78);ctx.closePath();ctx.fill();ctx.stroke();}
+          }
+          const barW=wy?56:42;ctx.shadowBlur=0;ctx.fillStyle='rgba(2,6,23,.85)';ctx.fillRect(-barW/2,-(wy?58:93),barW,5);ctx.fillStyle='#c084fc';ctx.fillRect(-barW/2,-(wy?58:93),barW*Math.max(0,m.hp/m.maxHp),5);
+          if(m.type==='ARMORED'&&m.shieldHp>0){ctx.fillStyle='#e9d5ff';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('방패',0,-101);}
+          ctx.restore();
         }
       }
       if([game.p1,game.p2].some(f=>f && f.santaSnowTimer>0)){
@@ -11984,6 +12618,118 @@ window.OD_FIREBASE_CONFIG = {
       return gojoPreviousStartAttack.call(this,type,projectiles);
     };
 
+    // ---------------------------------------------------------------------
+    // NECROMANCER: isolated move routing, chained tether, soul scythe and
+    // summoned shadow legion. This layer does not alter other job behavior.
+    // ---------------------------------------------------------------------
+    const necroBaseStartAttack = Fighter.prototype.startAttack;
+    Fighter.prototype.startAttack = function(type, projectiles) {
+      if (this.jobId !== 'NECROMANCER') return necroBaseStartAttack.call(this,type,projectiles);
+      const dist = this.opponent ? Math.abs(this.opponent.x-this.x) : 999;
+      if (type === 'NECRO_BONE1' && dist < 190) type = 'NECRO_MELEE1';
+      if (type === 'NECRO_MELEE1' && dist >= 190) type = 'NECRO_BONE1';
+      if (type === 'SKILL1') {
+        const linked=this.necroChainTarget;
+        if (linked && linked.hp>0 && linked.necroChainOwner===this && (linked.necroChainTimer||0)>0) {
+          this.cooldowns.SKILL1=360;this.necroChainTarget=null;linked.necroChainOwner=null;linked.necroChainTimer=0;
+          const pull=INPUT.isDown(this.controls.down);
+          if (pull) {
+            const dir=this.x>=linked.x?1:-1;
+            linked.x=Math.max(CONFIG.STAGE_LEFT+30,Math.min(CONFIG.STAGE_RIGHT-30,this.x-dir*74));
+            linked.vx=dir*4;linked.vy=-2;linked.state='HITSTUN';linked.stateTimer=15;
+            VFX.spawnFloatingText(linked.x,linked.y-175,'망자의 사슬 · 끌어당김','#c4b5fd');
+            VFX.spawnHitSparks(linked.x,linked.y-88,'#a855f7',22,1.0);
+          } else {
+            const oldX=this.x;this.facing=linked.x>=this.x?1:-1;
+            this.x=Math.max(CONFIG.STAGE_LEFT+35,Math.min(CONFIG.STAGE_RIGHT-35,linked.x-this.facing*78));
+            this.y=CONFIG.GROUND_Y;this.vx=0;this.vy=0;
+            VFX.spawnAfterimage(this,'#a855f7');VFX.spawnHitSparks(oldX,this.y-85,'#7e22ce',18,.9);VFX.spawnHitSparks(this.x,this.y-85,'#c4b5fd',22,1.0);
+            VFX.spawnFloatingText(this.x,this.y-175,'망자의 사슬 · 추격 돌진','#c4b5fd');
+          }
+          this.state='IDLE';this.attackType=null;this.stateTimer=0;AUDIO.sfxWindGust();return;
+        }
+        if (this.cooldowns.SKILL1>0) return;
+        this.cooldowns.SKILL1=42;this.necroChainPending=true;this.gainUlt(this.attacks.SKILL1.ultGainOnCast||6);
+        const spec={visualType:'NECRO_CHAIN',speed:17.5,vy:0,gravity:0,radius:17,damage:0,ultGainAttacker:0,ultGainDefender:0,hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,hitstop:0,shake:0};
+        const chain=new Projectile(this,this.x+this.facing*48,this.y-110,this.facing,spec,true);chain.necroChainProjectile=true;projectiles.push(chain);
+        this.state='IDLE';this.attackType=null;this.stateTimer=0;
+        VFX.spawnHitSparks(this.x+this.facing*48,this.y-110,'#a855f7',15,.9);VFX.spawnFloatingText(this.x,this.y-176,'망자의 사슬!','#c4b5fd');AUDIO.sfxWhiff();return;
+      }
+      if (type === 'SKILL2') {
+        if(this.cooldowns.SKILL2>0 || this.necroSoulScytheTimer>0)return;
+        this.cooldowns.SKILL2=this.attacks.SKILL2.cooldown;this.necroSoulScytheTimer=180;this.necroSoulScytheTick=0;this.gainUlt(this.attacks.SKILL2.ultGainOnCast||8);
+        this.state='IDLE';this.attackType=null;this.stateTimer=0;
+        VFX.triggerScreenFlash('#7e22ce',.16);VFX.spawnHitSparks(this.x,this.y-90,'#c4b5fd',24,1.0);VFX.spawnFloatingText(this.x,this.y-180,'영혼의 낫 · 영혼 흡수','#c4b5fd');AUDIO.sfxUltimateFlash();return;
+      }
+      if (type === 'ULTIMATE') {
+        if(this.ult<CONFIG.MAX_ULT)return;
+        this.ult=0;GAME.necroMinions=GAME.necroMinions||[];
+        const pool=['SOLDIER','SOLDIER','ARMORED','ORC','WYVERN'];let wyvernCount=0;
+        for(let i=0;i<3;i++){
+          let kind=pool[Math.floor(Math.random()*pool.length)];
+          if(kind==='WYVERN'&&wyvernCount>=1)kind=['SOLDIER','ARMORED','ORC'][Math.floor(Math.random()*3)];
+          if(kind==='WYVERN')wyvernCount++;
+          GAME.necroMinions.push({owner:this,target:this.opponent,type:kind,x:this.x-this.facing*(42+i*28),y:kind==='WYVERN'?this.y-190:CONFIG.GROUND_Y-54-i*7,hp:kind==='ARMORED'?330:kind==='ORC'?260:kind==='WYVERN'?210:145,maxHp:kind==='ARMORED'?330:kind==='ORC'?260:kind==='WYVERN'?210:145,shieldHp:kind==='ARMORED'?260:0,life:600,attackCooldown:12+i*9,age:i*8,flash:0,active:true});
+        }
+        VFX.triggerScreenFlash('#7e22ce',.38);VFX.triggerShake(12);VFX.shockwaves.push({x:this.x,y:this.y-80,radius:12,maxRadius:240,life:25,maxLife:25,color:'#a855f7'});VFX.spawnHitSparks(this.x,this.y-95,'#c4b5fd',40,1.35);VFX.spawnFloatingText(this.x,this.y-195,'일어나라! · 그림자 군단','#e9d5ff');AUDIO.sfxUltimateFlash();return;
+      }
+      return necroBaseStartAttack.call(this,type,projectiles);
+    };
+
+    // Necromancer CPU chooses the range-appropriate normal chain and uses its summons.
+    const necroBaseChooseIntent = AI_CONTROLLER.chooseIntent.bind(AI_CONTROLLER);
+    AI_CONTROLLER.chooseIntent = function(ai,player,projectiles,dist,p) {
+      if(ai && ai.jobId==='NECROMANCER'){
+        if(ai.ult>=CONFIG.MAX_ULT && Math.random()<.72){ai.startAttack('ULTIMATE',projectiles);return;}
+        if(ai.cooldowns.SKILL2<=0 && dist<225 && Math.random()<p.skillChance*.48){ai.startAttack('SKILL2',projectiles);return;}
+        if(ai.necroChainTarget && ai.necroChainTarget.hp>0 && ai.cooldowns.SKILL1<=0 && Math.random()<.6){ai.startAttack('SKILL1',projectiles);return;}
+        if(ai.cooldowns.SKILL1<=0 && dist>220 && dist<520 && Math.random()<p.skillChance*.3){ai.startAttack('SKILL1',projectiles);return;}
+        if(ai.normalChainCooldown<=0 && Math.random()<.36){ai.startAttack(dist<190?'NECRO_MELEE1':'NECRO_BONE1',projectiles);return;}
+      }
+      return necroBaseChooseIntent.call(this,ai,player,projectiles,dist,p);
+    };
+
+    // Attach the chain on impact and let armored shadows intercept hostile shots.
+    const necroBaseCheckProjectiles = COMBAT_ENGINE.checkProjectiles.bind(COMBAT_ENGINE);
+    COMBAT_ENGINE.checkProjectiles = function(p1,p2,projectiles) {
+      // Shield soldiers stand between their summoner and incoming enemy projectiles.
+      for(const proj of projectiles){
+        if(!proj.active || !GAME.necroMinions)continue;
+        for(const m of GAME.necroMinions){
+          if(!m.active || m.type!=='ARMORED' || m.shieldHp<=0 || proj.owner===m.owner)continue;
+          if(Math.hypot(proj.x-m.x,proj.y-m.y)<(proj.radius||12)+23){
+            proj.active=false;m.shieldHp=Math.max(0,m.shieldHp-Math.max(18,proj.damage||24));m.flash=8;
+            VFX.spawnGuardSparks(m.x,m.y-46);VFX.spawnHitSparks(m.x,m.y-48,'#c4b5fd',12,.85);
+            VFX.spawnFloatingText(m.x,m.y-92,m.shieldHp>0?'그림자 방패!':'방패 파손!','#c4b5fd');AUDIO.sfxGuard();break;
+          }
+        }
+      }
+      for(const proj of projectiles){
+        if(!proj.active || !proj.necroChainProjectile)continue;
+        const defender=proj.owner===p1?p2:p1;
+        if(defender && defender.hp>0 && defender.invulnTimer<=0 && this.rectsOverlap(proj.getHitbox(),defender.getHurtbox())){
+          proj.active=false;proj.owner.necroChainPending=false;proj.owner.necroChainTarget=defender;
+          defender.necroChainOwner=proj.owner;defender.necroChainTimer=180;proj.owner.cooldowns.SKILL1=0;
+          VFX.spawnFloatingText(defender.x,defender.y-176,'사슬 적중! 아래키: 끌기 · 기술1: 돌진','#c4b5fd');VFX.spawnHitSparks(defender.x,defender.y-88,'#a855f7',20,1.0);AUDIO.sfxGuard();
+        }
+      }
+      // Non-shield shadows can be damaged by projectiles; the armored shield unit
+      // absorbs shots in the protected interception pass above.
+      for(const proj of projectiles){
+        if(!proj.active || !GAME.necroMinions)continue;
+        let caught=false;
+        for(const m of GAME.necroMinions){
+          if(!m.active || proj.owner===m.owner || m.type==='ARMORED' && m.shieldHp>0)continue;
+          if(Math.hypot(proj.x-m.x,proj.y-m.y)<(proj.radius||12)+17){
+            m.hp-=Math.max(24,proj.damage||30);m.flash=7;proj.active=false;caught=true;
+            VFX.spawnHitSparks(m.x,m.y-42,'#c4b5fd',10,.8);break;
+          }
+        }
+        if(caught)continue;
+      }
+      return necroBaseCheckProjectiles(p1,p2,projectiles);
+    };
+
     const GAME = {
       canvas: null,
       ctx: null,
@@ -12010,6 +12756,7 @@ window.OD_FIREBASE_CONFIG = {
       boomerangScythes: [],
       reaperSouls: [],
       reaperGhosts: [],
+      necroMinions: [],
       ghostUidCounter: 1,
 
       bannerText: '',
@@ -12082,6 +12829,7 @@ window.OD_FIREBASE_CONFIG = {
         this.boomerangScythes = [];
         this.reaperSouls = [];
         this.reaperGhosts = [];
+        this.necroMinions = [];
       },
 
       createFighters() {
@@ -12131,6 +12879,7 @@ window.OD_FIREBASE_CONFIG = {
         this.boomerangScythes = [];
         this.reaperSouls = [];
         this.reaperGhosts = [];
+        this.necroMinions = [];
         VFX.reset();
 
         if (this.battleType === 'SWITCH') {
@@ -12838,6 +13587,7 @@ window.OD_FIREBASE_CONFIG = {
         this.boomerangScythes = [];
         this.reaperSouls = [];
         this.reaperGhosts = [];
+        this.necroMinions = [];
 
         if (this.battleType === 'SWITCH') {
           const hp1 = this.teams.P1.reduce((sum, f) => sum + Math.max(0, f.hp), 0);
