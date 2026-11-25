@@ -4057,11 +4057,14 @@ window.OD_FIREBASE_CONFIG = {
       }
 
       isGrounded() {
-        return this.y >= CONFIG.GROUND_Y - 0.5 || (this.platformDropTimer <= 0 && Math.abs(this.y - CONFIG.PLATFORM.y) <= 1.0 && this.x >= CONFIG.PLATFORM.x && this.x <= CONFIG.PLATFORM.x + CONFIG.PLATFORM.width);
+        const plat = CONFIG.PLATFORM;
+        // 2층은 온라인 보정/부동소수점 오차로 1~2px 흔들려도 접지 상태를 유지한다.
+        return this.y >= CONFIG.GROUND_Y - 0.5 || (this.platformDropTimer <= 0 && this.y >= plat.y - 2.5 && this.y <= plat.y + 3.5 && this.x >= plat.x - 10 && this.x <= plat.x + plat.width + 10);
       }
 
       isOnSecondFloor() {
-        return this.platformDropTimer <= 0 && Math.abs(this.y - CONFIG.PLATFORM.y) <= 1.0 && this.x >= CONFIG.PLATFORM.x && this.x <= CONFIG.PLATFORM.x + CONFIG.PLATFORM.width;
+        const plat = CONFIG.PLATFORM;
+        return this.platformDropTimer <= 0 && Math.abs(this.y - plat.y) <= 3.5 && this.x >= plat.x - 10 && this.x <= plat.x + plat.width + 10;
       }
 
       getHurtbox() {
@@ -6588,6 +6591,11 @@ window.OD_FIREBASE_CONFIG = {
           const wasAirborne = this.vy > 4;
           this.y = plat.y; this.vy = 0;
           if (wasAirborne && this.state === 'JUMP') { this.state = 'IDLE'; this.stateTimer = 0; VFX.spawnDust(this.x, plat.y, 0); }
+        }
+        // 착지 직후 온라인 위치 보정이 1~3px 오차를 만들면 재차 중력에 빠지는 현상을 방지.
+        if (this.platformDropTimer <= 0 && overlapsPlatformX && this.vy >= 0 && this.y >= plat.y - 2.5 && this.y <= plat.y + 3.5) {
+          this.y = plat.y; this.vy = 0;
+          if (this.state === 'JUMP') { this.state = 'IDLE'; this.stateTimer = 0; }
         }
 
         if (this.y >= CONFIG.GROUND_Y) {
@@ -15257,12 +15265,12 @@ window.OD_FIREBASE_CONFIG = {
         const plat = CONFIG.PLATFORM;
         // 플랫폼 착지 상태는 스냅샷의 y/vy로 확정한다. 중력 외삽을 적용하면
         // 지연된 vy=0 스냅샷도 매 프레임 조금씩 아래로 밀려 2층에서 흔들린다.
-        const snapshotOnPlatform = Math.abs(t.y - plat.y) <= 2 && Math.abs(t.vy) <= 1.2 && t.x >= plat.x - 14 && t.x <= plat.x + plat.width + 14;
+        const snapshotOnPlatform = Math.abs(t.y - plat.y) <= 5 && Math.abs(t.vy) <= 2.0 && t.x >= plat.x - 18 && t.x <= plat.x + plat.width + 18;
         let ty = snapshotOnPlatform ? plat.y : t.y + t.vy * age + (t.vy !== 0 || t.y < CONFIG.GROUND_Y ? 0.5 * G * age * age : 0);
         ty = Math.min(CONFIG.GROUND_Y, ty);
         const ex = tx - r.x, ey = ty - r.y;
-        const targetOnPlatform = snapshotOnPlatform || (Math.abs(ty - plat.y) <= 2 && tx >= plat.x - 14 && tx <= plat.x + plat.width + 14);
-        const currentOnPlatform = Math.abs(r.y - plat.y) <= 2 && r.x >= plat.x - 14 && r.x <= plat.x + plat.width + 14;
+        const targetOnPlatform = snapshotOnPlatform || (Math.abs(ty - plat.y) <= 5 && tx >= plat.x - 18 && tx <= plat.x + plat.width + 18);
+        const currentOnPlatform = Math.abs(r.y - plat.y) <= 4 && r.x >= plat.x - 18 && r.x <= plat.x + plat.width + 18;
         const floorTransition = (targetOnPlatform && r.y >= CONFIG.GROUND_Y - 2) || (currentOnPlatform && ty >= CONFIG.GROUND_Y - 2);
         if (floorTransition || Math.abs(ex) > SNAP_DIST || Math.abs(ey) > SNAP_DIST) {
           // 플랫폼/지상 층 전환은 수직 lerp로 반쯤 끼워 넣지 않고 즉시 층에 맞춰
@@ -15270,9 +15278,9 @@ window.OD_FIREBASE_CONFIG = {
           r.x = tx; r.y = ty;
           if (snapshotOnPlatform) r.vy = 0;
         } else {
-          if (snapshotOnPlatform) { r.y = plat.y; r.vy = 0; }
+          if (targetOnPlatform) { r.y = plat.y; r.vy = 0; }
           if (Math.abs(ex) > 1.5) r.x += ex * 0.38;
-          if (Math.abs(ey) > 1.5) r.y += ey * 0.42;
+          if (!targetOnPlatform && Math.abs(ey) > 1.5) r.y += ey * 0.42;
         }
       }
 
@@ -15292,6 +15300,7 @@ window.OD_FIREBASE_CONFIG = {
           else { p.x -= dx; p.y -= dy; }
         }
         if (dx || dy) {
+          if (me.isOnSecondFloor && me.isOnSecondFloor()) dy = 0;
           me.x = Math.max(CONFIG.STAGE_LEFT, Math.min(CONFIG.STAGE_RIGHT, me.x + dx));
           me.y = Math.min(CONFIG.GROUND_Y, me.y + dy);
           // 이미 반영한 보정량은 기록에도 반영해 다음 스냅샷과 이중으로 보정되지 않게 한다.
@@ -15316,17 +15325,17 @@ window.OD_FIREBASE_CONFIG = {
       const tx = g.x + g.vx * age;
       const plat = CONFIG.PLATFORM;
       // 참가자의 보고가 2층 착지(vy≈0)라면 중력 외삽으로 층 아래로 밀지 않는다.
-      const snapshotOnPlatform = Math.abs(g.y - plat.y) <= 2 && Math.abs(g.vy) <= 1.2 && g.x >= plat.x - 14 && g.x <= plat.x + plat.width + 14;
+      const snapshotOnPlatform = Math.abs(g.y - plat.y) <= 5 && Math.abs(g.vy) <= 2.0 && g.x >= plat.x - 18 && g.x <= plat.x + plat.width + 18;
       let ty = snapshotOnPlatform ? plat.y : g.y + g.vy * age + (g.vy !== 0 || g.y < CONFIG.GROUND_Y ? 0.5 * CONFIG.GRAVITY * age * age : 0);
       ty = Math.min(CONFIG.GROUND_Y, ty);
       const ex = tx - f.x, ey = ty - f.y;
-      const targetOnPlatform = snapshotOnPlatform || (Math.abs(ty - plat.y) <= 2 && tx >= plat.x - 14 && tx <= plat.x + plat.width + 14);
-      const currentOnPlatform = Math.abs(f.y - plat.y) <= 2 && f.x >= plat.x - 14 && f.x <= plat.x + plat.width + 14;
+      const targetOnPlatform = snapshotOnPlatform || (Math.abs(ty - plat.y) <= 5 && tx >= plat.x - 18 && tx <= plat.x + plat.width + 18);
+      const currentOnPlatform = Math.abs(f.y - plat.y) <= 4 && f.x >= plat.x - 18 && f.x <= plat.x + plat.width + 18;
       const floorTransition = (targetOnPlatform && f.y >= CONFIG.GROUND_Y - 2) || (currentOnPlatform && ty >= CONFIG.GROUND_Y - 2);
       if (floorTransition || Math.abs(ex) > 70 || Math.abs(ey) > 70) { f.x = tx; f.y = ty; if (snapshotOnPlatform) f.vy = 0; return; }
-      if (snapshotOnPlatform) { f.y = plat.y; f.vy = 0; }
+      if (targetOnPlatform) { f.y = plat.y; f.vy = 0; }
       if (Math.abs(ex) > 3) f.x += ex * 0.12;
-      if (!snapshotOnPlatform && Math.abs(ey) > 3) f.y += ey * 0.12;
+      if (!targetOnPlatform && Math.abs(ey) > 3) f.y += ey * 0.12;
     },
 
     // =========================================================================
