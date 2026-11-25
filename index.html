@@ -14437,9 +14437,9 @@ window.OD_FIREBASE_CONFIG = {
       dc.binaryType = 'arraybuffer';
 
       if (!isReliable) {
-        dc.bufferedAmountLowThreshold = 16 * 1024;
+        dc.bufferedAmountLowThreshold = 2 * 1024;
         dc.onbufferedamountlow = () => {
-          if (this.pendingFastPacket && dc.readyState === 'open') {
+          if (this.pendingFastPacket && dc.readyState === 'open' && dc.bufferedAmount <= 2 * 1024) {
             const packet = this.pendingFastPacket;
             this.pendingFastPacket = null;
             try { dc.send(packet); } catch (e) { this.pendingFastPacket = packet; }
@@ -14550,7 +14550,7 @@ window.OD_FIREBASE_CONFIG = {
       if (channel && channel.readyState === 'open') {
         try {
           const payload = JSON.stringify(obj);
-          if (fastType && channel.bufferedAmount > 48 * 1024) {
+          if (fastType && channel.bufferedAmount > 8 * 1024) {
             // Keep only the newest replaceable state; never queue stale snapshots.
             this.pendingFastPacket = payload;
             return;
@@ -14808,7 +14808,7 @@ window.OD_FIREBASE_CONFIG = {
       this.applyBitmaskToInput(remoteTargetKeys, this.remoteDownMask, rPressed, rDouble, true);
 
       this.localHistory.unshift({ f: this.tick, d: down, p: pressed, dt: dbl });
-      if (this.localHistory.length > 6) this.localHistory.pop();
+      if (this.localHistory.length > 3) this.localHistory.pop();
 
       // P2P(UDP 방식)에서는 매 틱(60Hz) 전송해 입력 지연을 줄이고, 6프레임 중복으로 패킷 손실에 대비한다.
       // Firebase 릴레이 경로에서는 쓰기 부하를 줄이기 위해 30Hz로 유지한다.
@@ -14985,7 +14985,7 @@ window.OD_FIREBASE_CONFIG = {
       // The host is authoritative. Send reliable state at 30Hz so round-end/KO
       // transitions cannot be lost and the guest is corrected before divergence grows.
       // P2P 직결일 때는 60Hz, Firebase 릴레이일 때만 30Hz로 상태 전송
-      const snapInterval = 2; // 모든 전송 방식에서 30Hz: 과도한 SNAP으로 인한 버퍼 적체/렉 방지
+      const snapInterval = 2; // 30Hz: 빠른 권위 상태 보정, 입력은 P2P 60Hz 별도 전달
       if (this.role === 'HOST' && this.tick % snapInterval === 0 && GAME.p1 && GAME.p2) {
         if (GAME.phase === 'MATCH_OVER') {
           if (!this.matchReturnAt) this.matchReturnAt = performance.now() + 1000;
@@ -15965,7 +15965,7 @@ window.OD_FIREBASE_CONFIG = {
   if(typeof NET==='undefined'||!NET.packFighter||!NET.applySnapshotSmoothly)return;
   const syncKeyRe=/(ult|ultimate|form|buff|shield|charge|rain|coin|clone|ghost|soul|minion|meteor|domain|stop|palm|banner|ship|strike|mark|ammo|step|reload|heaven|awaken|rage|slow|freeze|ride|sleigh|bombard|execute|scythe|trap|bomb|echo|storedDamage|kraken|warning|impact|rainstorm|raindrop|dodge|pierce|barrier|aura|revert|sword|root|invuln|customStun|hitstun|knockdown|pastor|necro|dragon|mafia|timeMage|tkd|werewolf|song|poseidon|pirate|hunter|gamble|aiSeal|aiRing|aiMissile|aiOverload|beg|samurai|viking|taoist|knight)/i;
   const excluded=new Set(['id','jobId','job','name','attacks','controls','opponent','state','stateTimer','attackType','hp','maxHp','ultGainAttacker','ultGainDefender','x','y','vx','vy','facing','walkSpeed','backWalkSpeed','dashSpeed','gravity','projectiles','cooldowns']);
-  const MAX_KEYS=28, MAX_ARRAY=24, MAX_OBJECT_KEYS=20, MAX_DEPTH=3, MAX_BYTES=7000;
+  const MAX_KEYS=14, MAX_ARRAY=12, MAX_OBJECT_KEYS=10, MAX_DEPTH=2, MAX_BYTES=2200;
   function encode(v,depth){
     if(v==null||typeof v==='string'||typeof v==='boolean')return v;
     if(typeof v==='number')return Number.isFinite(v)?Math.round(v*100)/100:0;
@@ -15987,14 +15987,14 @@ window.OD_FIREBASE_CONFIG = {
     const o={};for(const k of Object.keys(v))o[k]=decode(v[k]);return o;
   }
   function packTransient(f){
-    const ux={},keys=[];
+    const ux={},keys=[];let byteBudget=0;
     for(const k of Object.keys(f||{})){
       if(excluded.has(k)||!syncKeyRe.test(k))continue;
       if(keys.length>=MAX_KEYS)break;
       let value;try{value=encode(f[k],0);}catch(e){continue;}
       if(value===undefined)continue;
-      // Only include a field if it won't push the transient payload beyond its budget.
-      try{const candidate=JSON.stringify(value);if(JSON.stringify(ux).length+candidate.length>MAX_BYTES)continue;}catch(e){continue;}
+      // Incremental size accounting avoids repeatedly serializing the growing object.
+      try{const candidate=JSON.stringify(k)+JSON.stringify(value);const cost=candidate.length+1;if(byteBudget+cost>MAX_BYTES)continue;byteBudget+=cost;}catch(e){continue;}
       ux[k]=value;keys.push(k);
     }
     return {ux,uxk:keys};
