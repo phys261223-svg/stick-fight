@@ -14985,7 +14985,7 @@ window.OD_FIREBASE_CONFIG = {
       // The host is authoritative. Send reliable state at 30Hz so round-end/KO
       // transitions cannot be lost and the guest is corrected before divergence grows.
       // P2P 직결일 때는 60Hz, Firebase 릴레이일 때만 30Hz로 상태 전송
-      const snapInterval = this.transport === 'P2P' ? 1 : 2;
+      const snapInterval = 2; // 모든 전송 방식에서 30Hz: 과도한 SNAP으로 인한 버퍼 적체/렉 방지
       if (this.role === 'HOST' && this.tick % snapInterval === 0 && GAME.p1 && GAME.p2) {
         if (GAME.phase === 'MATCH_OVER') {
           if (!this.matchReturnAt) this.matchReturnAt = performance.now() + 1000;
@@ -15325,8 +15325,8 @@ window.OD_FIREBASE_CONFIG = {
       const floorTransition = (targetOnPlatform && f.y >= CONFIG.GROUND_Y - 2) || (currentOnPlatform && ty >= CONFIG.GROUND_Y - 2);
       if (floorTransition || Math.abs(ex) > 70 || Math.abs(ey) > 70) { f.x = tx; f.y = ty; if (snapshotOnPlatform) f.vy = 0; return; }
       if (snapshotOnPlatform) { f.y = plat.y; f.vy = 0; }
-      if (Math.abs(ex) > 1.5) f.x += ex * 0.3;
-      if (!snapshotOnPlatform && Math.abs(ey) > 1.5) f.y += ey * 0.35;
+      if (Math.abs(ex) > 3) f.x += ex * 0.12;
+      if (!snapshotOnPlatform && Math.abs(ey) > 3) f.y += ey * 0.12;
     },
 
     // =========================================================================
@@ -15958,23 +15958,24 @@ window.OD_FIREBASE_CONFIG = {
       return mafiaCollisionPatch(attacker,defender,info);
     };
 
-/* ONLINE ULTIMATE / CHARACTER EFFECT STATE SYNC PATCH
-   The host snapshots fighter-owned transient states (forms, domains, summons,
-   buffs, ult-specific timers, marks, etc.) so the guest does not rely solely on
-   local deterministic simulation for presentation/state transitions. */
+/* SAFE ONLINE TRANSIENT STATE SYNC
+   Keep host-owned special states consistent, while limiting packet size and
+   avoiding deletion of guest fields that may be required by local update code. */
 (function(){
   if(typeof NET==='undefined'||!NET.packFighter||!NET.applySnapshotSmoothly)return;
-  const syncKeyRe=/(ult|ultimate|timer|maxTimer|form|buff|shield|charge|rain|coin|clone|ghost|soul|minion|meteor|domain|stop|palm|banner|ship|strike|mark|ammo|step|reload|heaven|awaken|rage|slow|freeze|ride|sleigh|bombard|execute|scythe|trap|bomb|echo|storedDamage|kraken|warning|impact|rainstorm|raindrop|dodge|pierce|barrier|aura|revert|sword|root|invuln|customStun|hitstun|knockdown|pastor|necro|dragon|mafia|timeMage|tkd|werewolf|song|poseidon|pirate|hunter|gamble|aiSeal|aiRing|aiMissile|aiOverload|beg|samurai|viking|taoist|knight)/i;
-  const excluded=new Set(['id','jobId','job','name','attacks','controls','opponent','state','stateTimer','attackType','hp','maxHp','ult','ultGainAttacker','ultGainDefender','x','y','vx','vy','facing','walkSpeed','backWalkSpeed','dashSpeed','gravity','projectiles','cooldowns']);
+  const syncKeyRe=/(ult|ultimate|form|buff|shield|charge|rain|coin|clone|ghost|soul|minion|meteor|domain|stop|palm|banner|ship|strike|mark|ammo|step|reload|heaven|awaken|rage|slow|freeze|ride|sleigh|bombard|execute|scythe|trap|bomb|echo|storedDamage|kraken|warning|impact|rainstorm|raindrop|dodge|pierce|barrier|aura|revert|sword|root|invuln|customStun|hitstun|knockdown|pastor|necro|dragon|mafia|timeMage|tkd|werewolf|song|poseidon|pirate|hunter|gamble|aiSeal|aiRing|aiMissile|aiOverload|beg|samurai|viking|taoist|knight)/i;
+  const excluded=new Set(['id','jobId','job','name','attacks','controls','opponent','state','stateTimer','attackType','hp','maxHp','ultGainAttacker','ultGainDefender','x','y','vx','vy','facing','walkSpeed','backWalkSpeed','dashSpeed','gravity','projectiles','cooldowns']);
+  const MAX_KEYS=28, MAX_ARRAY=24, MAX_OBJECT_KEYS=20, MAX_DEPTH=3, MAX_BYTES=7000;
   function encode(v,depth){
     if(v==null||typeof v==='string'||typeof v==='boolean')return v;
     if(typeof v==='number')return Number.isFinite(v)?Math.round(v*100)/100:0;
-    if(typeof v!=='object'||depth>4)return undefined;
+    if(typeof v!=='object'||depth>MAX_DEPTH)return undefined;
     if(v===GAME.p1)return {__fighter:'P1'}; if(v===GAME.p2)return {__fighter:'P2'};
     if(v.jobId&&typeof v.hp==='number'&&typeof v.x==='number')return {__fighter:v===GAME.p1?'P1':'P2'};
-    if(Array.isArray(v))return v.slice(0,80).map(x=>encode(x,depth+1)).filter(x=>x!==undefined);
+    if(Array.isArray(v))return v.slice(0,MAX_ARRAY).map(x=>encode(x,depth+1)).filter(x=>x!==undefined);
     const out={};let n=0;
-    for(const k of Object.keys(v)){if(++n>48)break; if(['opponent','attacker','defender','ctx','canvas','ctx2d','element','node'].includes(k))continue;
+    for(const k of Object.keys(v)){if(++n>MAX_OBJECT_KEYS)break;
+      if(['opponent','attacker','defender','ctx','canvas','ctx2d','element','node','parent','ownerFighter'].includes(k))continue;
       const x=encode(v[k],depth+1);if(x!==undefined)out[k]=x;
     }
     return out;
@@ -15989,31 +15990,36 @@ window.OD_FIREBASE_CONFIG = {
     const ux={},keys=[];
     for(const k of Object.keys(f||{})){
       if(excluded.has(k)||!syncKeyRe.test(k))continue;
-      const value=encode(f[k],0);if(value===undefined)continue;
+      if(keys.length>=MAX_KEYS)break;
+      let value;try{value=encode(f[k],0);}catch(e){continue;}
+      if(value===undefined)continue;
+      // Only include a field if it won't push the transient payload beyond its budget.
+      try{const candidate=JSON.stringify(value);if(JSON.stringify(ux).length+candidate.length>MAX_BYTES)continue;}catch(e){continue;}
       ux[k]=value;keys.push(k);
     }
     return {ux,uxk:keys};
   }
   const oldPack=NET.packFighter;
-  NET.packFighter=function(f){const base=oldPack.call(this,f);const extra=packTransient(f);base.ux=extra.ux;base.uxk=extra.uxk;return base;};
+  NET.packFighter=function(f){
+    const base=oldPack.call(this,f);
+    try{const extra=packTransient(f);base.ux=extra.ux;base.uxk=extra.uxk;}catch(e){base.ux={};base.uxk=[];}
+    return base;
+  };
   const oldApply=NET.applySnapshotSmoothly;
   NET.applySnapshotSmoothly=function(snap){
-    oldApply.call(this,snap);
+    try{oldApply.call(this,snap);}catch(e){console.warn('[NET] snapshot base apply failed',e);}
     if(!snap||!GAME.p1||!GAME.p2)return;
     for(const [f,side] of [[GAME.p1,'p1'],[GAME.p2,'p2']]){
-      const st=snap[side];if(!st||!st.ux||typeof st.ux!=='object')continue;
+      const st=snap[side];if(!f||!st||!st.ux||typeof st.ux!=='object')continue;
       const keys=Array.isArray(st.uxk)?st.uxk:Object.keys(st.ux);
-      // Remove stale guest-only transient fields when the host has ended an effect.
-      for(const k of Object.keys(f))if(!excluded.has(k)&&syncKeyRe.test(k)&&!keys.includes(k)){
-        try{delete f[k];}catch(e){f[k]=null;}
+      for(const k of keys){
+        if(excluded.has(k)||!syncKeyRe.test(k)||!Object.prototype.hasOwnProperty.call(st.ux,k))continue;
+        try{f[k]=decode(st.ux[k]);}catch(e){/* skip malformed transient field */}
       }
-      for(const k of keys){if(excluded.has(k)||!syncKeyRe.test(k))continue;try{f[k]=decode(st.ux[k]);}catch(e){}}
     }
-    // Restore object identity for Mafia's owner/target mark pair (not just copied values).
+    // Repair Mafia mark target-owner identity without assuming every snapshot contains the mark.
     for(const owner of [GAME.p1,GAME.p2])if(owner&&owner.jobId==='MAFIA'){
-      const mark=owner.mafiaMarkState;
-      if(mark&&mark.target&&mark.timer>0)mark.target.mafiaMark=mark;
-      else if(owner.opponent&&owner.opponent.mafiaMark&&owner.opponent.mafiaMark.owner===owner)owner.opponent.mafiaMark=null;
+      try{const mark=owner.mafiaMarkState;if(mark&&mark.target&&mark.timer>0)mark.target.mafiaMark=mark;}catch(e){}
     }
   };
 })();
