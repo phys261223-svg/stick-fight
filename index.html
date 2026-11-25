@@ -221,6 +221,9 @@
   if(typeof firebase==='undefined'){w('app');w('auth');}
   else if(!firebase.auth){w('auth');}
   if(typeof firebase!=='undefined' && !firebase.database){w('database');}
+
+
+
 })();
 </script>
 <script>
@@ -15954,7 +15957,69 @@ window.OD_FIREBASE_CONFIG = {
       if(attacker&&attacker.jobId==='MAFIA'&&info&&info.projectile&&info.projectile.mafiaBullet)info={...info,mafiaBullet:true};
       return mafiaCollisionPatch(attacker,defender,info);
     };
+
+/* ONLINE ULTIMATE / CHARACTER EFFECT STATE SYNC PATCH
+   The host snapshots fighter-owned transient states (forms, domains, summons,
+   buffs, ult-specific timers, marks, etc.) so the guest does not rely solely on
+   local deterministic simulation for presentation/state transitions. */
+(function(){
+  if(typeof NET==='undefined'||!NET.packFighter||!NET.applySnapshotSmoothly)return;
+  const syncKeyRe=/(ult|ultimate|timer|maxTimer|form|buff|shield|charge|rain|coin|clone|ghost|soul|minion|meteor|domain|stop|palm|banner|ship|strike|mark|ammo|step|reload|heaven|awaken|rage|slow|freeze|ride|sleigh|bombard|execute|scythe|trap|bomb|echo|storedDamage|kraken|warning|impact|rainstorm|raindrop|dodge|pierce|barrier|aura|revert|sword|root|invuln|customStun|hitstun|knockdown|pastor|necro|dragon|mafia|timeMage|tkd|werewolf|song|poseidon|pirate|hunter|gamble|aiSeal|aiRing|aiMissile|aiOverload|beg|samurai|viking|taoist|knight)/i;
+  const excluded=new Set(['id','jobId','job','name','attacks','controls','opponent','state','stateTimer','attackType','hp','maxHp','ult','ultGainAttacker','ultGainDefender','x','y','vx','vy','facing','walkSpeed','backWalkSpeed','dashSpeed','gravity','projectiles','cooldowns']);
+  function encode(v,depth){
+    if(v==null||typeof v==='string'||typeof v==='boolean')return v;
+    if(typeof v==='number')return Number.isFinite(v)?Math.round(v*100)/100:0;
+    if(typeof v!=='object'||depth>4)return undefined;
+    if(v===GAME.p1)return {__fighter:'P1'}; if(v===GAME.p2)return {__fighter:'P2'};
+    if(v.jobId&&typeof v.hp==='number'&&typeof v.x==='number')return {__fighter:v===GAME.p1?'P1':'P2'};
+    if(Array.isArray(v))return v.slice(0,80).map(x=>encode(x,depth+1)).filter(x=>x!==undefined);
+    const out={};let n=0;
+    for(const k of Object.keys(v)){if(++n>48)break; if(['opponent','attacker','defender','ctx','canvas','ctx2d','element','node'].includes(k))continue;
+      const x=encode(v[k],depth+1);if(x!==undefined)out[k]=x;
+    }
+    return out;
+  }
+  function decode(v){
+    if(v==null||typeof v!=='object')return v;
+    if(v.__fighter)return v.__fighter==='P1'?GAME.p1:GAME.p2;
+    if(Array.isArray(v))return v.map(decode);
+    const o={};for(const k of Object.keys(v))o[k]=decode(v[k]);return o;
+  }
+  function packTransient(f){
+    const ux={},keys=[];
+    for(const k of Object.keys(f||{})){
+      if(excluded.has(k)||!syncKeyRe.test(k))continue;
+      const value=encode(f[k],0);if(value===undefined)continue;
+      ux[k]=value;keys.push(k);
+    }
+    return {ux,uxk:keys};
+  }
+  const oldPack=NET.packFighter;
+  NET.packFighter=function(f){const base=oldPack.call(this,f);const extra=packTransient(f);base.ux=extra.ux;base.uxk=extra.uxk;return base;};
+  const oldApply=NET.applySnapshotSmoothly;
+  NET.applySnapshotSmoothly=function(snap){
+    oldApply.call(this,snap);
+    if(!snap||!GAME.p1||!GAME.p2)return;
+    for(const [f,side] of [[GAME.p1,'p1'],[GAME.p2,'p2']]){
+      const st=snap[side];if(!st||!st.ux||typeof st.ux!=='object')continue;
+      const keys=Array.isArray(st.uxk)?st.uxk:Object.keys(st.ux);
+      // Remove stale guest-only transient fields when the host has ended an effect.
+      for(const k of Object.keys(f))if(!excluded.has(k)&&syncKeyRe.test(k)&&!keys.includes(k)){
+        try{delete f[k];}catch(e){f[k]=null;}
+      }
+      for(const k of keys){if(excluded.has(k)||!syncKeyRe.test(k))continue;try{f[k]=decode(st.ux[k]);}catch(e){}}
+    }
+    // Restore object identity for Mafia's owner/target mark pair (not just copied values).
+    for(const owner of [GAME.p1,GAME.p2])if(owner&&owner.jobId==='MAFIA'){
+      const mark=owner.mafiaMarkState;
+      if(mark&&mark.target&&mark.timer>0)mark.target.mafiaMark=mark;
+      else if(owner.opponent&&owner.opponent.mafiaMark&&owner.opponent.mafiaMark.owner===owner)owner.opponent.mafiaMark=null;
+    }
+  };
+})();
 })();
 </script>
+
+
 </body>
 </html>
