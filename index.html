@@ -13982,6 +13982,9 @@ window.OD_FIREBASE_CONFIG = {
           border: 1px solid rgba(148, 163, 184, 0.22);
         }
         #onlineChatToggle { position: fixed; right: 18px; bottom: 18px; z-index: 9400; display: none; }
+        #onlineChatToggle { position: relative; }
+        #onlineChatUnread { display: none; position: absolute; top: -7px; right: -7px; width: 19px; height: 19px; border-radius: 50%; background: #ef4444; color: #fff; border: 2px solid #fff; font-size: 12px; font-weight: 900; line-height: 15px; text-align: center; box-shadow: 0 0 8px rgba(239,68,68,.7); }
+        #onlineChatUnread.show { display: block; }
         #onlineChatPanel { position: fixed; right: 18px; bottom: 66px; width: min(320px, calc(100vw - 28px)); height: 300px; z-index: 9400; display: none; flex-direction: column; background: rgba(9, 15, 30, .96); border: 1px solid rgba(56, 189, 248, .55); border-radius: 14px; box-shadow: 0 12px 36px rgba(0,0,0,.55); color: #f8fafc; }
         #onlineChatPanel.open { display: flex; }
         #onlineChatMessages { flex: 1; overflow-y: auto; padding: 10px; font-size: 12px; line-height: 1.45; overflow-wrap: anywhere; }
@@ -14057,12 +14060,23 @@ window.OD_FIREBASE_CONFIG = {
       chatToggle.type = 'button';
       chatToggle.className = 'px-3 py-2 rounded-xl bg-sky-600/90 hover:bg-sky-500 text-white text-xs font-black border border-sky-300/50 shadow-lg';
       chatToggle.textContent = '💬 채팅';
+      const chatUnread = document.createElement('span');
+      chatUnread.id = 'onlineChatUnread';
+      chatUnread.textContent = '!';
+      chatUnread.setAttribute('aria-label', '새 메시지');
+      chatToggle.appendChild(chatUnread);
       const chatPanel = document.createElement('div');
       chatPanel.id = 'onlineChatPanel';
       chatPanel.innerHTML = `<div class="flex items-center justify-between px-3 py-2 border-b border-slate-700"><b class="text-xs text-sky-300">실시간 온라인 채팅</b><button id="onlineChatClose" type="button" class="text-slate-300 text-xs px-1">✕</button></div><div id="onlineChatMessages" aria-live="polite"></div><form id="onlineChatForm" class="flex gap-1.5 p-2 border-t border-slate-700"><input id="onlineChatInput" maxlength="200" autocomplete="off" placeholder="메시지 입력..."/><button type="submit" class="px-2.5 rounded-lg bg-sky-600 text-white text-xs font-bold">전송</button></form>`;
       document.body.appendChild(chatToggle);
       document.body.appendChild(chatPanel);
-      chatToggle.addEventListener('click', () => { chatPanel.classList.toggle('open'); if (chatPanel.classList.contains('open')) document.getElementById('onlineChatInput').focus(); });
+      chatToggle.addEventListener('click', () => {
+        chatPanel.classList.toggle('open');
+        if (chatPanel.classList.contains('open')) {
+          chatUnread.classList.remove('show');
+          document.getElementById('onlineChatInput').focus();
+        }
+      });
       document.getElementById('onlineChatClose').addEventListener('click', () => chatPanel.classList.remove('open'));
       ['keydown','keyup','keypress'].forEach(evt => chatPanel.addEventListener(evt, e => e.stopPropagation()));
       document.getElementById('onlineChatForm').addEventListener('submit', e => {
@@ -14696,6 +14710,9 @@ window.OD_FIREBASE_CONFIG = {
 
       if (msg.t === 'CHAT') {
         this.addChatMessage(msg, false);
+        const chatPanel = document.getElementById('onlineChatPanel');
+        const chatUnread = document.getElementById('onlineChatUnread');
+        if (chatUnread && (!chatPanel || !chatPanel.classList.contains('open'))) chatUnread.classList.add('show');
         return;
       }
 
