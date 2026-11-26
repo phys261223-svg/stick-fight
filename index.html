@@ -2341,7 +2341,8 @@ window.OD_FIREBASE_CONFIG = {
             SKILL2:{name:'SKILL2',startup:1,active:1,recovery:8,cooldown:270,ultGainOnCast:7},
             ULTIMATE:{name:'ULTIMATE',startup:1,active:1,recovery:10,cooldown:0}
           }
-        }
+        },
+
 
       }
     };
@@ -3495,6 +3496,7 @@ window.OD_FIREBASE_CONFIG = {
         const spec = customSpec || owner.attacks.SKILL1.projectile;
         this.owner = owner;
         this.isSkill = isSkill;
+        this.gojoProtectedProjectile = Boolean(owner && owner.jobId === 'GOJO' && isSkill && String(spec.visualType || '').startsWith('GOJO_'));
         this.x = x;
         this.y = y;
         this.facing = facing;
@@ -4273,7 +4275,7 @@ window.OD_FIREBASE_CONFIG = {
         if(this.jobId==='ASTRONAUT'){
           if(this.astroHoleTimer>0){
             this.astroHoleTimer--;this.astroHoleTick++;
-            for(const pr of projectiles||[]){if(pr.active&&pr.owner!==this&&Math.hypot(pr.x-this.astroHoleX,pr.y-this.astroHoleY)<(this.job.attacks.SKILL1.holeRadius||138)){pr.active=false;VFX.spawnHitSparks(pr.x,pr.y,'#c084fc',5,.55);}}
+            for(const pr of projectiles||[]){if(pr.active&&pr.owner!==this&&!pr.gojoProtectedProjectile&&Math.hypot(pr.x-this.astroHoleX,pr.y-this.astroHoleY)<(this.job.attacks.SKILL1.holeRadius||138)){pr.active=false;VFX.spawnHitSparks(pr.x,pr.y,'#c084fc',5,.55);}}
             if(opponent&&opponent.hp>0&&Math.hypot(opponent.x-this.astroHoleX,(opponent.y-82)-this.astroHoleY)<(this.job.attacks.SKILL1.holeRadius||138)){
               opponent.vx+=(this.astroHoleX-opponent.x)*.018;opponent.vy+=(this.astroHoleY-(opponent.y-82))*.012;opponent.vx=Math.max(-9,Math.min(9,opponent.vx));
               if(this.astroHoleTick%12===0&&opponent.invulnTimer<=0)COMBAT_ENGINE.applyHit(this,opponent,{damage:this.job.attacks.SKILL1.holeTickDamage||9,isSkill:true,ultGainAttacker:0,ultGainDefender:2,hitstun:7,blockstun:6,knockbackX:0,knockbackY:0,hitstop:1,shake:2,direction:opponent.x>=this.astroHoleX?1:-1,sourceX:this.astroHoleX});
@@ -7480,6 +7482,8 @@ window.OD_FIREBASE_CONFIG = {
           for (let j = i + 1; j < projectiles.length; j++) {
             const b = projectiles[j];
             if (!b.active || a.owner === b.owner) continue;
+            // Gojo's technique projectiles cannot be destroyed by opposing projectiles.
+            if (a.gojoProtectedProjectile || b.gojoProtectedProjectile) continue;
             // Chronomancer's thrown clock bomb is a protected objective projectile.
             if (a.timeBombProjectile || b.timeBombProjectile) continue;
             if (this.rectsOverlap(a.getHitbox(), b.getHitbox())) {
@@ -7528,7 +7532,7 @@ window.OD_FIREBASE_CONFIG = {
           const defender = proj.owner === p1 ? p2 : p1;
           const projBox = proj.getHitbox();
           // Poseidon's rotating trident destroys enemy projectiles, without touching other guards.
-          if (defender.jobId === 'POSEIDON' && defender.state === 'ATTACK' &&
+          if (!proj.gojoProtectedProjectile && defender.jobId === 'POSEIDON' && defender.state === 'ATTACK' &&
               defender.attackType === 'SKILL1' &&
               defender.stateTimer >= defender.attacks.SKILL1.startup &&
               defender.stateTimer < defender.attacks.SKILL1.startup + defender.attacks.SKILL1.active &&
@@ -10082,7 +10086,7 @@ window.OD_FIREBASE_CONFIG = {
         ctx.shadowBlur = f.awakenTimer > 0 || f.pirateBuffTimer > 0 || f.knightBuffTimer > 0 || isWolfForm ? 24 : 14;
         ctx.shadowColor = isWolfForm ? f.accentColor : (f.awakenTimer > 0 ? (f.id === 'P1' ? '#f43f5e' : '#38bdf8') : (f.pirateBuffTimer > 0 || f.knightBuffTimer > 0 ? '#fde047' : f.glowColor));
 
-        const bodyColor = isWolfForm ? '#334155' : (jobId === 'SONG_MASTER' && f.songFuryForm ? '#ef4444' : (jobId === 'SONG_MASTER' && f.songRageForm ? '#f97316' : (jobId === 'REAPER' ? '#cbd5e1' : '#f8fafc')));
+        const bodyColor = isWolfForm ? '#334155' : jobId === 'SONG_MASTER' && f.songFuryForm ? '#ef4444' : jobId === 'SONG_MASTER' && f.songRageForm ? '#f97316' : jobId === 'REAPER' ? '#cbd5e1' : '#f8fafc';
         const limbWidth = isWolfForm ? 8.5 : 6.5;
 
         // Back Arm & Back Leg
@@ -14114,6 +14118,8 @@ window.OD_FIREBASE_CONFIG = {
     guestPos: null,        // (방장용) 참가자가 직접 보고한 자기 캐릭터 위치
     lastGuestPosF: -1,
     unsubCallbacks: [],
+    _leaving: false,
+    _peerLeaveHandled: false,
 
     // ---- 이펙트 이벤트 동기화 ----
     fxQueue: [],           // (방장) 이번 틱에 생긴 이펙트 이벤트. 전송 후 바로 비운다
@@ -14598,17 +14604,24 @@ window.OD_FIREBASE_CONFIG = {
     },
 
     handlePeerLeft() {
-      if (!this.active) return;
+      if (!this.active || this._leaving || this._peerLeaveHandled) return;
+      this._peerLeaveHandled = true;
       this.leaveRoom(true).then(() => {
         const modal = document.getElementById('onlineModal');
         if (modal) modal.hidden = false;
         this.updateModalView();
-        this.setStatus('플레이어를 찾지 못했습니다. 온라인 방 만들기/입장 화면으로 돌아왔습니다.', '#fb7185');
+        this.setStatus('상대방이 방을 나갔습니다. 온라인 방 화면으로 돌아왔습니다.', '#fb7185');
         this.subscribeRoomList();
       });
     },
 
     async leaveRoom(silent = false) {
+      if (this._leaving) return;
+      this._leaving = true;
+      // 즉시 inactive 처리해 연결 종료 이벤트가 중복으로 퇴장 처리를 시작하지 않게 한다.
+      const leavingRole = this.role;
+      const leavingRoomRef = this.roomRef;
+      this.active = false;
       this.unsubCallbacks.forEach((fn) => { try { fn(); } catch (e) {} });
       this.unsubCallbacks = [];
 
@@ -14631,15 +14644,17 @@ window.OD_FIREBASE_CONFIG = {
         this.pc = null;
       }
 
-      if (this.roomRef) {
+      if (leavingRoomRef) {
         try {
-          if (this.role === 'HOST') {
-            await this.roomRef.remove();
-          } else if (this.role === 'GUEST') {
-            await this.roomRef.child('guest').remove();
+          if (leavingRole === 'HOST') {
+            // 방장이 퇴장하면 방 자체를 종료해 참가자가 확실히 감지하도록 한다.
+            await leavingRoomRef.remove();
+          } else if (leavingRole === 'GUEST') {
+            // 참가자는 자기 presence만 제거해 방장에게 퇴장을 알린다.
+            await leavingRoomRef.child('guest').remove();
           }
         } catch (e) {}
-        this.roomRef = null;
+        if (this.roomRef === leavingRoomRef) this.roomRef = null;
       }
 
       this.active = false;
@@ -14648,7 +14663,9 @@ window.OD_FIREBASE_CONFIG = {
       this.roomCode = null;
       this.transport = 'NONE';
       this.latestSnapshot = null;
+      this._peerLeaveHandled = false;
       restoreRandom();
+      this._leaving = false;
 
       if (!silent) {
         this.updateModalView();
@@ -16332,6 +16349,7 @@ window.OD_FIREBASE_CONFIG = {
     // ---------------------------------------------------------------------
     // F1 DRIVER: localized custom moves and racing-form mechanics.
     // ---------------------------------------------------------------------
+
     const f1BaseStart=Fighter.prototype.startAttack;
     Fighter.prototype.startAttack=function(type,projectiles){
       if(this.jobId!=='F1_DRIVER')return f1BaseStart.call(this,type,projectiles);
