@@ -13981,6 +13981,13 @@ window.OD_FIREBASE_CONFIG = {
           padding: 10px 12px; border-radius: 10px; background: rgba(2, 6, 23, 0.72);
           border: 1px solid rgba(148, 163, 184, 0.22);
         }
+        #onlineChatToggle { position: fixed; right: 18px; bottom: 18px; z-index: 9400; display: none; }
+        #onlineChatPanel { position: fixed; right: 18px; bottom: 66px; width: min(320px, calc(100vw - 28px)); height: 300px; z-index: 9400; display: none; flex-direction: column; background: rgba(9, 15, 30, .96); border: 1px solid rgba(56, 189, 248, .55); border-radius: 14px; box-shadow: 0 12px 36px rgba(0,0,0,.55); color: #f8fafc; }
+        #onlineChatPanel.open { display: flex; }
+        #onlineChatMessages { flex: 1; overflow-y: auto; padding: 10px; font-size: 12px; line-height: 1.45; overflow-wrap: anywhere; }
+        #onlineChatInput { min-width: 0; flex: 1; background: rgba(2,6,23,.9); border: 1px solid #475569; border-radius: 8px; padding: 8px; color: white; outline: none; }
+        #onlineChatInput:focus { border-color: #38bdf8; }
+        @media (max-width: 600px) { #onlineChatToggle { right: 10px; bottom: 10px; } #onlineChatPanel { right: 10px; bottom: 58px; } }
       `;
       document.head.appendChild(style);
 
@@ -14043,6 +14050,31 @@ window.OD_FIREBASE_CONFIG = {
         </div>
       `;
       document.body.appendChild(modal);
+
+      // Lightweight real-time chat overlay (separate from gameplay packets).
+      const chatToggle = document.createElement('button');
+      chatToggle.id = 'onlineChatToggle';
+      chatToggle.type = 'button';
+      chatToggle.className = 'px-3 py-2 rounded-xl bg-sky-600/90 hover:bg-sky-500 text-white text-xs font-black border border-sky-300/50 shadow-lg';
+      chatToggle.textContent = '💬 채팅';
+      const chatPanel = document.createElement('div');
+      chatPanel.id = 'onlineChatPanel';
+      chatPanel.innerHTML = `<div class="flex items-center justify-between px-3 py-2 border-b border-slate-700"><b class="text-xs text-sky-300">실시간 온라인 채팅</b><button id="onlineChatClose" type="button" class="text-slate-300 text-xs px-1">✕</button></div><div id="onlineChatMessages" aria-live="polite"></div><form id="onlineChatForm" class="flex gap-1.5 p-2 border-t border-slate-700"><input id="onlineChatInput" maxlength="200" autocomplete="off" placeholder="메시지 입력..."/><button type="submit" class="px-2.5 rounded-lg bg-sky-600 text-white text-xs font-bold">전송</button></form>`;
+      document.body.appendChild(chatToggle);
+      document.body.appendChild(chatPanel);
+      chatToggle.addEventListener('click', () => { chatPanel.classList.toggle('open'); if (chatPanel.classList.contains('open')) document.getElementById('onlineChatInput').focus(); });
+      document.getElementById('onlineChatClose').addEventListener('click', () => chatPanel.classList.remove('open'));
+      ['keydown','keyup','keypress'].forEach(evt => chatPanel.addEventListener(evt, e => e.stopPropagation()));
+      document.getElementById('onlineChatForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const input = document.getElementById('onlineChatInput');
+        const message = (input.value || '').trim().slice(0, 200);
+        if (!message || !this.active) return;
+        const chatMsg = { t: 'CHAT', text: message, name: this.getCurrentUser()?.name || (this.role === 'HOST' ? '방장' : '참가자'), ts: Date.now() };
+        this.addChatMessage(chatMsg, true);
+        this.sendPacket(chatMsg);
+        input.value = '';
+      });
 
       // Block game hotkeys while typing inside modal
       ['keydown', 'keyup', 'keypress'].forEach((evt) => {
@@ -14116,6 +14148,10 @@ window.OD_FIREBASE_CONFIG = {
       const btnOnline = document.getElementById('btnOnline');
 
       document.body.classList.toggle('online-ui-active', !!this.active);
+      const chatToggle = document.getElementById('onlineChatToggle');
+      const chatPanel = document.getElementById('onlineChatPanel');
+      if (chatToggle) chatToggle.style.display = this.active ? 'block' : 'none';
+      if (!this.active && chatPanel) chatPanel.classList.remove('open');
       if (this.active) {
         lobby.hidden = true;
         activeView.hidden = false;
@@ -14639,8 +14675,29 @@ window.OD_FIREBASE_CONFIG = {
       }
     },
 
+    addChatMessage(msg, local = false) {
+      const box = document.getElementById('onlineChatMessages');
+      if (!box || !msg || !msg.text) return;
+      const row = document.createElement('div');
+      row.className = 'mb-1.5';
+      const name = document.createElement('span');
+      name.className = local ? 'font-bold text-emerald-300' : 'font-bold text-sky-300';
+      name.textContent = (msg.name || (local ? '나' : '상대')) + ': ';
+      const content = document.createElement('span');
+      content.className = 'text-slate-100';
+      content.textContent = String(msg.text).slice(0, 200);
+      row.appendChild(name); row.appendChild(content); box.appendChild(row);
+      while (box.children.length > 40) box.removeChild(box.firstChild);
+      box.scrollTop = box.scrollHeight;
+    },
+
     handleNetMessage(msg) {
       if (!msg || !msg.t) return;
+
+      if (msg.t === 'CHAT') {
+        this.addChatMessage(msg, false);
+        return;
+      }
 
       if (msg.t === 'PING') {
         this.sendPacket({ t: 'PONG', ts: msg.ts });
