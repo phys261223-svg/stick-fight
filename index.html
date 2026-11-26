@@ -589,7 +589,7 @@ window.OD_FIREBASE_CONFIG = {
       },
 
       // Selectable Stickman Classes
-      JOB_ORDER: ['STICKMAN', 'SAMURAI', 'VIKING', 'NINJA', 'TAOIST', 'KNIGHT', 'PIRATE', 'REAPER', 'WEREWOLF', 'SONG_MASTER', 'TAEKWONDO', 'POSEIDON', 'GAMBLER', 'HUNTER', 'BEGGAR', 'AI_ROBOT', 'PASTOR', 'SANTA', 'DRAGON_KNIGHT', 'MONK', 'GOJO', 'TIME_MAGE', 'NECROMANCER', 'MAFIA'],
+      JOB_ORDER: ['STICKMAN', 'SAMURAI', 'VIKING', 'NINJA', 'TAOIST', 'KNIGHT', 'PIRATE', 'REAPER', 'WEREWOLF', 'SONG_MASTER', 'TAEKWONDO', 'POSEIDON', 'GAMBLER', 'HUNTER', 'BEGGAR', 'AI_ROBOT', 'PASTOR', 'SANTA', 'DRAGON_KNIGHT', 'MONK', 'GOJO', 'TIME_MAGE', 'NECROMANCER', 'MAFIA', 'ASTRONAUT'],
       JOBS: {
         AI_ROBOT: {
           id:'AI_ROBOT',name:'AI 로봇',engName:'AI ROBOT',tagline:'적응형 전투 인공지능 · 진화와 과부하',
@@ -2215,9 +2215,9 @@ window.OD_FIREBASE_CONFIG = {
             GOJO_PUNCH2:{name:'GOJO_PUNCH2',startup:5,active:4,recovery:9,damage:35,ultGainAttacker:7,ultGainDefender:4,hitstun:14,blockstun:10,knockbackX:4.8,hitstop:5,shake:6,lungeX:4,hitbox:{offsetX:25,offsetY:-118,width:88,height:42},nextNormal:'GOJO_KICK1',canCancelInto:['GOJO_KICK1','SKILL1','SKILL2','ULTIMATE']},
             GOJO_KICK1:{name:'GOJO_KICK1',startup:6,active:5,recovery:11,damage:43,ultGainAttacker:8,ultGainDefender:5,hitstun:16,blockstun:11,knockbackX:6,knockbackY:-2,hitstop:6,shake:7,lungeX:5,hitbox:{offsetX:29,offsetY:-75,width:102,height:42},nextNormal:'GOJO_KICK2',canCancelInto:['GOJO_KICK2','SKILL1','SKILL2','ULTIMATE']},
             GOJO_KICK2:{name:'GOJO_KICK2',startup:8,active:6,recovery:15,damage:62,ultGainAttacker:11,ultGainDefender:6,hitstun:22,blockstun:14,knockbackX:12,knockbackY:-7,knockdown:true,hitstop:8,shake:11,lungeX:6,hitbox:{offsetX:32,offsetY:-94,width:116,height:58},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
-            SKILL1:{name:'SKILL1',startup:7,active:4,recovery:14,cooldown:240,ultGainOnCast:7,projectile:{visualType:'GOJO_PURPLE',speed:18,radius:42,damage:112,ultGainAttacker:12,ultGainDefender:7,hitstun:24,blockstun:14,knockbackX:16,knockbackY:-8,knockdown:true,hitstop:9,shake:14}},
-            SKILL2:{name:'SKILL2',startup:7,active:4,recovery:14,cooldown:210,ultGainOnCast:6,projectile:{visualType:'GOJO_BLUE',speed:19,radius:30,damage:74,ultGainAttacker:10,ultGainDefender:6,hitstun:19,blockstun:12,knockbackX:8,knockbackY:-2,hitstop:6,shake:8}},
-            ULTIMATE:{name:'ULTIMATE',ultStyle:'GOJO_DOMAIN',flashFrames:22,startup:8,active:360,recovery:18,cooldown:0,domainDuration:360,domainDefense:0.62}
+            SKILL1:{name:'SKILL1',startup:7,active:4,recovery:14,cooldown:240,ultGainOnCast:7,projectile:{visualType:'GOJO_PURPLE',speed:18,radius:42,damage:112,ultGainAttacker:12,ultGainDefender:7,hitstun:24,blockstun:14,guardBreak:true,knockbackX:16,knockbackY:-8,knockdown:true,hitstop:9,shake:14}},
+            SKILL2:{name:'SKILL2',startup:7,active:4,recovery:14,cooldown:210,ultGainOnCast:6,projectile:{visualType:'GOJO_BLUE',speed:19,radius:30,damage:74,ultGainAttacker:10,ultGainDefender:6,hitstun:19,blockstun:12,guardBreak:true,knockbackX:8,knockbackY:-2,hitstop:6,shake:8}},
+            ULTIMATE:{name:'ULTIMATE',ultStyle:'GOJO_DOMAIN',flashFrames:22,startup:8,active:540,recovery:18,cooldown:0,domainDuration:540,domainDefense:0.62}
           }
         },
         MONK: {
@@ -2313,6 +2313,18 @@ window.OD_FIREBASE_CONFIG = {
             SKILL1:{name:'SKILL1',skillStyle:'MAFIA_FLASH',startup:1,active:1,recovery:14,cooldown:330,ultGainOnCast:7,flashDamage:78,flashStun:54,flashRadius:150,flashFuse:42},
             SKILL2:{name:'SKILL2',skillStyle:'MAFIA_MARK',startup:1,active:1,recovery:10,cooldown:390,ultGainOnCast:7,markDuration:240,markMaxBonus:2.25},
             ULTIMATE:{name:'ULTIMATE',ultStyle:'MAFIA_STEP',startup:1,active:1,recovery:8,cooldown:0,stepDuration:300,stepUses:3,stepSpeed:20}
+          }
+        },
+        ASTRONAUT: {
+          id:'ASTRONAUT', name:'우주비행사', engName:'ASTRONAUT', tagline:'중력 펄스 · 블랙홀과 궤도 레이저',
+          gearSummary:'흰 우주복 · 하늘색 반사 바이저 · 산소통 제트팩 · 중력 권총',
+          statBars:{hp:3,speed:4,reach:5},
+          skillSummary:{normal:'중력 펄스 권총: 중거리 링 탄환 · 적을 살짝 끌어당김',skill1:'미니 블랙홀: 2.5초 흡인 · 적과 투사체를 끌어당기고 소멸 시 폭발',skill2:'제트팩 부스터: 무적 후방 공중 회피 · 잔류 화염 밀치기와 화상',ultimate:'궤도 위성 포격: 화면 밖으로 상승 후 좌우 조종 가능한 수직 플라즈마 레이저'},
+          stats:{maxHp:1020,walkSpeed:6.3,backWalkSpeed:5.0,dashSpeed:16.2},firstNormal:'ASTRO_PULSE',attacks:{
+            ASTRO_PULSE:{name:'ASTRO_PULSE',startup:5,active:2,recovery:10,damage:0,projectile:{visualType:'ASTRO_PULSE',speed:17.5,radius:20,damage:38,ultGainAttacker:6,ultGainDefender:4,hitstun:12,blockstun:9,knockbackX:0,knockbackY:0,hitstop:3,shake:4},nextNormal:'ASTRO_PULSE',canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
+            SKILL1:{name:'SKILL1',skillStyle:'ASTRO_BLACKHOLE',startup:1,active:1,recovery:12,cooldown:300,ultGainOnCast:8,holeDuration:150,holeRadius:138,holeTickDamage:9,holeBurstDamage:58},
+            SKILL2:{name:'SKILL2',skillStyle:'ASTRO_JET',startup:1,active:1,recovery:13,cooldown:240,ultGainOnCast:7,invulnFrames:32,dashVelX:14.5,dashVelY:-15.5,flameDuration:24,flameRadius:92,flameDamage:38,burnDuration:90},
+            ULTIMATE:{name:'ULTIMATE',ultStyle:'ASTRO_ORBITAL',startup:42,active:180,recovery:22,cooldown:0,beamWidth:104,beamHeight:1050,tickInterval:8,damagePerTick:17,hitstun:12,knockbackX:4,knockbackY:-2,guardBreak:true,finalDamage:88}
           }
         }
 
@@ -3758,6 +3770,7 @@ window.OD_FIREBASE_CONFIG = {
           this.timeSwordCharges = 0;
         }
         if(this.jobId==='GOJO'){this.gojoDomainTimer=0;this.gojoDomainRadius=0;this.gojoDomainX=this.x;this.gojoDomainY=this.y-70;this.gojoRedTimer=0;this.gojoRedTarget=null;this.gojoRedBurstDone=false;}
+        this.astroHoleTimer=0;this.astroHoleX=this.x;this.astroHoleY=this.y-80;this.astroHoleTick=0;this.astroFlameTimer=0;this.astroFlameX=this.x;this.astroFlameY=this.y;this.astroUltLaserX=this.x;this.astroUltFinalDone=false;this.astroBurnTimer=0;this.astroBurnTick=0;this.astroBurnOwner=null;
         this.cooldowns = { SKILL1: 0, SKILL2: 0 };
         this.normalChainCooldown = 0;
         this.tkdNormalStep = 0;
@@ -4143,6 +4156,11 @@ window.OD_FIREBASE_CONFIG = {
         if (this.stateTimer < spec.startup || this.stateTimer >= spec.startup + spec.active) {
           return null;
         }
+        if (spec.ultStyle === 'ASTRO_ORBITAL') {
+          const activeStart=spec.startup,activeEnd=spec.startup+spec.active;
+          if(this.stateTimer<activeStart||this.stateTimer>=activeEnd)return null;
+          return {x:this.astroUltLaserX-(spec.beamWidth||104)/2,y:CONFIG.GROUND_Y-1050,width:spec.beamWidth||104,height:1050};
+        }
         const beamY = this.y - 135;
         const beamX = this.facing === 1 ? this.x + 28 : this.x - 28 - spec.beamWidth;
         return {
@@ -4189,6 +4207,22 @@ window.OD_FIREBASE_CONFIG = {
       update(opponent, projectiles, canControl) {
         this.opponent = opponent;
         this.animTick++;
+
+        // Astronaut: autonomous gravity well, projectile absorption, jet fire and burn ticks.
+        if(this.jobId==='ASTRONAUT'){
+          if(this.astroHoleTimer>0){
+            this.astroHoleTimer--;this.astroHoleTick++;
+            for(const pr of projectiles||[]){if(pr.active&&pr.owner!==this&&Math.hypot(pr.x-this.astroHoleX,pr.y-this.astroHoleY)<(this.job.attacks.SKILL1.holeRadius||138)){pr.active=false;VFX.spawnHitSparks(pr.x,pr.y,'#c084fc',5,.55);}}
+            if(opponent&&opponent.hp>0&&Math.hypot(opponent.x-this.astroHoleX,(opponent.y-82)-this.astroHoleY)<(this.job.attacks.SKILL1.holeRadius||138)){
+              opponent.vx+=(this.astroHoleX-opponent.x)*.018;opponent.vy+=(this.astroHoleY-(opponent.y-82))*.012;opponent.vx=Math.max(-9,Math.min(9,opponent.vx));
+              if(this.astroHoleTick%12===0&&opponent.invulnTimer<=0)COMBAT_ENGINE.applyHit(this,opponent,{damage:this.job.attacks.SKILL1.holeTickDamage||9,isSkill:true,ultGainAttacker:0,ultGainDefender:2,hitstun:7,blockstun:6,knockbackX:0,knockbackY:0,hitstop:1,shake:2,direction:opponent.x>=this.astroHoleX?1:-1,sourceX:this.astroHoleX});
+            }
+            if(this.astroHoleTimer===0){VFX.shockwaves.push({x:this.astroHoleX,y:this.astroHoleY,radius:20,maxRadius:155,life:20,maxLife:20,color:'#a855f7'});if(opponent&&opponent.hp>0&&Math.hypot(opponent.x-this.astroHoleX,(opponent.y-80)-this.astroHoleY)<150&&opponent.invulnTimer<=0)COMBAT_ENGINE.applyHit(this,opponent,{damage:this.job.attacks.SKILL1.holeBurstDamage||58,isSkill:true,ultGainAttacker:0,ultGainDefender:5,hitstun:20,blockstun:12,knockbackX:8,knockbackY:-7,knockdown:false,guardBreak:false,hitstop:6,shake:9,direction:opponent.x>=this.astroHoleX?1:-1,sourceX:this.astroHoleX});}
+          }
+          if(this.astroFlameTimer>0){this.astroFlameTimer--;if(opponent&&opponent.hp>0&&Math.hypot(opponent.x-this.astroFlameX,(opponent.y-75)-this.astroFlameY)<(this.job.attacks.SKILL2.flameRadius||92)&&opponent.invulnTimer<=0){if(this.astroFlameTimer===this.job.attacks.SKILL2.flameDuration-1)COMBAT_ENGINE.applyHit(this,opponent,{damage:this.job.attacks.SKILL2.flameDamage||38,isSkill:true,ultGainAttacker:0,ultGainDefender:4,hitstun:12,blockstun:8,knockbackX:10,knockbackY:-3,hitstop:4,shake:5,direction:opponent.x>=this.astroFlameX?1:-1,sourceX:this.astroFlameX});opponent.astroBurnTimer=Math.max(opponent.astroBurnTimer||0,this.job.attacks.SKILL2.burnDuration||90);opponent.astroBurnOwner=this;}}
+        }
+        // Burn damage ticks on whichever fighter is afflicted, not only on the Astronaut.
+        if(this.astroBurnTimer>0){this.astroBurnTimer--;this.astroBurnTick++;if(this.astroBurnTick%18===0&&this.astroBurnOwner&&this.astroBurnOwner.hp>0&&this.invulnTimer<=0)COMBAT_ENGINE.applyHit(this.astroBurnOwner,this,{damage:5,isSkill:true,ultGainAttacker:0,ultGainDefender:1,hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,hitstop:0,shake:0,direction:this.astroBurnOwner.facing,sourceX:this.astroBurnOwner.x});if(this.astroBurnTimer===0)this.astroBurnOwner=null;}
 
         // Chronomancer: retain 2.5 seconds of position/HP history for rewind.
         if (this.jobId === 'TIME_MAGE') {
@@ -4935,6 +4969,13 @@ window.OD_FIREBASE_CONFIG = {
 
         // Skill 1 Variants
         if (type === 'SKILL1') {
+          if (spec.skillStyle === 'ASTRO_BLACKHOLE') {
+            this.cooldowns.SKILL1=spec.cooldown;this.gainUlt(spec.ultGainOnCast||0);this.vx*=0.35;
+            this.astroHoleX=Math.max(CONFIG.STAGE_LEFT+90,Math.min(CONFIG.STAGE_RIGHT-90,this.x+this.facing*220));
+            this.astroHoleY=CONFIG.GROUND_Y-112;this.astroHoleTimer=spec.holeDuration;this.astroHoleTick=0;
+            VFX.triggerScreenFlash('#a855f7',0.12);VFX.spawnFloatingText(this.x+this.facing*90,this.y-165,'미니 블랙홀 생성!','#c084fc');
+            VFX.shockwaves.push({x:this.astroHoleX,y:this.astroHoleY,radius:12,maxRadius:115,life:20,maxLife:20,color:'#a855f7'});AUDIO.sfxWindGust();return;
+          }
           if (spec.skillStyle === 'TIME_REWIND') {
             this.cooldowns.SKILL1 = spec.cooldown;
             const history = this.timeHistory || [];
@@ -5089,6 +5130,13 @@ window.OD_FIREBASE_CONFIG = {
 
         // Skill 2 Variants
         if (type === 'SKILL2') {
+          if (spec.skillStyle === 'ASTRO_JET') {
+            this.cooldowns.SKILL2=spec.cooldown;this.gainUlt(spec.ultGainOnCast||0);this.invulnTimer=Math.max(this.invulnTimer,spec.invulnFrames||30);
+            this.astroFlameX=this.x;this.astroFlameY=this.y-20;this.astroFlameTimer=spec.flameDuration||24;
+            this.vx=-this.facing*(spec.dashVelX||14.5);this.vy=spec.dashVelY||-12.5;this.y-=2;this.state='JUMP';
+            VFX.spawnAfterimage(this,'#38bdf8');VFX.spawnHitSparks(this.x-this.facing*28,this.y-70,'#fb923c',18,1.1);
+            VFX.spawnFloatingText(this.x,this.y-170,'제트팩 회피!','#38bdf8');AUDIO.sfxUppercut();return;
+          }
           if (spec.skillStyle === 'TIME_BOMB') {
             this.cooldowns.SKILL2 = spec.cooldown;
             const bombSpec={visualType:'TIME_BOMB',speed:10.5,vy:0,gravity:.28,radius:22,damage:0,ultGainAttacker:0,ultGainDefender:0,hitstun:0,blockstun:0,knockbackX:0,hitstop:0,shake:0};
@@ -5257,6 +5305,11 @@ window.OD_FIREBASE_CONFIG = {
         if (type === 'ULTIMATE') {
           this.ult = 0;
 
+          if (spec.ultStyle === 'ASTRO_ORBITAL') {
+            this.vx=0;this.vy=0;this.y=-125;this.invulnTimer=Math.max(this.invulnTimer,spec.startup+spec.active+spec.recovery+8);
+            this.astroUltLaserX=this.opponent?this.opponent.x:this.x;this.astroUltFinalDone=false;this.ultimateTickTimer=0;
+            VFX.triggerSuperFlash('#38bdf8','궤도 위성 포격');VFX.triggerScreenFlash('#a855f7',0.28);VFX.spawnFloatingText(this.x,CONFIG.GROUND_Y-210,'ORBITAL STRIKE!','#38bdf8');AUDIO.sfxUltimateFlash();return;
+          }
           if (spec.ultStyle === 'TIME_STOP') {
             if (this.opponent && this.opponent.hp > 0) {
               this.opponent.timeStopTimer = 150;
@@ -5547,6 +5600,11 @@ window.OD_FIREBASE_CONFIG = {
           if (this.jobId === 'DRAGON_KNIGHT' && this.attackType === 'DRAGON_CLAW') {
             VFX.spawnSlashArc({x:this.x+this.facing*45,y:this.y-116,radius:128,startAngle:-1.18,endAngle:.95,facing:this.facing,color:'#fb5b24',lineWidth:24,life:17});
             VFX.spawnHitSparks(this.x+this.facing*96,this.y-112,'#fde68a',22,1.2);VFX.shockwaves.push({x:this.x+this.facing*80,y:this.y-95,radius:12,maxRadius:88,life:14,maxLife:14,color:'#fb923c'});AUDIO.sfxUppercut();
+          }
+          // Astronaut's gravity pulse sidearm: medium-range ring shot with a gentle pull on hit.
+          if (this.jobId === 'ASTRONAUT' && this.attackType === 'ASTRO_PULSE' && spec.projectile) {
+            const p=new Projectile(this,this.x+this.facing*50,this.y-108,this.facing,spec.projectile,false);p.astroPulse=true;projectiles.push(p);
+            VFX.spawnHitSparks(this.x+this.facing*48,this.y-108,'#a855f7',10,.85);AUDIO.sfxFireball();
           }
           // Monk: unmistakable staff sweep and a forward-flying golden palm qi projectile.
           if (this.jobId === 'MONK' && this.attackType.startsWith('MONK_STAFF')) {
@@ -6503,6 +6561,18 @@ window.OD_FIREBASE_CONFIG = {
             AUDIO.sfxGroundSlam();
           }
         } else if (this.attackType === 'ULTIMATE' && spec.beamWidth) {
+          if (spec.ultStyle === 'ASTRO_ORBITAL') {
+            if(this.stateTimer<spec.startup){this.y=-125;this.vx=0;this.vy=0;}
+            else if(this.stateTimer<spec.startup+spec.active){
+              this.y=-125;this.vx=0;this.vy=0;
+              if(canControl){const left=INPUT.isDown(this.controls.left),right=INPUT.isDown(this.controls.right);if(left&&!right)this.astroUltLaserX-=13;if(right&&!left)this.astroUltLaserX+=13;}
+              this.astroUltLaserX=Math.max(CONFIG.STAGE_LEFT+55,Math.min(CONFIG.STAGE_RIGHT-55,this.astroUltLaserX));
+              const beamBox=this.getUltimateBeamBox();this.ultimateTickTimer++;
+              if(beamBox&&this.ultimateTickTimer%spec.tickInterval===1&&opponent.state!=='KO'&&opponent.invulnTimer<=0&&COMBAT_ENGINE.rectsOverlap(beamBox,opponent.getHurtbox())){
+                COMBAT_ENGINE.applyHit(this,opponent,{damage:spec.damagePerTick,isSkill:true,ultGainAttacker:0,ultGainDefender:3,hitstun:spec.hitstun,blockstun:10,knockbackX:2,knockbackY:-1,guardBreak:true,hitstop:2,shake:5,direction:opponent.x>=this.astroUltLaserX?1:-1,sourceX:this.astroUltLaserX,isHeavy:true});
+              }
+            }else if(!this.astroUltFinalDone){this.astroUltFinalDone=true;this.y=CONFIG.GROUND_Y;this.vy=0;VFX.spawnGroundSlam(this.astroUltLaserX,CONFIG.GROUND_Y,'#a855f7',1.5);VFX.shockwaves.push({x:this.astroUltLaserX,y:CONFIG.GROUND_Y-60,radius:20,maxRadius:160,life:22,maxLife:22,color:'#38bdf8'});if(opponent.state!=='KO'&&Math.abs(opponent.x-this.astroUltLaserX)<145&&opponent.invulnTimer<=0)COMBAT_ENGINE.applyHit(this,opponent,{damage:spec.finalDamage||88,isSkill:true,ultGainAttacker:0,ultGainDefender:5,hitstun:30,blockstun:16,knockbackX:14,knockbackY:-12,knockdown:true,guardBreak:true,hitstop:9,shake:16,direction:opponent.x>=this.astroUltLaserX?1:-1,sourceX:this.astroUltLaserX,isHeavy:true});AUDIO.sfxGroundSlam();}
+          } else {
           // Classic Stickman Hyper Beam (UNTOUCHED)
           if (this.stateTimer === spec.startup) {
             VFX.triggerShake(18);
@@ -6539,6 +6609,7 @@ window.OD_FIREBASE_CONFIG = {
               }
               COMBAT_ENGINE.damageGhostsInArea(this, beamBox, spec.damagePerTick);
             }
+          }
           }
         } else {
           this.vx *= 0.86;
@@ -8100,96 +8171,35 @@ window.OD_FIREBASE_CONFIG = {
       // -----------------------------------------------------------------------
       drawCharacterSelect(ctx, game) {
         ctx.save();
-        ctx.fillStyle = 'rgba(6, 10, 22, 0.82)';
-        ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
-        ctx.textAlign = 'center';
-        ctx.font = '900 32px Orbitron, "Noto Sans KR", sans-serif';
-        ctx.fillStyle = '#fde047';
-        ctx.fillText('CHARACTER SELECT', CONFIG.WIDTH / 2, 48);
-        ctx.font = '700 14px "Noto Sans KR", sans-serif';
-        ctx.fillStyle = '#cbd5e1';
-        const subText = game.mode === 'PVE'
-          ? '1P [A/D/W/S + X확정] · 2P AI [←/→/↑/↓ + K확정] · 중앙 캐릭터 초상화 클릭으로 1P / AI 모두 직접 선택!'
-          : '1P [A/D/W/S + X확정] · 2P [←/→/↑/↓ + K확정] · 양측 모두 확정하면 즉시 대결 시작!';
-        ctx.fillText(subText, CONFIG.WIDTH / 2, 74);
-        this.drawPlayerSelectPanel(ctx, game, {
-          side: 'P1', x: 24, y: 94, w: 344, h: 542,
-          selectedJobId: game.selectedJobs.P1, locked: game.selectLocked.P1,
-          accent: '#f43f5e', badgeText: '1P RED',
-          keyGuide: '이동: WASD · 확정: X · 취소: S'
-        });
-        this.drawTekkenRosterGrid(ctx, game, { x: 382, y: 94, w: 516, h: 542 });
-        this.drawPlayerSelectPanel(ctx, game, {
-          side: 'P2', x: 912, y: 94, w: 344, h: 542,
-          selectedJobId: game.selectedJobs.P2, locked: game.selectLocked.P2,
-          accent: '#38bdf8', badgeText: game.mode === 'PVE' ? '2P CPU (AI)' : '2P BLUE',
-          keyGuide: game.mode === 'PVE'
-            ? 'AI 선택: ←↑↓→ · 확정: K · 취소: ↓'
-            : '이동: ←↑↓→ · 확정: K · 취소: ↓'
-        });
-        const pulse = 0.65 + Math.sin(performance.now() * 0.008) * 0.35;
-        ctx.globalAlpha = pulse;
-        ctx.font = '900 17px "Noto Sans KR", sans-serif';
-        ctx.fillStyle = '#fbbf24';
-        ctx.fillText('▶ 1P와 2P(AI) 캐릭터를 각각 선택한 뒤 확정([X] / [K]) 또는 [SPACE / ENTER]로 대결을 시작하세요!', CONFIG.WIDTH / 2, 676);
-        ctx.restore();
+        const bg=ctx.createLinearGradient(0,0,1280,720);bg.addColorStop(0,'#071329');bg.addColorStop(.5,'#1b2d52');bg.addColorStop(1,'#030712');ctx.fillStyle=bg;ctx.fillRect(0,0,1280,720);
+        const glow=ctx.createRadialGradient(420,260,8,420,260,520);glow.addColorStop(0,'rgba(56,189,248,.28)');glow.addColorStop(1,'rgba(56,189,248,0)');ctx.fillStyle=glow;ctx.fillRect(0,0,1280,720);
+        for(let i=0;i<48;i++){const px=(i*173+performance.now()*.018)%1280,py=(i*97)%720;ctx.fillStyle=`rgba(186,230,253,${.12+(i%4)*.05})`;ctx.fillRect(px,py,2,2);}
+        const j1=CONFIG.JOBS[game.selectedJobs.P1]||CONFIG.JOBS.STICKMAN,j2=CONFIG.JOBS[game.selectedJobs.P2]||CONFIG.JOBS.STICKMAN;
+        // P1/P2 large character previews: P2 preview is deliberately visible on the right.
+        ctx.save();ctx.translate(340,338);ctx.scale(1.55,1.55);this.drawStickmanPose(ctx,{jobId:game.selectedJobs.P1,x:0,y:0,facing:1,state:'IDLE',attackType:null,stateTimer:0,animTick:performance.now()*.06,accentColor:'#fb7185',glowColor:'#fb7185',headbandNodes:[],awakenTimer:0,shieldHp:0,beltRank:0});ctx.restore();
+        ctx.save();ctx.translate(940,338);ctx.scale(1.48,1.48);this.drawStickmanPose(ctx,{jobId:game.selectedJobs.P2,x:0,y:0,facing:-1,state:'IDLE',attackType:null,stateTimer:0,animTick:performance.now()*.06+8,accentColor:'#38bdf8',glowColor:'#38bdf8',headbandNodes:[],awakenTimer:0,shieldHp:0,beltRank:0});ctx.restore();
+        ctx.textAlign='left';ctx.font='900 42px Orbitron,"Noto Sans KR",sans-serif';ctx.fillStyle='#f8fafc';ctx.shadowColor='#38bdf8';ctx.shadowBlur=18;ctx.fillText(j1.name.toUpperCase(),60,110);ctx.shadowBlur=0;ctx.font='800 18px "Noto Sans KR",sans-serif';ctx.fillStyle='#7dd3fc';ctx.fillText(j1.engName||j1.name,62,140);ctx.font='700 15px "Noto Sans KR",sans-serif';ctx.fillStyle='#cbd5e1';ctx.fillText(j1.tagline||'전투 스타일',62,166);
+        ctx.textAlign='right';ctx.font='900 38px Orbitron,"Noto Sans KR",sans-serif';ctx.fillStyle='#f8fafc';ctx.shadowColor='#38bdf8';ctx.shadowBlur=18;ctx.fillText(j2.name.toUpperCase(),1220,110);ctx.shadowBlur=0;ctx.font='800 18px "Noto Sans KR",sans-serif';ctx.fillStyle='#7dd3fc';ctx.fillText(j2.engName||j2.name,1218,140);ctx.font='700 15px "Noto Sans KR",sans-serif';ctx.fillStyle='#cbd5e1';ctx.fillText(j2.tagline||'전투 스타일',1218,166);
+        const badge=(x,w,label,name,color,ready)=>{ctx.fillStyle='rgba(2,6,23,.84)';ctx.beginPath();ctx.roundRect(x,188,w,48,10);ctx.fill();ctx.strokeStyle=ready?'#4ade80':color;ctx.lineWidth=2;ctx.stroke();ctx.textAlign='left';ctx.font='900 12px Orbitron,sans-serif';ctx.fillStyle=color;ctx.fillText(label,x+12,206);ctx.font='800 16px "Noto Sans KR",sans-serif';ctx.fillStyle='#f8fafc';ctx.fillText(name,x+12,227);ctx.textAlign='right';ctx.font='900 12px sans-serif';ctx.fillStyle=ready?'#4ade80':'#94a3b8';ctx.fillText(ready?'READY':'SELECT',x+w-12,207);};
+        badge(60,230,'PLAYER 1',j1.name,'#fb7185',game.selectLocked.P1);badge(990,230,game.mode==='PVE'?'PLAYER 2 / CPU':'PLAYER 2',j2.name,'#38bdf8',game.selectLocked.P2);
+        // 선택된 캐릭터의 스킬 설명 패널 (캐릭터 선택 UI만 수정)
+        const drawSkillPanel=(px,py,pw,ph,job,accent,side)=>{
+          const concealed=Boolean(game.randomPick&&game.randomPick[side]&&game.mode==='PVP');
+          ctx.fillStyle='rgba(2,6,23,.86)';ctx.beginPath();ctx.roundRect(px,py,pw,ph,10);ctx.fill();ctx.strokeStyle=accent;ctx.lineWidth=1.5;ctx.stroke();
+          ctx.textAlign='left';ctx.font='900 12px "Noto Sans KR",sans-serif';ctx.fillStyle=accent;ctx.fillText(side+' 스킬 설명',px+12,py+18);
+          const rows=[['평타',concealed?'???':job.skillSummary.normal],['기술 1',concealed?'???':job.skillSummary.skill1],['기술 2',concealed?'???':job.skillSummary.skill2],['궁극기',concealed?'???':job.skillSummary.ultimate]];
+          rows.forEach((r,i)=>{const ry=py+38+i*25;ctx.fillStyle='rgba(30,41,59,.95)';ctx.beginPath();ctx.roundRect(px+10,ry-12,48,18,4);ctx.fill();ctx.font='800 10px "Noto Sans KR",sans-serif';ctx.textAlign='center';ctx.fillStyle=i===0?'#e2e8f0':i===1?'#38bdf8':i===2?'#c084fc':'#fbbf24';ctx.fillText(r[0],px+34,ry+1);ctx.textAlign='left';ctx.font='700 10.5px "Noto Sans KR",sans-serif';ctx.fillStyle='#f1f5f9';
+            const maxW=pw-78;let text=r[1]||'설명 없음',line='';const words=Array.from(text);let lines=[];for(const ch of words){if(ctx.measureText(line+ch).width>maxW&&line){lines.push(line);line=ch;}else line+=ch;}if(line)lines.push(line);ctx.fillText(lines[0]||'',px+68,ry);if(lines[1])ctx.fillText(lines[1],px+68,ry+10);
+          });
+        };
+        drawSkillPanel(60,244,550,142,j1,'#fb7185','P1');drawSkillPanel(670,244,550,142,j2,'#38bdf8','P2');
+        this.drawTekkenRosterGrid(ctx,game,{x:220,y:398,w:840,h:248});ctx.globalAlpha=.72+Math.sin(performance.now()*.006)*.28;ctx.textAlign='center';ctx.font='900 16px "Noto Sans KR",sans-serif';ctx.fillStyle='#fbbf24';ctx.fillText('캐릭터 선택 후 X / K로 확정 · SPACE / ENTER로 바로 시작',640,680);ctx.restore();
       },
 
       drawTekkenRosterGrid(ctx, game, grid) {
-        const { x, y, w, h } = grid;
-        const cols = 4, gap = 7, pad = 12;
-        const cellW = (w - pad * 2 - gap * (cols - 1)) / cols;
-        const rows = Math.ceil(CONFIG.JOB_ORDER.length / cols);
-        const cellH = (h - pad * 2 - gap * (rows - 1)) / rows;
-        const tick = performance.now() * 0.06;
-        ctx.save();
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
-        ctx.beginPath(); ctx.roundRect(x, y, w, h, 16); ctx.fill();
-        ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
-        ctx.lineWidth = 2; ctx.stroke();
-        CONFIG.JOB_ORDER.forEach((jid, idx) => {
-          const jInfo = CONFIG.JOBS[jid];
-          const col = idx % cols, row = Math.floor(idx / cols);
-          const cx = x + pad + col * (cellW + gap);
-          const cy = y + pad + row * (cellH + gap);
-          const isP1 = game.selectedJobs.P1 === jid && !(game.randomPick && game.randomPick.P1 && game.mode === 'PVP');
-          const isP2 = game.selectedJobs.P2 === jid && !(game.randomPick && game.randomPick.P2 && game.mode === 'PVP');
-          ctx.fillStyle = (isP1 || isP2) ? 'rgba(30, 41, 59, 0.98)' : 'rgba(2, 6, 23, 0.78)';
-          ctx.beginPath(); ctx.roundRect(cx, cy, cellW, cellH, 10); ctx.fill();
-          ctx.strokeStyle = isP1 && isP2 ? '#fde047' : isP1 ? '#f43f5e' : isP2 ? '#38bdf8' : 'rgba(71, 85, 105, 0.55)';
-          ctx.lineWidth = isP1 || isP2 ? 3 : 1.5; ctx.stroke();
-          const charX = cx + cellW / 2, charY = cy + cellH - 24;
-          const accent = isP1 ? '#f43f5e' : isP2 ? '#38bdf8' : '#94a3b8';
-          const nodes = [];
-          for (let i = 0; i < 4; i++) nodes.push({
-            x: charX - (6 + i * 6), y: charY - 82 + Math.sin(tick * 0.16 + i + idx) * 1.8
-          });
-          ctx.save();
-          ctx.beginPath(); ctx.rect(cx + 2, cy + 2, cellW - 4, cellH - 22); ctx.clip();
-          ctx.translate(charX, charY); ctx.scale(0.46, 0.46);
-          this.drawStickmanPose(ctx, {
-            jobId: jid, x: 0, y: 0, facing: 1, state: 'IDLE',
-            attackType: null, stateTimer: 0, animTick: tick + idx * 7,
-            accentColor: accent, glowColor: accent,
-            headbandNodes: nodes.map(n => ({ x: (n.x - charX) / 0.46, y: (n.y - charY) / 0.46 })),
-            awakenTimer: 0, shieldHp: 0, beltRank: 0
-          });
-          ctx.restore();
-          if (isP1) {
-            ctx.fillStyle = '#f43f5e'; ctx.beginPath(); ctx.roundRect(cx + 6, cy + 6, 30, 17, 5); ctx.fill();
-            ctx.font = '900 10px Orbitron, sans-serif'; ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center';
-            ctx.fillText('1P', cx + 21, cy + 18);
-          }
-          if (isP2) {
-            ctx.fillStyle = '#38bdf8'; ctx.beginPath(); ctx.roundRect(cx + cellW - 36, cy + 6, 30, 17, 5); ctx.fill();
-            ctx.font = '900 10px Orbitron, sans-serif'; ctx.fillStyle = '#0f172a'; ctx.textAlign = 'center';
-            ctx.fillText(game.mode === 'PVE' ? 'AI' : '2P', cx + cellW - 21, cy + 18);
-          }
-          ctx.font = '900 12px "Noto Sans KR", sans-serif'; ctx.textAlign = 'center';
-          ctx.fillStyle = isP1 || isP2 ? '#fde047' : '#e2e8f0';
-          ctx.fillText(jInfo.name, cx + cellW / 2, cy + cellH - 7);
-        });
-        ctx.restore();
+        const {x,y,w,h}=grid,cols=6,gap=7,pad=10,cellW=(w-pad*2-gap*(cols-1))/cols,rows=Math.ceil(CONFIG.JOB_ORDER.length/cols),cellH=(h-pad*2-gap*(rows-1))/rows,tick=performance.now()*.06;
+        ctx.save();ctx.fillStyle='rgba(3,8,22,.9)';ctx.beginPath();ctx.roundRect(x,y,w,h,15);ctx.fill();ctx.strokeStyle='rgba(125,211,252,.45)';ctx.lineWidth=2;ctx.stroke();
+        CONFIG.JOB_ORDER.forEach((jid,idx)=>{const job=CONFIG.JOBS[jid],col=idx%cols,row=Math.floor(idx/cols),cx=x+pad+col*(cellW+gap),cy=y+pad+row*(cellH+gap),p1=game.selectedJobs.P1===jid,p2=game.selectedJobs.P2===jid;ctx.fillStyle=p1||p2?'rgba(30,64,95,.95)':'rgba(15,23,42,.9)';ctx.beginPath();ctx.roundRect(cx,cy,cellW,cellH,7);ctx.fill();ctx.strokeStyle=p1&&p2?'#fde047':p1?'#fb7185':p2?'#38bdf8':'rgba(148,163,184,.32)';ctx.lineWidth=p1||p2?2.5:1;ctx.stroke();ctx.save();ctx.beginPath();ctx.rect(cx+2,cy+2,cellW-4,cellH-18);ctx.clip();ctx.translate(cx+cellW/2,cy+cellH-17);ctx.scale(.36,.36);this.drawStickmanPose(ctx,{jobId:jid,x:0,y:0,facing:1,state:'IDLE',attackType:null,stateTimer:0,animTick:tick+idx*5,accentColor:p1?'#fb7185':p2?'#38bdf8':'#94a3b8',glowColor:p1?'#fb7185':p2?'#38bdf8':'#94a3b8',headbandNodes:[],awakenTimer:0,shieldHp:0,beltRank:0});ctx.restore();ctx.textAlign='center';ctx.font='800 11px "Noto Sans KR",sans-serif';ctx.fillStyle=p1||p2?'#fef08a':'#e2e8f0';ctx.fillText(job.name,cx+cellW/2,cy+cellH-5);if(p1){ctx.fillStyle='#fb7185';ctx.beginPath();ctx.roundRect(cx+4,cy+4,23,14,4);ctx.fill();ctx.font='900 9px sans-serif';ctx.fillStyle='#fff';ctx.fillText('1P',cx+15.5,cy+14);}if(p2){ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.roundRect(cx+cellW-27,cy+4,23,14,4);ctx.fill();ctx.font='900 9px sans-serif';ctx.fillStyle='#082f49';ctx.fillText(game.mode==='PVE'?'AI':'2P',cx+cellW-15.5,cy+14);}});ctx.restore();
       },
 
       drawPlayerSelectPanel(ctx, game, cfg) {
@@ -9022,6 +9032,11 @@ window.OD_FIREBASE_CONFIG = {
         if (fighter.timeBomb) {
           ctx.save();const pulse=1+Math.sin((180-fighter.timeBomb.timer)*.22)*.14;ctx.strokeStyle='#FFD700';ctx.fillStyle='rgba(255,215,0,.12)';ctx.lineWidth=3;ctx.shadowColor='#FFD700';ctx.shadowBlur=22;ctx.beginPath();ctx.arc(fighter.x,fighter.y-148,18*pulse,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.strokeStyle='#fff1a6';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(fighter.x-11,fighter.y-148);ctx.lineTo(fighter.x+11,fighter.y-148);ctx.moveTo(fighter.x,fighter.y-159);ctx.lineTo(fighter.x,fighter.y-137);ctx.stroke();ctx.fillStyle='#fff1a6';ctx.font='900 14px sans-serif';ctx.textAlign='center';ctx.fillText((fighter.timeBomb.timer/60).toFixed(1),fighter.x,fighter.y-174);ctx.restore();
         }
+        if(fighter.jobId==='ASTRONAUT'){
+          if(fighter.astroHoleTimer>0){ctx.save();const t=fighter.animTick*.11,ratio=fighter.astroHoleTimer/150;ctx.translate(fighter.astroHoleX,fighter.astroHoleY);ctx.rotate(t);ctx.shadowColor='#a855f7';ctx.shadowBlur=28;for(let r=0;r<3;r++){ctx.strokeStyle=r===0?'#e9d5ff':r===1?'#a855f7':'#6b21a8';ctx.lineWidth=5-r;ctx.globalAlpha=.85;ctx.beginPath();ctx.ellipse(0,0,38+r*20,16+r*10,r*.6,0,Math.PI*2);ctx.stroke();}const g=ctx.createRadialGradient(0,0,2,0,0,48);g.addColorStop(0,'#020617');g.addColorStop(.45,'#4c1d95');g.addColorStop(1,'rgba(168,85,247,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,48,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#e9d5ff';ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillText(`흡인 ${Math.ceil(fighter.astroHoleTimer/60)}s`,0,-64);ctx.restore();}
+          if(fighter.astroFlameTimer>0){ctx.save();ctx.translate(fighter.astroFlameX,fighter.astroFlameY);const pulse=1+Math.sin(fighter.animTick*.4)*.18;ctx.shadowColor='#fb923c';ctx.shadowBlur=20;ctx.fillStyle='rgba(249,115,22,.35)';ctx.beginPath();ctx.ellipse(0,0,40*pulse,24*pulse,0,0,Math.PI*2);ctx.fill();for(let i=0;i<7;i++){const a=fighter.animTick*.15+i*.9;ctx.fillStyle=i%2?'#fb923c':'#fde68a';ctx.beginPath();ctx.ellipse(Math.cos(a)*26,-Math.abs(Math.sin(a))*22-10,5,12,Math.cos(a),0,Math.PI*2);ctx.fill();}ctx.restore();}
+          if(fighter.astroBurnTimer>0){ctx.save();ctx.fillStyle='#fb923c';ctx.shadowColor='#f97316';ctx.shadowBlur=12;ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.fillText('🔥',fighter.x,fighter.y-150);ctx.restore();}
+        }
         if (fighter.jobId==='TIME_MAGE' && fighter.timeSwordCharges>0) {
           ctx.save();const t=(fighter.animTick||0)*.045;
           for(let i=0;i<fighter.timeSwordCharges;i++){const a=t+i*Math.PI*2/5;const sx=fighter.x+Math.cos(a)*62, sy=fighter.y-112+Math.sin(a)*25;ctx.save();ctx.translate(sx,sy);ctx.rotate(a+Math.PI/2);ctx.shadowColor='#FFD700';ctx.shadowBlur=22;ctx.fillStyle='#fff4b8';ctx.strokeStyle='#b7791f';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(0,-27);ctx.lineTo(-6,-8);ctx.lineTo(-3,13);ctx.lineTo(0,18);ctx.lineTo(3,13);ctx.lineTo(6,-8);ctx.closePath();ctx.fill();ctx.stroke();ctx.strokeStyle='#FFD700';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-10,10);ctx.lineTo(10,10);ctx.stroke();ctx.restore();}
@@ -9119,7 +9134,19 @@ window.OD_FIREBASE_CONFIG = {
         const patch=(color,stroke='#172033',w=17)=>{ctx.fillStyle=color;ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+shoulderX-w,y+shoulderY+3);ctx.lineTo(x+shoulderX+w,y+shoulderY+3);ctx.lineTo(x+hipX+w*.8,y+hipY+6);ctx.lineTo(x+hipX-w*.8,y+hipY+6);ctx.closePath();ctx.fill();ctx.stroke();};
         const band=(color)=>{line(x+hipX-14,y+hipY,x+hipX+14,y+hipY,color,5);};
         const boot=(foot,color)=>{line(x+foot.x-dir*6,y+foot.y-9,x+foot.x+dir*10,y+foot.y-2,color,7);};
-        if(j==='TIME_MAGE'){
+        if(j==='ASTRONAUT'){
+          const white='#f8fafc',blue='#38bdf8',purple='#a855f7',dark='#0f172a';
+          // White space suit torso with cyan seams and padded boots.
+          ctx.fillStyle=white;ctx.strokeStyle='#94a3b8';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(x+shoulderX-20,y+shoulderY);ctx.lineTo(x+shoulderX+20,y+shoulderY);ctx.lineTo(x+hipX+22,y+hipY+16);ctx.lineTo(x+hipX-22,y+hipY+16);ctx.closePath();ctx.fill();ctx.stroke();
+          ctx.strokeStyle=blue;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x+shoulderX,y+shoulderY+5);ctx.lineTo(x+hipX,y+hipY+12);ctx.stroke();ctx.fillStyle='#e0f2fe';ctx.fillRect(x+shoulderX-10,y+shoulderY+8,20,14);ctx.strokeStyle=blue;ctx.strokeRect(x+shoulderX-10,y+shoulderY+8,20,14);
+          // Oxygen/jetpack pack visible behind the back shoulder.
+          ctx.fillStyle='#e2e8f0';ctx.strokeStyle=blue;ctx.lineWidth=2.5;ctx.fillRect(x- dir*32-10,y-125,20,54);ctx.strokeRect(x-dir*32-10,y-125,20,54);ctx.fillStyle=purple;ctx.fillRect(x-dir*32-6,y-117,12,7);ctx.fillStyle='#64748b';ctx.fillRect(x-dir*32-7,y-87,14,10);
+          // Helmet shell, cyan reflective visor and side comms.
+          const hx=x+headX,hy=y+headY;ctx.fillStyle=white;ctx.strokeStyle='#94a3b8';ctx.lineWidth=3;ctx.beginPath();ctx.arc(hx,hy,22,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#0e7490';ctx.strokeStyle=blue;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(hx+dir*2,hy+1,17,11,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='rgba(125,211,252,.7)';ctx.beginPath();ctx.ellipse(hx-dir*5,hy-4,6,3,-.4,0,Math.PI*2);ctx.fill();ctx.fillStyle=purple;ctx.beginPath();ctx.arc(hx-dir*22,hy+3,5,0,Math.PI*2);ctx.fill();
+          // Gravity pistol in the forward hand, with ring emitter.
+          const gx=x+frontHand.x+dir*9,gy=y+frontHand.y-9;ctx.save();ctx.translate(gx,gy);ctx.rotate(-dir*.22);ctx.fillStyle=dark;ctx.strokeStyle=blue;ctx.lineWidth=2.5;ctx.fillRect(-4,-6,25,12);ctx.strokeRect(-4,-6,25,12);ctx.fillStyle=purple;ctx.beginPath();ctx.arc(23,0,7,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.strokeStyle='#e9d5ff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(23,0,4,0,Math.PI*2);ctx.stroke();ctx.restore();
+          for(const foot of [frontFoot,backFoot])boot(foot,'#e2e8f0');
+        }else if(j==='TIME_MAGE'){
           const cyan='#00D2FF', gold='#FFD700';
           ctx.fillStyle='rgba(0,210,255,.18)';ctx.strokeStyle=cyan;ctx.lineWidth=2.5;
           ctx.beginPath();ctx.moveTo(x+shoulderX-19,y+shoulderY);ctx.lineTo(x+shoulderX+19,y+shoulderY);ctx.lineTo(x+hipX+22,y+hipY+18);ctx.lineTo(x+hipX-22,y+hipY+18);ctx.closePath();ctx.fill();ctx.stroke();
@@ -10983,6 +11010,9 @@ window.OD_FIREBASE_CONFIG = {
           if (!proj.active) continue;
           ctx.save();
 
+          if(proj.visualType==='ASTRO_PULSE'){
+            ctx.save();ctx.translate(proj.x,proj.y);ctx.rotate(proj.age*.16*proj.facing);ctx.shadowColor='#a855f7';ctx.shadowBlur=22;ctx.strokeStyle='#c084fc';ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(0,0,proj.radius,proj.radius*.62,0,0,Math.PI*2);ctx.stroke();ctx.strokeStyle='#e9d5ff';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,proj.radius*.62,proj.radius*.38,0,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,4,0,Math.PI*2);ctx.fill();ctx.restore();ctx.restore();continue;
+          }
           if (proj.visualType === 'MAFIA_BULLET') {
             ctx.save();ctx.translate(proj.x,proj.y);ctx.rotate(proj.rotation);ctx.fillStyle='#fbbf24';ctx.strokeStyle='#78350f';ctx.lineWidth=1.5;ctx.shadowColor='#fde68a';ctx.shadowBlur=8;ctx.beginPath();ctx.ellipse(0,0,12,4,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();ctx.restore();continue;
           }
@@ -11366,7 +11396,12 @@ window.OD_FIREBASE_CONFIG = {
       drawUltimateBeam(ctx, fighter) {
         const beam = fighter.getUltimateBeamBox();
         if (!beam) return;
-
+        if(fighter.attacks.ULTIMATE.ultStyle==='ASTRO_ORBITAL'){
+          ctx.save();const pulse=1+Math.sin(fighter.stateTimer*.45)*.08;const x=beam.x+beam.width/2;
+          const grad=ctx.createLinearGradient(x-65,0,x+65,0);grad.addColorStop(0,'rgba(56,189,248,0)');grad.addColorStop(.22,'#38bdf8');grad.addColorStop(.5,'#fff');grad.addColorStop(.78,'#a855f7');grad.addColorStop(1,'rgba(168,85,247,0)');
+          ctx.globalAlpha=.8;ctx.fillStyle=grad;ctx.fillRect(x-65,0,130,CONFIG.GROUND_Y);ctx.globalAlpha=1;ctx.shadowColor='#38bdf8';ctx.shadowBlur=28;ctx.fillStyle='#fff';ctx.fillRect(x-12*pulse,0,24*pulse,CONFIG.GROUND_Y);ctx.shadowColor='#a855f7';ctx.shadowBlur=20;ctx.fillStyle='#c084fc';ctx.fillRect(x-34,0,5,CONFIG.GROUND_Y);ctx.fillRect(x+29,0,5,CONFIG.GROUND_Y);
+          ctx.fillStyle='#e9d5ff';ctx.font='bold 16px sans-serif';ctx.textAlign='center';ctx.fillText('← / → 조종',x,38);ctx.restore();return;
+        }
         ctx.save();
         const pulse = Math.sin(fighter.stateTimer * 0.9) * 8;
         const centerY = beam.y + beam.height / 2;
@@ -13170,11 +13205,11 @@ window.OD_FIREBASE_CONFIG = {
         const scaleY = CONFIG.HEIGHT / rect.height;
         const mx = (e.clientX - rect.left) * scaleX;
         const my = (e.clientY - rect.top) * scaleY;
-        const gridX = 382, gridY = 94, gridW = 516;
-        const cols = 4, gap = 7, pad = 12;
+        const gridX = 220, gridY = 360, gridW = 840, gridH = 280;
+        const cols = 6, gap = 7, pad = 10;
         const cellW = (gridW - pad * 2 - gap * (cols - 1)) / cols;
         const rows = Math.ceil(CONFIG.JOB_ORDER.length / cols);
-        const cellH = (542 - pad * 2 - gap * (rows - 1)) / rows;
+        const cellH = (gridH - pad * 2 - gap * (rows - 1)) / rows;
         CONFIG.JOB_ORDER.forEach((jid, idx) => {
           const col = idx % cols, row = Math.floor(idx / cols);
           const cx = gridX + pad + col * (cellW + gap);
@@ -13186,33 +13221,14 @@ window.OD_FIREBASE_CONFIG = {
             AUDIO.sfxSelectMove();
           }
         });
-        // Random buttons are checked before panel clicks so they don't lock the panel.
-        const randomButtonY = 94 + 512;
-        if (mx >= 40 && mx <= 352 && my >= randomButtonY && my <= randomButtonY + 26 && !this.selectLocked.P1) {
-          const pool = CONFIG.JOB_ORDER.filter(id => id !== this.selectedJobs.P1);
-          this.selectedJobs.P1 = pool[Math.floor(Math.random() * pool.length)] || CONFIG.JOB_ORDER[0];
-          AUDIO.sfxSelectMove();
-          return;
-        }
-        if (mx >= 928 && mx <= 1240 && my >= randomButtonY && my <= randomButtonY + 26 && !this.selectLocked.P2) {
-          const pool = CONFIG.JOB_ORDER.filter(id => id !== this.selectedJobs.P2);
-          this.selectedJobs.P2 = pool[Math.floor(Math.random() * pool.length)] || CONFIG.JOB_ORDER[0];
-          AUDIO.sfxSelectMove();
-          return;
-        }
-        if (mx >= 24 && mx <= 368 && my >= 94 && my <= 636) {
-          this.selectLocked.P1 = !this.selectLocked.P1;
-          AUDIO.sfxSelectLock();
-        } else if (mx >= 912 && mx <= 1256 && my >= 94 && my <= 636) {
-          this.selectLocked.P2 = !this.selectLocked.P2;
-          AUDIO.sfxSelectLock();
-        }
+        if (mx >= 60 && mx <= 290 && my >= 188 && my <= 236) { this.selectLocked.P1=!this.selectLocked.P1; AUDIO.sfxSelectLock(); }
+        else if (mx >= 990 && mx <= 1220 && my >= 188 && my <= 236) { this.selectLocked.P2=!this.selectLocked.P2; AUDIO.sfxSelectLock(); }
         if (this.selectLocked.P1 && this.selectLocked.P2) this.finishSelection();
       },
 
       handleCharacterSelectInput() {
         const jobs = CONFIG.JOB_ORDER;
-        const cols = 4;
+        const cols = 6;
         const previousP1Job = this.selectedJobs.P1;
         const previousP2Job = this.selectedJobs.P2;
         if (!this.selectLocked.P1) {
@@ -15941,6 +15957,14 @@ window.OD_FIREBASE_CONFIG = {
       for(const f of [game.p1,game.p2].filter(Boolean))if(f.mafiaMark){const m=f.mafiaMark,ratio=m.timer/m.maxTimer,r=15+50*ratio;ctx.save();ctx.strokeStyle='#ef4444';ctx.lineWidth=4;ctx.shadowColor='#ef4444';ctx.shadowBlur=16;ctx.setLineDash([7,4]);ctx.beginPath();ctx.arc(f.x,f.y-84,r,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#fecaca';ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillText('TARGET',f.x,f.y-84-r-9);ctx.restore();}
     };
 
+    // Astronaut gravity-pulse bullet adds a gentle pull instead of knockback.
+    const astroPulseHitBase=COMBAT_ENGINE.applyHit;
+    COMBAT_ENGINE.applyHit=function(attacker,defender,info){
+      const result=astroPulseHitBase.call(this,attacker,defender,info);
+      if(attacker&&attacker.jobId==='ASTRONAUT'&&info&&info.sourceProjectile&&info.sourceProjectile.astroPulse){defender.vx+=(attacker.x-defender.x)*.025;defender.vx=Math.max(-7,Math.min(7,defender.vx));}
+      return result;
+    };
+
     // Mafia ultimate step can pass through the opponent (no pushbox collision during its active dash).
     const mafiaPushboxBase=COMBAT_ENGINE.resolvePushboxes.bind(COMBAT_ENGINE);
     COMBAT_ENGINE.resolvePushboxes=function(p1,p2){
@@ -15972,9 +15996,9 @@ window.OD_FIREBASE_CONFIG = {
    avoiding deletion of guest fields that may be required by local update code. */
 (function(){
   if(typeof NET==='undefined'||!NET.packFighter||!NET.applySnapshotSmoothly)return;
-  const syncKeyRe=/(ult|ultimate|form|buff|shield|charge|rain|coin|clone|ghost|soul|minion|meteor|domain|stop|palm|banner|ship|strike|mark|ammo|step|reload|heaven|awaken|rage|slow|freeze|ride|sleigh|bombard|execute|scythe|trap|bomb|echo|storedDamage|kraken|warning|impact|rainstorm|raindrop|dodge|pierce|barrier|aura|revert|sword|root|invuln|customStun|hitstun|knockdown|pastor|necro|dragon|mafia|timeMage|tkd|werewolf|song|poseidon|pirate|hunter|gamble|aiSeal|aiRing|aiMissile|aiOverload|beg|samurai|viking|taoist|knight)/i;
+  const syncKeyRe=/(ult|ultimate|form|buff|shield|charge|rain|coin|clone|ghost|soul|minion|meteor|domain|stop|palm|banner|ship|strike|mark|ammo|step|reload|heaven|awaken|rage|slow|freeze|ride|sleigh|bombard|execute|scythe|trap|bomb|echo|storedDamage|kraken|warning|impact|rainstorm|raindrop|dodge|pierce|barrier|aura|revert|sword|root|invuln|customStun|hitstun|knockdown|pastor|necro|dragon|mafia|timeMage|tkd|werewolf|song|poseidon|pirate|hunter|gamble|astro|blackhole|jetpack|orbital|laser|burn|samurai|viking|taoist|knight)/i;
   const excluded=new Set(['id','jobId','job','name','attacks','controls','opponent','state','stateTimer','attackType','hp','maxHp','ultGainAttacker','ultGainDefender','x','y','vx','vy','facing','walkSpeed','backWalkSpeed','dashSpeed','gravity','projectiles','cooldowns']);
-  const MAX_KEYS=14, MAX_ARRAY=12, MAX_OBJECT_KEYS=10, MAX_DEPTH=2, MAX_BYTES=2200;
+  const MAX_KEYS=16, MAX_ARRAY=12, MAX_OBJECT_KEYS=10, MAX_DEPTH=2, MAX_BYTES=2600;
   function encode(v,depth){
     if(v==null||typeof v==='string'||typeof v==='boolean')return v;
     if(typeof v==='number')return Number.isFinite(v)?Math.round(v*100)/100:0;
