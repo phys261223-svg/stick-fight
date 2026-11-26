@@ -589,7 +589,7 @@ window.OD_FIREBASE_CONFIG = {
       },
 
       // Selectable Stickman Classes
-      JOB_ORDER: ['STICKMAN', 'SAMURAI', 'VIKING', 'NINJA', 'TAOIST', 'KNIGHT', 'PIRATE', 'REAPER', 'WEREWOLF', 'SONG_MASTER', 'TAEKWONDO', 'POSEIDON', 'GAMBLER', 'HUNTER', 'BEGGAR', 'AI_ROBOT', 'PASTOR', 'SANTA', 'DRAGON_KNIGHT', 'MONK', 'GOJO', 'TIME_MAGE', 'NECROMANCER', 'MAFIA', 'ASTRONAUT'],
+      JOB_ORDER: ['STICKMAN', 'SAMURAI', 'VIKING', 'NINJA', 'TAOIST', 'KNIGHT', 'PIRATE', 'REAPER', 'WEREWOLF', 'SONG_MASTER', 'TAEKWONDO', 'POSEIDON', 'GAMBLER', 'HUNTER', 'BEGGAR', 'AI_ROBOT', 'PASTOR', 'SANTA', 'DRAGON_KNIGHT', 'MONK', 'GOJO', 'TIME_MAGE', 'NECROMANCER', 'MAFIA', 'ASTRONAUT', 'F1_DRIVER'],
       JOBS: {
         AI_ROBOT: {
           id:'AI_ROBOT',name:'AI 로봇',engName:'AI ROBOT',tagline:'적응형 전투 인공지능 · 진화와 과부하',
@@ -597,7 +597,7 @@ window.OD_FIREBASE_CONFIG = {
           statBars:{hp:3,speed:4,reach:4},
           skillSummary:{normal:'근거리 광선검 3연격 / 원거리 전기 링 3연발 (3타 0.5초 기절)',skill1:'기술 봉쇄 (상대 기술 1·2·궁극기 중 하나 봉인)',skill2:'상하 랜덤 미사일 2발 (진화 시 3발)',ultimate:'1단계 진화 / 진화 중 재사용 시 과부하·종료 후 1초 기절'},
           stats:{maxHp:980,walkSpeed:6.4,backWalkSpeed:5,dashSpeed:16},firstNormal:'AI_BLADE1',attacks:{
-            AI_BLADE1:{name:'AI_BLADE1',startup:5,active:4,recovery:9,damage:43,ultGainAttacker:7,ultGainDefender:4,hitstun:13,blockstun:9,knockbackX:0,hitstop:4,shake:5,lungeX:5,hitbox:{offsetX:20,offsetY:-119,width:96,height:52},nextNormal:'AI_BLADE2',canCancelInto:['AI_BLADE2','SKILL1','SKILL2','ULTIMATE']},
+            AI_BLADE1:{name:'AI_BLADE1',startup:5,active:4,recovery:9,damage:43,ultGainAttacker:5,ultGainDefender:4,hitstun:13,blockstun:9,knockbackX:0,hitstop:4,shake:5,lungeX:5,hitbox:{offsetX:20,offsetY:-119,width:96,height:52},nextNormal:'AI_BLADE2',canCancelInto:['AI_BLADE2','SKILL1','SKILL2','ULTIMATE']},
             AI_BLADE2:{name:'AI_BLADE2',startup:5,active:5,recovery:10,damage:51,ultGainAttacker:9,ultGainDefender:5,hitstun:15,blockstun:10,knockbackX:0,hitstop:5,shake:6,lungeX:7,hitbox:{offsetX:20,offsetY:-125,width:105,height:58},nextNormal:'AI_BLADE3',canCancelInto:['AI_BLADE3','SKILL1','SKILL2','ULTIMATE']},
             AI_BLADE3:{name:'AI_BLADE3',startup:7,active:6,recovery:15,damage:81,ultGainAttacker:13,ultGainDefender:7,hitstun:22,blockstun:14,knockbackX:0,knockbackY:0,hitstop:8,shake:10,lungeX:14,hitbox:{offsetX:20,offsetY:-127,width:115,height:65},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
             AI_RING1:{name:'AI_RING1',startup:6,active:3,recovery:10,damage:0,projectile:{visualType:'AI_RING',speed:16,radius:21,damage:32,ultGainAttacker:6,ultGainDefender:4,hitstun:11,blockstun:8,knockbackX:0,hitstop:3,shake:4},nextNormal:'AI_RING2',canCancelInto:['AI_RING2','SKILL1','SKILL2','ULTIMATE']},
@@ -686,7 +686,7 @@ window.OD_FIREBASE_CONFIG = {
             ultimate: '검신 각성 (7초 공속·공격력 상승)'
           },
           stats: {
-            maxHp: 950,
+            maxHp: 1000,
             walkSpeed: 6.1,
             backWalkSpeed: 4.8,
             dashSpeed: 16.0
@@ -816,8 +816,10 @@ window.OD_FIREBASE_CONFIG = {
               active: 10,
               recovery: 10,
               buffDuration: 420,
-              speedMult: 1.22,
-              damageMult: 1.2
+              speedMult: 1.0,
+              damageMult: 1.32,
+              defenseMult: 0.72,
+              rangeMult: 1.28
             }
           }
         },
@@ -1860,8 +1862,8 @@ window.OD_FIREBASE_CONFIG = {
               ultStyle: 'WEREWOLF_ULT',
               flashFrames: 20,
               startup: 4,
-              active: 6,
-              recovery: 8
+              active: 90,
+              recovery: 10
             }
           }
         },
@@ -2177,14 +2179,14 @@ window.OD_FIREBASE_CONFIG = {
           id:'PASTOR', name:'목사', engName:'PASTOR', tagline:'성스러운 말씀 · 회복과 결계의 수호자',
           gearSummary:'검은 목회자 복장 · 흰 칼라 · 성경책',
           statBars:{hp:4,speed:2,reach:3},
-          skillSummary:{normal:'성경책 휘두르기 → 성경책 던지기',skill1:'성역 장판: 자신 회복·적 지속 피해',skill2:'성스러운 빛의 방패: 접근 차단',ultimate:'천국의 강림: 예수의 빛으로 2초 기절'},
+          skillSummary:{normal:'성경책 휘두르기 → 성경책 던지기',skill1:'성역 장판: 자신 회복·적 지속 피해',skill2:'성스러운 빛의 방패: 접근 차단',ultimate:'천국 배경 유지 · 하늘에서 십자가 5개 낙하, 모두 맞으면 2.5초 속박'},
           stats:{maxHp:1050,walkSpeed:5.5,backWalkSpeed:4.3,dashSpeed:13.8}, firstNormal:'PASTOR_BOOK1',
           attacks:{
             PASTOR_BOOK1:{name:'PASTOR_BOOK1',startup:6,active:5,recovery:11,damage:50,ultGainAttacker:7,ultGainDefender:4,hitstun:15,blockstun:10,knockbackX:5,hitstop:5,shake:6,hitbox:{offsetX:22,offsetY:-112,width:96,height:55},nextNormal:'PASTOR_BOOK_THROW',canCancelInto:['PASTOR_BOOK_THROW','SKILL1','SKILL2','ULTIMATE']},
             PASTOR_BOOK_THROW:{name:'PASTOR_BOOK_THROW',startup:8,active:4,recovery:16,damage:0,projectile:{visualType:'HOLY_BOOK',speed:15,radius:24,damage:72,ultGainAttacker:10,ultGainDefender:6,hitstun:19,blockstun:13,knockbackX:9,hitstop:6,shake:8},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
             SKILL1:{name:'SKILL1',skillStyle:'PASTOR_AURA',startup:8,active:5,recovery:14,cooldown:480,ultGainOnCast:6,duration:240,healPerTick:2,damagePerTick:3,radius:175},
             SKILL2:{name:'SKILL2',skillStyle:'PASTOR_BARRIER',startup:7,active:5,recovery:14,cooldown:600,ultGainOnCast:6,duration:150,radius:155},
-            ULTIMATE:{name:'ULTIMATE',ultStyle:'PASTOR_HEAVEN',flashFrames:24,startup:8,active:120,recovery:20,cooldown:0,damage:135,stun:120}
+            ULTIMATE:{name:'ULTIMATE',ultStyle:'PASTOR_HEAVEN',flashFrames:24,startup:8,active:240,recovery:20,cooldown:0,crossCount:32,crossDamage:25,bindDuration:150}
           }
         },
         SANTA: {
@@ -2269,7 +2271,7 @@ window.OD_FIREBASE_CONFIG = {
           stats:{maxHp:1020,walkSpeed:6.2,backWalkSpeed:4.9,dashSpeed:15.5},
           firstNormal:'TIME_SECOND',
           attacks:{
-            TIME_SECOND:{name:'TIME_SECOND',startup:4,active:4,recovery:8,damage:34,ultGainAttacker:5,ultGainDefender:3,hitstun:9,blockstun:7,knockbackX:2.0,hitstop:2,shake:3,lungeX:2,hitbox:{offsetX:42,offsetY:-112,width:82,height:28},nextNormal:'TIME_MINUTE',canCancelInto:['TIME_MINUTE','SKILL1','SKILL2','ULTIMATE']},
+            TIME_SECOND:{name:'TIME_SECOND',startup:4,active:4,recovery:8,damage:34,ultGainAttacker:4,ultGainDefender:3,hitstun:9,blockstun:7,knockbackX:2.0,hitstop:2,shake:3,lungeX:2,hitbox:{offsetX:42,offsetY:-112,width:82,height:28},nextNormal:'TIME_MINUTE',canCancelInto:['TIME_MINUTE','SKILL1','SKILL2','ULTIMATE']},
             TIME_MINUTE:{name:'TIME_MINUTE',startup:5,active:5,recovery:9,damage:42,ultGainAttacker:6,ultGainDefender:4,hitstun:12,blockstun:8,knockbackX:3.5,knockbackY:-2,hitstop:3,shake:4,hitbox:{offsetX:38,offsetY:-132,width:100,height:54},nextNormal:'TIME_HOUR',canCancelInto:['TIME_HOUR','SKILL1','SKILL2','ULTIMATE']},
             TIME_HOUR:{name:'TIME_HOUR',startup:8,active:6,recovery:17,damage:78,ultGainAttacker:10,ultGainDefender:6,hitstun:20,blockstun:12,knockbackX:8.5,knockbackY:-5,knockdown:true,hitstop:7,shake:9,hitbox:{offsetX:36,offsetY:-102,width:112,height:86},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
             TIME_SWORD_SHOT:{name:'TIME_SWORD_SHOT',startup:5,active:1,recovery:12,damage:0,ultGainAttacker:0,ultGainDefender:0,hitstun:0,blockstun:0,knockbackX:0,hitstop:0,shake:0,hitbox:null},
@@ -2292,9 +2294,9 @@ window.OD_FIREBASE_CONFIG = {
           stats:{maxHp:1080,walkSpeed:5.9,backWalkSpeed:4.6,dashSpeed:14.8},
           firstNormal:'NECRO_BONE1',
           attacks:{
-            NECRO_BONE1:{name:'NECRO_BONE1',startup:6,active:2,recovery:8,damage:0,projectile:{visualType:'NECRO_BONE',speed:15.5,radius:13,damage:31,ultGainAttacker:5,ultGainDefender:3,hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,hitstop:0,shake:0},nextNormal:'NECRO_BONE2',canCancelInto:['NECRO_BONE2','SKILL1','SKILL2','ULTIMATE']},
-            NECRO_BONE2:{name:'NECRO_BONE2',startup:7,active:2,recovery:9,damage:0,projectile:{visualType:'NECRO_BONE',speed:16.5,radius:14,damage:35,ultGainAttacker:6,ultGainDefender:3,hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,hitstop:0,shake:0},nextNormal:'NECRO_BONE3',canCancelInto:['NECRO_BONE3','SKILL1','SKILL2','ULTIMATE']},
-            NECRO_BONE3:{name:'NECRO_BONE3',startup:9,active:2,recovery:15,damage:0,projectile:{visualType:'NECRO_BONE',speed:18,radius:16,damage:46,ultGainAttacker:8,ultGainDefender:4,hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,hitstop:0,shake:0},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
+            NECRO_BONE1:{name:'NECRO_BONE1',startup:6,active:2,recovery:11,damage:0,projectile:{visualType:'NECRO_BONE',speed:15.5,radius:13,damage:31,ultGainAttacker:5,ultGainDefender:3,hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,hitstop:0,shake:0},nextNormal:'NECRO_BONE2',canCancelInto:['NECRO_BONE2','SKILL1','SKILL2','ULTIMATE']},
+            NECRO_BONE2:{name:'NECRO_BONE2',startup:7,active:2,recovery:12,damage:0,projectile:{visualType:'NECRO_BONE',speed:16.5,radius:14,damage:35,ultGainAttacker:6,ultGainDefender:3,hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,hitstop:0,shake:0},nextNormal:'NECRO_BONE3',canCancelInto:['NECRO_BONE3','SKILL1','SKILL2','ULTIMATE']},
+            NECRO_BONE3:{name:'NECRO_BONE3',startup:9,active:2,recovery:22,damage:0,projectile:{visualType:'NECRO_BONE',speed:18,radius:16,damage:46,ultGainAttacker:8,ultGainDefender:4,hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,hitstop:0,shake:0},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
             NECRO_MELEE1:{name:'NECRO_MELEE1',startup:5,active:4,recovery:8,damage:38,ultGainAttacker:5,ultGainDefender:3,hitstun:11,blockstun:8,knockbackX:2,hitstop:3,shake:3,hitbox:{offsetX:23,offsetY:-112,width:78,height:34},nextNormal:'NECRO_MELEE2',canCancelInto:['NECRO_MELEE2','SKILL1','SKILL2','ULTIMATE']},
             NECRO_MELEE2:{name:'NECRO_MELEE2',startup:6,active:5,recovery:10,damage:49,ultGainAttacker:6,ultGainDefender:4,hitstun:14,blockstun:9,knockbackX:3.5,knockbackY:-1,hitstop:4,shake:5,hitbox:{offsetX:22,offsetY:-126,width:96,height:58},nextNormal:'NECRO_MELEE3',canCancelInto:['NECRO_MELEE3','SKILL1','SKILL2','ULTIMATE']},
             NECRO_MELEE3:{name:'NECRO_MELEE3',startup:9,active:6,recovery:16,damage:76,ultGainAttacker:9,ultGainDefender:5,hitstun:20,blockstun:12,knockbackX:8,knockbackY:-4,knockdown:true,hitstop:7,shake:9,hitbox:{offsetX:25,offsetY:-112,width:106,height:88},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
@@ -2325,6 +2327,19 @@ window.OD_FIREBASE_CONFIG = {
             SKILL1:{name:'SKILL1',skillStyle:'ASTRO_BLACKHOLE',startup:1,active:1,recovery:12,cooldown:420,ultGainOnCast:8,holeDuration:150,holeRadius:138,holeTickDamage:9,holeBurstDamage:58},
             SKILL2:{name:'SKILL2',skillStyle:'ASTRO_JET',startup:1,active:1,recovery:13,cooldown:240,ultGainOnCast:7,invulnFrames:32,dashVelX:14.5,dashVelY:-15.5,flameDuration:24,flameRadius:92,flameDamage:38,burnDuration:90},
             ULTIMATE:{name:'ULTIMATE',ultStyle:'ASTRO_ORBITAL',startup:42,active:120,recovery:22,cooldown:0,beamWidth:104,beamHeight:1050,tickInterval:8,damagePerTick:17,hitstun:12,knockbackX:4,knockbackY:-2,guardBreak:true,finalDamage:88}
+          }
+        },
+        F1_DRIVER: {
+          id:'F1_DRIVER', name:'F1 드라이버', engName:'F1 DRIVER', tagline:'피트스톱 초근접 콤보 · 풀 쓰로틀 레이싱 변신',
+          gearSummary:'붉은 레이싱 슈트 · 풀페이스 헬멧/바이저 · 리어 윙 · 임팩트 휠건',
+          statBars:{hp:3,speed:5,reach:2},
+          skillSummary:{normal:'전동 임팩트 휠건 초근접 2연타',skill1:'번아웃 타이어 슛: 바닥 직선 타이어 · 화상',skill2:'DRS 오버테이크: 관통 돌진 · 4초 속도 강화',ultimate:'출발등 연출 · 8초 F1 머신 탑승 / 차체 충돌',rideSkill1:'파이어 드리프트: 불꽃 광역 밀치기 + 화상',rideSkill2:'카본 아머: 3초 피해 감소 · 넉백/경직 면역'},
+          stats:{maxHp:1020,walkSpeed:6.8,backWalkSpeed:5.3,dashSpeed:17.4},firstNormal:'F1_WHEEL1',attacks:{
+            F1_WHEEL1:{name:'F1_WHEEL1',startup:3,active:4,recovery:7,damage:35,ultGainAttacker:5,ultGainDefender:4,hitstun:9,blockstun:7,knockbackX:1,hitstop:2,shake:3,hitbox:{offsetX:25,offsetY:-102,width:62,height:45},nextNormal:'F1_WHEEL2',canCancelInto:['F1_WHEEL2','SKILL1','SKILL2','ULTIMATE']},
+            F1_WHEEL2:{name:'F1_WHEEL2',startup:3,active:4,recovery:9,damage:46,ultGainAttacker:6,ultGainDefender:5,hitstun:13,blockstun:9,knockbackX:3,hitstop:3,shake:4,hitbox:{offsetX:30,offsetY:-102,width:76,height:48},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
+            SKILL1:{name:'SKILL1',startup:1,active:1,recovery:8,cooldown:210,ultGainOnCast:6},
+            SKILL2:{name:'SKILL2',startup:1,active:1,recovery:8,cooldown:270,ultGainOnCast:7},
+            ULTIMATE:{name:'ULTIMATE',startup:1,active:1,recovery:10,cooldown:0}
           }
         }
 
@@ -4023,6 +4038,7 @@ window.OD_FIREBASE_CONFIG = {
         if (this.begStenchTimer > 0) mult *= 0.60;
         if (this.gambleBuffTimer > 0) mult *= 1.25;
         if (this.poseidonSlowTimer > 0) mult *= (1 - 0.17 * Math.min(2, this.poseidonSlowStacks));
+        if (this.jobId === 'F1_DRIVER' && this.f1DTRTimer > 0) mult *= 1.38;
         return mult;
       }
 
@@ -4207,6 +4223,51 @@ window.OD_FIREBASE_CONFIG = {
       update(opponent, projectiles, canControl) {
         this.opponent = opponent;
         this.animTick++;
+
+        // Werewolf wolf-form ultimate: leap catch, multi-bite grab, and modest lifesteal.
+        if (this.jobId === 'WEREWOLF' && this.state === 'ATTACK' && this.attackType === 'ULTIMATE' && this.isWerewolf) {
+          if ((this.wolfUltPounceTimer || 0) > 0) {
+            this.wolfUltPounceTimer--;
+            if (opponent && opponent.state !== 'KO' && opponent.invulnTimer <= 0 && !this.wolfUltHasCaught &&
+                Math.abs(this.x - opponent.x) < 82 && Math.abs(this.y - opponent.y) < 105) {
+              this.wolfUltHasCaught = true;
+              this.wolfUltPounceTimer = 0;
+              this.wolfUltGrabTimer = 78;
+              this.wolfUltGrabTick = 0;
+              this.vx = 0; this.vy = 0;
+              opponent.vx = 0; opponent.vy = 0;
+              opponent.customFreezeTimer = Math.max(opponent.customFreezeTimer || 0, 78);
+              opponent.state = 'HITSTUN'; opponent.stateTimer = 0;
+              VFX.spawnHitSparks(opponent.x, opponent.y - 72, '#ef4444', 24, 1.3);
+              VFX.spawnFloatingText(opponent.x, opponent.y - 160, '포식 잡기!', '#fca5a5');
+              AUDIO.sfxHitHeavy();
+            }
+          }
+          if ((this.wolfUltGrabTimer || 0) > 0) {
+            this.wolfUltGrabTimer--;
+            this.vx = 0; this.vy = 0;
+            if (opponent && opponent.state !== 'KO') {
+              opponent.x = this.x + this.facing * 36;
+              opponent.y = this.y;
+              opponent.vx = 0; opponent.vy = 0;
+              this.wolfUltGrabTick = (this.wolfUltGrabTick || 0) + 1;
+              if (this.wolfUltGrabTick % 13 === 0 && opponent.invulnTimer <= 0) {
+                COMBAT_ENGINE.applyHit(this, opponent, {damage:19, isSkill:true, ultGainAttacker:0, ultGainDefender:2, hitstun:2, blockstun:2, knockbackX:0, knockbackY:0, hitstop:2, shake:5, direction:this.facing, sourceX:this.x, isHeavy:false});
+                this.hp = Math.min(this.maxHp, this.hp + 13);
+                VFX.spawnSlashArc({x:opponent.x,y:opponent.y-72,radius:58,startAngle:-1.2,endAngle:1.1,facing:this.facing,color:'#ef4444',lineWidth:13});
+                VFX.spawnHitSparks(opponent.x, opponent.y - 72, '#ef4444', 10, 0.9);
+                VFX.spawnFloatingText(this.x, this.y - 150, '+HP', '#4ade80');
+              }
+            }
+            if (this.wolfUltGrabTimer === 0 && opponent && opponent.state !== 'KO') {
+              opponent.customFreezeTimer = 0;
+              opponent.vx = this.facing * 10;
+              opponent.vy = -7;
+              opponent.state = 'HITSTUN'; opponent.stateTimer = 0;
+              VFX.spawnHitSparks(opponent.x, opponent.y - 72, '#f97316', 14, 1.0);
+            }
+          }
+        }
 
         // Astronaut: autonomous gravity well, projectile absorption, jet fire and burn ticks.
         if(this.jobId==='ASTRONAUT'){
@@ -4671,6 +4732,10 @@ window.OD_FIREBASE_CONFIG = {
 
         const c = this.begStenchTimer > 0 ? {...this.controls,up:this.controls.down,down:this.controls.up,left:this.controls.right,right:this.controls.left} : this.controls;
         const grounded = this.isGrounded();
+        // Short jump input buffer helps online participants' jump evade come out even
+        // when an attack/input packet or a landing frame arrives a few ticks late.
+        if (INPUT.wasPressed(c.up)) this.jumpBufferTimer = 6;
+        else if (this.jumpBufferTimer > 0) this.jumpBufferTimer--;
         if (grounded && this.isOnSecondFloor() && INPUT.wasPressed(c.down)) {
           this.platformDropTimer = 12; // 0.2 sec one-way collision ignore
           this.vy = 2.6; this.y += 2; this.state = 'JUMP'; this.stateTimer = 0; this.vx *= 0.65;
@@ -4707,7 +4772,8 @@ window.OD_FIREBASE_CONFIG = {
           }
         }
 
-        if (grounded && INPUT.wasPressed(c.up)) {
+        if (grounded && this.jumpBufferTimer > 0) {
+          this.jumpBufferTimer = 0;
           this.vy = CONFIG.JUMP_VELOCITY * (this.isWerewolf ? 1.05 : 1.0);
           this.y -= 2;
           this.state = 'JUMP';
@@ -5432,12 +5498,22 @@ window.OD_FIREBASE_CONFIG = {
           if (spec.ultStyle === 'WEREWOLF_ULT') {
             this.vx = 0;
             if (this.isWerewolf) {
-              this.revertToHuman();
+              // Wolf-form ultimate: leap forward; a successful collision becomes a short grab combo.
+              this.wolfUltPounceTimer = 24;
+              this.wolfUltGrabTimer = 0;
+              this.wolfUltGrabTick = 0;
+              this.wolfUltHasCaught = false;
+              this.vy = -17.5;
+              this.vx = this.facing * 17.5;
+              VFX.spawnHitSparks(this.x + this.facing * 35, this.y - 70, '#ef4444', 18, 1.2);
+              VFX.spawnFloatingText(this.x, this.y - 170, '야수 포식 돌진!', '#fca5a5');
+              AUDIO.sfxUppercut();
+              // Keep the ultimate attack state active for the pounce/grab sequence.
             } else {
               this.rage = this.maxRage;
               this.transformToWerewolf();
+              return;
             }
-            return;
           }
 
           this.invulnTimer = spec.flashFrames + spec.startup + (spec.active || 10) + 6;
@@ -7202,6 +7278,27 @@ window.OD_FIREBASE_CONFIG = {
       },
 
       resolveCombat(p1, p2, projectiles, boomerangScythes = []) {
+        // Check summons first so a swing aimed at the Black Knight can connect instead of
+        // being consumed by the necromancer behind it.
+        // Enemy melee attacks can now hit necromancer summons (including Black Knight).
+        for(const atk of [p1,p2]){
+          if(!atk || atk.state!=='ATTACK' || atk.attackHasHit || !GAME.necroMinions)continue;
+          const box=atk.getActiveHitbox(); if(!box)continue;
+          const spec=atk.attacks[atk.attackType]; if(!spec || !spec.damage)continue;
+          for(const m of GAME.necroMinions){
+            if(!m.active || m.owner===atk || m.hp<=0)continue;
+            const hurt={x:m.x-30,y:m.y-100,width:60,height:100};
+            if(!this.rectsOverlap(box,hurt))continue;
+            const dmg=Math.max(1,Math.round(spec.damage*atk.getDamageMultiplier()));
+            m.hp=Math.max(0,m.hp-dmg);m.flash=9;m.attackAnimTimer=0;
+            atk.attackHasHit=true;
+            VFX.spawnHitSparks(m.x,m.y-66,'#cbd5e1',18,1.05);
+            VFX.spawnFloatingText(m.x,m.y-118,`-${dmg} · 그림자 피해`,'#e5e7eb');
+            VFX.spawnSlashArc({x:m.x,y:m.y-62,radius:68,startAngle:-1.1,endAngle:1.1,facing:atk.facing,color:'#e5e7eb',lineWidth:12,life:8});
+            if(m.hp<=0){m.active=false;VFX.spawnSmokePoof(m.x,m.y-30,12,'rgba(71,85,105,.8)');VFX.spawnFloatingText(m.x,m.y-145,'검은 기사 파괴!','#cbd5e1');}
+            break;
+          }
+        }
         this.checkMeleeHit(p1, p2);
         this.checkMeleeHit(p2, p1);
         this.checkBoomerangs(p1, p2, boomerangScythes);
@@ -9068,6 +9165,34 @@ window.OD_FIREBASE_CONFIG = {
         ctx.fill();
         ctx.restore();
 
+        if (fighter.jobId === 'F1_DRIVER' && fighter.f1RideTimer > 0) {
+          const cx=fighter.x, cy=fighter.y-42, pulse=Math.sin(fighter.animTick*.24);
+          ctx.save();ctx.translate(cx,cy);ctx.scale(fighter.facing||1,1);
+          // Red Formula-style open-wheel chassis and nose
+          ctx.shadowColor='#ef4444';ctx.shadowBlur= fighter.f1ArmorTimer>0?26:12;
+          ctx.fillStyle='#0b1f55';ctx.strokeStyle='#18181b';ctx.lineWidth=4;
+          ctx.beginPath();ctx.moveTo(-68,8);ctx.lineTo(-49,-13);ctx.lineTo(-20,-23);ctx.lineTo(13,-24);ctx.lineTo(46,-13);ctx.lineTo(75,1);ctx.lineTo(68,17);ctx.lineTo(34,19);ctx.lineTo(-38,19);ctx.closePath();ctx.fill();ctx.stroke();
+          ctx.strokeStyle='#ef4444';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-48,-9);ctx.lineTo(38,-9);ctx.stroke();ctx.fillStyle='#ef4444';ctx.beginPath();ctx.moveTo(-8,17);ctx.lineTo(8,17);ctx.lineTo(0,25);ctx.closePath();ctx.fill();
+          ctx.fillStyle='#18181b';ctx.beginPath();ctx.ellipse(0,-18,17,20,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+          ctx.fillStyle='#9ca3af';ctx.beginPath();ctx.ellipse(0,-21,10,10,0,0,Math.PI*2);ctx.fill();
+          // Front/rear wings
+          ctx.fillStyle='#18181b';ctx.fillRect(-86,5,26,8);ctx.fillRect(58,0,31,10);ctx.fillRect(61,-11,28,5);
+          ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.strokeRect(-86,5,26,8);ctx.strokeRect(58,0,31,10);
+          // Four prominent slick tyres
+          for(const wx of [-52,49])for(const wy of [-15,15]){ctx.fillStyle='#09090b';ctx.strokeStyle='#71717a';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(wx-11,wy-12,23,25,7);ctx.fill();ctx.stroke();ctx.fillStyle='#52525b';ctx.beginPath();ctx.arc(wx,wy,6,0,Math.PI*2);ctx.fill();}
+          // Driver helmet peeking above cockpit
+          ctx.fillStyle='#ef4444';ctx.strokeStyle='#18181b';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,-43,16,18,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#18181b';ctx.beginPath();ctx.ellipse(2,-42,12,7,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#9ca3af';ctx.fillRect(-8,-45,16,4);
+          // Exhaust flames, wheel smoke
+          for(let i=0;i<3;i++){ctx.fillStyle=i===0?'#fde047':i===1?'#fb923c':'#ef4444';ctx.beginPath();ctx.moveTo(-70-i*7,2);ctx.lineTo(-92-i*8,-4+Math.sin(fighter.animTick*.5+i)*4);ctx.lineTo(-74-i*5,9);ctx.closePath();ctx.fill();}
+          ctx.globalAlpha=.45;ctx.fillStyle='#d4d4d8';for(let i=0;i<5;i++){const sx=-52-i*8, sy=18+Math.sin(fighter.animTick*.3+i)*5;ctx.beginPath();ctx.arc(sx,sy,8+i*2,0,Math.PI*2);ctx.fill();}
+          ctx.globalAlpha=1;
+          if(fighter.f1ArmorTimer>0){ctx.strokeStyle='#fbbf24';ctx.fillStyle='rgba(251,191,36,.16)';ctx.lineWidth=4;ctx.shadowColor='#fbbf24';ctx.shadowBlur=28;ctx.beginPath();ctx.ellipse(0,0,98,47,0,0,Math.PI*2);ctx.fill();ctx.stroke();}
+          ctx.restore();
+          ctx.save();ctx.textAlign='center';ctx.font='900 14px sans-serif';ctx.fillStyle='#fee2e2';ctx.shadowColor='#ef4444';ctx.shadowBlur=12;ctx.fillText(`FULL THROTTLE ${Math.ceil(fighter.f1RideTimer/60)}s`,fighter.x,fighter.y-125);ctx.restore();
+          if(fighter.f1StartLightsTimer>0){ctx.save();ctx.translate(fighter.x,fighter.y-156);ctx.fillStyle='#18181b';ctx.strokeStyle='#52525b';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(-42,-12,84,24,7);ctx.fill();ctx.stroke();for(let i=0;i<5;i++){ctx.fillStyle=fighter.f1StartLightsTimer>24?'#ef4444':(i<3?'#22c55e':'#52525b');ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=12;ctx.beginPath();ctx.arc(-30+i*15,0,5.5,0,Math.PI*2);ctx.fill();}ctx.restore();}
+          return;
+        }
+
         // Dragon transformation fully replaces the human sprite; the dragon is
         // rendered in the foreground by drawDragonKnightEffects().
         if (fighter.jobId === 'DRAGON_KNIGHT' && fighter.dragonFormTimer > 0) return;
@@ -10462,6 +10587,46 @@ window.OD_FIREBASE_CONFIG = {
           }
         }
 
+        if (jobId === 'F1_DRIVER' && f.f1DriftTimer > 0) {
+          ctx.save(); const p=f.f1DriftTimer/18; ctx.translate(f.x,f.y-28); ctx.rotate(-f.facing*.32);
+          for(let i=0;i<8;i++){const a=i*Math.PI/4+f.animTick*.12;ctx.strokeStyle=i%2?'#f97316':'#fde047';ctx.lineWidth=5;ctx.shadowColor='#fb923c';ctx.shadowBlur=16;ctx.beginPath();ctx.moveTo(Math.cos(a)*34,Math.sin(a)*24);ctx.lineTo(Math.cos(a)*(64+Math.sin(f.animTick*.4+i)*10),Math.sin(a)*(44+Math.sin(f.animTick*.4+i)*10));ctx.stroke();}
+          ctx.restore();
+        }
+        if (jobId === 'F1_DRIVER' && f.f1DTRTimer > 0 && f.f1RideTimer <= 0) {
+          ctx.save();ctx.globalAlpha=.35;ctx.strokeStyle='#ef4444';ctx.lineWidth=5;ctx.shadowColor='#ef4444';ctx.shadowBlur=18;for(let n=1;n<=3;n++){ctx.beginPath();ctx.moveTo(f.x-f.facing*(28+n*12),f.y-75+n*18);ctx.lineTo(f.x-f.facing*(85+n*16),f.y-75+n*18);ctx.stroke();}ctx.restore();
+        }
+
+        if (jobId === 'F1_DRIVER') {
+          // Clearly recognizable red racing suit, full-face helmet with dark visor,
+          // shoulder harness, rear wing and compact pit-stop impact wrench.
+          ctx.save();
+          const hx=f.x+headX, hy=f.y+headY;
+          ctx.translate(hx,hy); ctx.scale(dir,1);
+          ctx.fillStyle='#0b1f55';ctx.strokeStyle='#18181b';ctx.lineWidth=3;
+          ctx.beginPath();ctx.roundRect(-22,-19,44,38,10);ctx.fill();ctx.stroke();
+          ctx.fillStyle='#ef4444';ctx.beginPath();ctx.moveTo(-19,-8);ctx.lineTo(19,-8);ctx.lineTo(16,2);ctx.lineTo(-16,2);ctx.closePath();ctx.fill();
+          ctx.fillStyle='#18181b';ctx.beginPath();ctx.roundRect(-18,-9,36,16,5);ctx.fill();
+          ctx.fillStyle='#9ca3af';ctx.beginPath();ctx.roundRect(-15,-7,30,10,3);ctx.fill();
+          ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-15,13);ctx.lineTo(15,13);ctx.stroke();
+          ctx.restore();
+          // Racing suit panels and harness across torso
+          ctx.save();ctx.translate(f.x+shoulderX,f.y+shoulderY);ctx.scale(dir,1);
+          ctx.fillStyle='#0b1f55';ctx.strokeStyle='#18181b';ctx.lineWidth=3;
+          ctx.beginPath();ctx.moveTo(-23,-12);ctx.lineTo(-13,-20);ctx.lineTo(13,-20);ctx.lineTo(23,-12);ctx.lineTo(19,27);ctx.lineTo(-19,27);ctx.closePath();ctx.fill();ctx.stroke();
+          ctx.fillStyle='#ef4444';ctx.fillRect(-20,-15,7,39);ctx.fillRect(13,-15,7,39);ctx.strokeStyle='#f8fafc';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-12,-14);ctx.lineTo(8,24);ctx.moveTo(12,-14);ctx.lineTo(-8,24);ctx.stroke();ctx.fillStyle='#fbbf24';ctx.font='bold 8px sans-serif';ctx.textAlign='center';ctx.fillText('RACING',0,8);
+          ctx.fillStyle='#18181b';ctx.fillRect(-7,-3,14,9);ctx.fillStyle='#fbbf24';ctx.fillRect(-4,-1,8,5);
+          // Rear wing mounted behind shoulders
+          ctx.fillStyle='#18181b';ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-dir*27,-27);ctx.lineTo(-dir*50,-35);ctx.lineTo(-dir*48,-24);ctx.lineTo(-dir*26,-20);ctx.closePath();ctx.fill();ctx.stroke();
+          ctx.restore();
+          // Electric impact wheel gun held in the front hand
+          const gx=f.x+frontHand.x+dir*8, gy=f.y+frontHand.y;
+          ctx.save();ctx.translate(gx,gy);ctx.scale(dir,1);ctx.rotate(f.state==='ATTACK'?.2:-.35);
+          ctx.fillStyle='#18181b';ctx.strokeStyle='#9ca3af';ctx.lineWidth=2.5;ctx.fillRect(-8,-5,30,12);ctx.strokeRect(-8,-5,30,12);
+          ctx.fillStyle='#ef4444';ctx.fillRect(0,-9,18,5);ctx.fillStyle='#0b1f55';ctx.fillRect(17,-2,16,7);
+          ctx.beginPath();ctx.arc(35,1,8,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(35,1,3,0,Math.PI*2);ctx.fill();
+          ctx.restore();
+        }
+
         if (jobId === 'POSEIDON' && f.poseidonJudgmentTimer > 0 && f.poseidonJudgmentShield > 0) {
           ctx.save();const pulse=Math.sin(t*.13)*3;
           ctx.strokeStyle='#a5f3fc';ctx.fillStyle='rgba(34,211,238,0.19)';ctx.lineWidth=4;
@@ -11011,6 +11176,14 @@ window.OD_FIREBASE_CONFIG = {
         for (const proj of projectiles) {
           if (!proj.active) continue;
           ctx.save();
+          if(proj.visualType==='F1_TIRE'){
+            ctx.save();ctx.translate(proj.x,proj.y);ctx.rotate(proj.age*.32*proj.facing);ctx.shadowColor='#fb923c';ctx.shadowBlur=24;
+            for(let k=0;k<3;k++){ctx.strokeStyle=k===0?'#fde047':k===1?'#fb923c':'#ef4444';ctx.globalAlpha=.7-k*.18;ctx.lineWidth=7-k*2;ctx.beginPath();ctx.moveTo(-proj.facing*(proj.radius+8+k*10),-5+k*5);ctx.lineTo(-proj.facing*(proj.radius+30+k*12),-11+k*8);ctx.stroke();}ctx.globalAlpha=1;
+            ctx.fillStyle='#09090b';ctx.strokeStyle='#71717a';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,proj.radius,0,Math.PI*2);ctx.fill();ctx.stroke();
+            ctx.strokeStyle='#fbbf24';ctx.lineWidth=3;for(let a=0;a<8;a++){const ang=a*Math.PI/4;ctx.beginPath();ctx.moveTo(Math.cos(ang)*7,Math.sin(ang)*7);ctx.lineTo(Math.cos(ang)*(proj.radius-4),Math.sin(ang)*(proj.radius-4));ctx.stroke();}
+            ctx.strokeStyle='#d4d4d8';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,proj.radius*.48,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#f97316';ctx.beginPath();ctx.arc(0,0,5,0,Math.PI*2);ctx.fill();
+            ctx.restore();ctx.restore();continue;
+          }
 
           if(proj.visualType==='ASTRO_PULSE'){
             ctx.save();ctx.translate(proj.x,proj.y);ctx.rotate(proj.age*.16*proj.facing);ctx.shadowColor='#a855f7';ctx.shadowBlur=22;ctx.strokeStyle='#c084fc';ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(0,0,proj.radius,proj.radius*.62,0,0,Math.PI*2);ctx.stroke();ctx.strokeStyle='#e9d5ff';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,proj.radius*.62,proj.radius*.38,0,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,4,0,Math.PI*2);ctx.fill();ctx.restore();ctx.restore();continue;
@@ -11932,17 +12105,13 @@ window.OD_FIREBASE_CONFIG = {
       }
       if (this.jobId === 'PASTOR' && type === 'ULTIMATE') {
         if (this.ult < 100) return;
-        this.ult = 0; this.pastorHeaven = this.attacks.ULTIMATE.active; SPECIAL_FX.heaven = this.attacks.ULTIMATE.active;
-        this.customStun = 0; this.customFreeze = 0;
-        if (this.opponent && this.opponent.hp > 0) {
-          this.opponent.customStun = this.attacks.ULTIMATE.stun;
-          this.opponent.vx = 0; this.opponent.vy = 0;
-          this.opponent.state = 'HITSTUN'; this.opponent.stateTimer = this.attacks.ULTIMATE.stun;
-          this.opponent.hp = Math.max(0,this.opponent.hp-this.attacks.ULTIMATE.damage);
-        }
-        VFX.triggerScreenFlash('#fff7cc',0.8);
-        VFX.spawnFloatingText(640,170,'✦ 천국의 강림 ✦','#fff7cc');
-        return;
+        const us=this.attacks.ULTIMATE;
+        this.ult=0; this.pastorHeaven=us.active; SPECIAL_FX.heaven=us.active;
+        this.pastorCrosses=Array.from({length:us.crossCount},(_,i)=>({x:0,y:-100,delay:8+i*6,falling:false,hit:false}));
+        this.pastorCrossHits=0; this.pastorCrossTarget=this.opponent||null;
+        VFX.triggerScreenFlash('#fff7cc',0.42);
+        VFX.spawnFloatingText(640,170,'✦ 십자가의 심판 ✦','#fff7cc');
+        AUDIO.sfxUltimateFlash(); return;
       }
       if (this.jobId === 'SANTA' && type === 'SKILL1') {
         if (this.cooldowns.SKILL1 > 0) return;
@@ -11967,6 +12136,18 @@ window.OD_FIREBASE_CONFIG = {
       return originalStartAttack.call(this,type,projectiles);
     };
 
+    // Samurai awakening enlarges active melee reach while the buff is running.
+    const samuraiRangeBaseHitbox=Fighter.prototype.getActiveHitbox;
+    Fighter.prototype.getActiveHitbox=function(){
+      const box=samuraiRangeBaseHitbox.call(this);
+      if(box&&this.jobId==='SAMURAI'&&this.awakenTimer>0){
+        const mult=this.attacks.ULTIMATE.rangeMult||1.28;
+        const add=box.width*(mult-1);
+        box.width*=mult;
+        if(this.facing<0)box.x-=add;
+      }
+      return box;
+    };
     // Character-by-character balance pass. Cooldowns are authored in frames
     // at 60 FPS; damage scaling is applied once at the shared hit-resolution point.
     const CHARACTER_DAMAGE_SCALE = {
@@ -11978,7 +12159,7 @@ window.OD_FIREBASE_CONFIG = {
     };
     const CHARACTER_BALANCE = {
       STICKMAN:{cooldowns:{SKILL1:84,SKILL2:120},overrides:{SKILL1:{projectile:{damage:96}},SKILL2:{damage:135},ULTIMATE:{damagePerTick:44}}},
-      SAMURAI:{cooldowns:{SKILL1:210,SKILL2:150},overrides:{SKILL1:{damage:18,finalDamage:22},SKILL2:{damage:95},ULTIMATE:{damageMult:1.15,speedMult:1.15,buffDuration:360}}},
+      SAMURAI:{cooldowns:{SKILL1:210,SKILL2:150},overrides:{SKILL1:{damage:18,finalDamage:22},SKILL2:{damage:95},ULTIMATE:{damageMult:1.32,defenseMult:0.72,rangeMult:1.28,speedMult:1.0,buffDuration:360}}},
       VIKING:{cooldowns:{SKILL1:420,SKILL2:120},overrides:{SKILL1:{shieldHp:230,shieldDuration:270},SKILL2:{damage:125},ULTIMATE:{slamDamage:130,lightningDamage:38}}},
       NINJA:{cooldowns:{SKILL1:90,SKILL2:120},overrides:{SKILL1:{projectile:{damage:40}},SKILL2:{damage:38,finalDamage:48,invulnFrames:18},ULTIMATE:{damagePerHit:40,finalDamage:62}}},
       TAOIST:{cooldowns:{SKILL1:210,SKILL2:210},overrides:{SKILL1:{damage:58,rootDuration:72},SKILL2:{projectile:{damage:28}},ULTIMATE:{rainDuration:420,strikeInterval:78,lightningDamage:48}}},
@@ -12378,7 +12559,7 @@ window.OD_FIREBASE_CONFIG = {
 
     function clearSongMasterStatus(f) {
       if(!f || !f.songFuryForm) return;
-      f.rootTimer=0; f.customStun=0; f.customFreeze=0;
+      f.rootTimer=0; f.customStun=0; f.customFreeze=0; f.pastorCrosses=[]; f.pastorCrossHits=0; f.pastorCrossTarget=null;
       f.aiStunTimer=0; f.aiSealTimer=0; f.aiSealSlot=null;
       f.revertStunTimer=0; f.gambleSlowTimer=0; f.poseidonSlowTimer=0; f.poseidonSlowStacks=0;
       f.slowTimer=0; f.hitstunTimer=0; f.blockstunTimer=0;
@@ -12478,6 +12659,25 @@ window.OD_FIREBASE_CONFIG = {
           if(enemy && Math.abs(dx)<155) { enemy.x += Math.sign(dx||1)*3.4; enemy.vx=Math.sign(dx||1)*4; }
         }
         if (f.pastorHeaven>0) f.pastorHeaven--;
+        if(f.jobId==='PASTOR' && f.pastorCrosses && f.pastorHeaven>0){
+          const target=f.pastorCrossTarget||f.opponent;
+          for(const cross of f.pastorCrosses){
+            if(cross.hit)continue;
+            if(cross.delay>0){cross.delay--;continue;}
+            if(!cross.falling){cross.falling=true;cross.x=target&&target.hp>0?Math.max(CONFIG.STAGE_LEFT+35,Math.min(CONFIG.STAGE_RIGHT-35,target.x+(Math.random()-0.5)*260)):f.x;cross.y=-95;}
+            cross.y+=20;
+            if(target&&target.hp>0&&Math.abs(cross.x-target.x)<48&&cross.y>=target.y-130&&cross.y<=target.y+10){
+              cross.hit=true;f.pastorCrossHits=(f.pastorCrossHits||0)+1;
+              target.hp=Math.max(0,target.hp-f.attacks.ULTIMATE.crossDamage);
+              target.vx=0;target.vy=0;VFX.spawnHitSparks(target.x,target.y-85,'#fff7cc',18,1.0);VFX.shockwaves.push({x:cross.x,y:target.y-78,radius:8,maxRadius:58,life:12,maxLife:12,color:'#fff7cc'});
+              VFX.spawnFloatingText(target.x,target.y-160,`십자가 적중 ${f.pastorCrossHits}/5`,'#fff7cc');
+              if(f.pastorCrossHits>=5){target.customFreeze=Math.max(target.customFreeze||0,f.attacks.ULTIMATE.bindDuration);target.rootTimer=Math.max(target.rootTimer||0,f.attacks.ULTIMATE.bindDuration);target.vx=0;target.vy=0;target.state='HITSTUN';target.stateTimer=f.attacks.ULTIMATE.bindDuration;VFX.triggerScreenFlash('#fff7cc',.35);VFX.spawnFloatingText(target.x,target.y-190,'✝ 5개 적중! 속박 · 행동 불가 ✝','#fff7cc');VFX.spawnHitSparks(target.x,target.y-80,'#fff7cc',42,1.4);}
+            }
+            if(cross.y>CONFIG.HEIGHT+80)cross.hit=true;
+          }
+          if(f.pastorHeaven<=0)f.pastorCrosses=[];
+        }
+
         if (f.monkGoldTimer>0) f.monkGoldTimer--;
         if (f.gambleMonkGoldTimer>0) f.gambleMonkGoldTimer--;
         if (f.monkHeaven>0) {
@@ -12532,7 +12732,7 @@ window.OD_FIREBASE_CONFIG = {
         for(let i=game.necroMinions.length-1;i>=0;i--){
           const m=game.necroMinions[i],owner=m.owner,target=m.target||owner?.opponent;
           if(!m.active||!owner||owner.state==='KO'||m.life<=0||m.hp<=0){VFX.spawnSmokePoof(m.x,m.y-20,6,'rgba(126,34,206,.55)');game.necroMinions.splice(i,1);continue;}
-          m.life--;m.age++;if(m.flash>0)m.flash--;if(m.attackCooldown>0)m.attackCooldown--;if(m.breathTimer>0)m.breathTimer--;
+          m.life--;m.age++;if(m.flash>0)m.flash--;if(m.attackCooldown>0)m.attackCooldown--;if(m.attackAnimTimer>0)m.attackAnimTimer--;if(m.breathTimer>0)m.breathTimer--;
           if(!target||target.hp<=0)continue;
           const dx=target.x-m.x,dist=Math.abs(dx);m.facing=dx>=0?1:-1;
           if(m.type==='WYVERN'){
@@ -12551,12 +12751,12 @@ window.OD_FIREBASE_CONFIG = {
             m.y=CONFIG.GROUND_Y-(m.type==='ORC'?65:54);
             if(dist>preferred){m.x+=Math.sign(dx)*Math.min(speed,dist-preferred);}
             else if(m.attackCooldown<=0 && Math.abs(target.y-m.y)<135){
-              m.attackCooldown=isBlackKnight?24:m.type==='SOLDIER'?31:m.type==='ARMORED'?55:72;
-              const damage=isBlackKnight?50:m.type==='SOLDIER'?15:m.type==='ARMORED'?12:34;
+              m.attackCooldown=isBlackKnight?34:m.type==='SOLDIER'?31:m.type==='ARMORED'?55:72;if(isBlackKnight)m.attackAnimTimer=18;
+              const damage=isBlackKnight?42:m.type==='SOLDIER'?15:m.type==='ARMORED'?12:34;
               const heavy=isBlackKnight||m.type==='ORC';
               // Use the shared hit resolver so guards, invulnerability and online HP sync remain respected.
               if(target.invulnTimer<=0 && target.hp>0){
-                const hit=COMBAT_ENGINE.applyHit(owner,target,{damage,isSkill:true,ultGainAttacker:2,ultGainDefender:2,hitstun:isBlackKnight?16:heavy?18:11,blockstun:heavy?12:8,knockbackX:isBlackKnight?7.5:heavy?14:3.2,knockbackY:heavy?-3.5:0,knockdown:m.type==='ORC',hitstop:heavy?5:3,shake:heavy?8:4,direction:m.facing,sourceX:m.x,isHeavy:heavy});
+                const hit=COMBAT_ENGINE.applyHit(owner,target,{damage,isSkill:true,ultGainAttacker:2,ultGainDefender:2,hitstun:isBlackKnight?14:heavy?18:11,blockstun:heavy?12:8,knockbackX:isBlackKnight?7.5:heavy?14:3.2,knockbackY:heavy?-3.5:0,knockdown:m.type==='ORC',hitstop:heavy?5:3,shake:heavy?8:4,direction:m.facing,sourceX:m.x,isHeavy:heavy});
                 if(isBlackKnight && hit && hit.connected && !hit.guarded){VFX.spawnHitSparks(target.x,target.y-82,'#e5e7eb',20,1.05);VFX.spawnFloatingText(target.x,target.y-150,'검은 기사 타격!','#e5e7eb');}
               }
               VFX.spawnSlashArc({x:m.x+m.facing*(isBlackKnight?52:36),y:m.y-(isBlackKnight?70:55),radius:isBlackKnight?122:heavy?92:56,startAngle:-.9,endAngle:.75,facing:m.facing,color:isBlackKnight?'#e5e7eb':heavy?'#a855f7':'#c4b5fd',lineWidth:isBlackKnight?20:heavy?18:9,life:10});
@@ -12684,7 +12884,18 @@ window.OD_FIREBASE_CONFIG = {
             if(m.breathTimer>0){ctx.save();ctx.globalAlpha=Math.min(1,m.breathTimer/7);ctx.translate(m.facing*24,-8);ctx.rotate(m.facing===1?0:Math.PI);const flame=ctx.createLinearGradient(0,0,175,0);flame.addColorStop(0,'rgba(192,132,252,.85)');flame.addColorStop(.5,'rgba(126,34,206,.55)');flame.addColorStop(1,'rgba(76,29,149,0)');ctx.fillStyle=flame;ctx.shadowColor='#a855f7';ctx.shadowBlur=24;ctx.beginPath();ctx.moveTo(0,-15);ctx.quadraticCurveTo(74,-62,178,0);ctx.quadraticCurveTo(75,65,0,15);ctx.closePath();ctx.fill();ctx.strokeStyle='#e9d5ff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(4,0);ctx.quadraticCurveTo(80,-20,160,0);ctx.stroke();ctx.restore();}
             ctx.beginPath();ctx.moveTo(-34,0);ctx.lineTo(-62,-24);ctx.lineTo(-54,9);ctx.lineTo(-24,15);ctx.lineTo(0,0);ctx.lineTo(28,-12);ctx.lineTo(60,-36);ctx.lineTo(49,5);ctx.lineTo(20,19);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#e9d5ff';ctx.beginPath();ctx.arc(8,-5,7,0,Math.PI*2);ctx.fill();ctx.fillStyle='#7e22ce';ctx.beginPath();ctx.arc(10,-6,3,0,Math.PI*2);ctx.fill();
           }
-          else{
+          else if(m.type==='BLACK_KNIGHT'){
+            // Heavy shadow knight: layered steel armor, horned helm, crimson rune core and an animated greatsword.
+            ctx.fillStyle='#111827';ctx.strokeStyle='#94a3b8';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-23,-58);ctx.lineTo(23,-58);ctx.lineTo(34,-18);ctx.lineTo(22,5);ctx.lineTo(0,13);ctx.lineTo(-22,5);ctx.lineTo(-34,-18);ctx.closePath();ctx.fill();ctx.stroke();
+            ctx.fillStyle='#334155';ctx.strokeStyle='#cbd5e1';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-27,-51);ctx.lineTo(-40,-38);ctx.lineTo(-28,-16);ctx.lineTo(-12,-27);ctx.closePath();ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(27,-51);ctx.lineTo(40,-38);ctx.lineTo(28,-16);ctx.lineTo(12,-27);ctx.closePath();ctx.fill();ctx.stroke();
+            ctx.fillStyle='#0b1020';ctx.strokeStyle='#a1a1aa';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-18,-83);ctx.lineTo(0,-96);ctx.lineTo(18,-83);ctx.lineTo(22,-58);ctx.lineTo(0,-48);ctx.lineTo(-22,-58);ctx.closePath();ctx.fill();ctx.stroke();
+            ctx.fillStyle='#ef4444';ctx.shadowColor='#ef4444';ctx.shadowBlur=16;ctx.fillRect(-11,-72,8,4);ctx.fillRect(3,-72,8,4);ctx.beginPath();ctx.moveTo(-11,-57);ctx.lineTo(0,-51);ctx.lineTo(11,-57);ctx.stroke();
+            ctx.strokeStyle='#64748b';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(-10,-4);ctx.lineTo(-20,26);ctx.moveTo(10,-4);ctx.lineTo(20,26);ctx.stroke();ctx.strokeStyle='#cbd5e1';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-21,25);ctx.lineTo(-27,31);ctx.moveTo(21,25);ctx.lineTo(27,31);ctx.stroke();
+            // Animated sweeping sword slash is clearly visible on each attack.
+            const swing=(m.attackAnimTimer||0)>0;ctx.save();ctx.translate(m.facing*19,-48);ctx.rotate(m.facing*(swing?-.95+((18-m.attackAnimTimer)/18)*1.65:-.55));ctx.strokeStyle='#1e293b';ctx.lineWidth=11;ctx.beginPath();ctx.moveTo(0,28);ctx.lineTo(0,-48);ctx.stroke();ctx.strokeStyle='#e2e8f0';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(0,26);ctx.lineTo(0,-54);ctx.stroke();ctx.fillStyle='#f8fafc';ctx.beginPath();ctx.moveTo(-5,-51);ctx.lineTo(0,-75);ctx.lineTo(5,-51);ctx.closePath();ctx.fill();ctx.stroke();ctx.strokeStyle='#ef4444';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-15,20);ctx.lineTo(15,20);ctx.stroke();ctx.restore();
+            if(swing){ctx.save();ctx.globalAlpha=Math.min(.8,(m.attackAnimTimer||0)/10);ctx.strokeStyle='#cbd5e1';ctx.shadowColor='#e5e7eb';ctx.shadowBlur=22;ctx.lineWidth=12;ctx.beginPath();ctx.arc(m.facing*26,-63,65,m.facing*.1,m.facing*1.55);ctx.stroke();ctx.restore();}
+            ctx.save();ctx.globalAlpha=.45;ctx.strokeStyle='#ef4444';ctx.shadowColor='#ef4444';ctx.shadowBlur=18;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-18,-32);ctx.lineTo(0,-18);ctx.lineTo(18,-32);ctx.stroke();ctx.restore();
+          }else{
             ctx.beginPath();ctx.moveTo(-17,-55);ctx.lineTo(17,-55);ctx.lineTo(25,-5);ctx.lineTo(0,7);ctx.lineTo(-25,-5);ctx.closePath();ctx.fill();ctx.stroke();
             ctx.beginPath();ctx.arc(0,-67,m.type==='ORC'?18:15,0,Math.PI*2);ctx.fill();ctx.stroke();
             ctx.fillStyle='#e9d5ff';ctx.fillRect(-9,-71,5,4);ctx.fillRect(4,-71,5,4);
@@ -12721,7 +12932,8 @@ window.OD_FIREBASE_CONFIG = {
       if([game.p1,game.p2].some(f=>f && f.pastorHeaven>0)){
         ctx.save();const g=ctx.createLinearGradient(0,0,0,CONFIG.HEIGHT);g.addColorStop(0,'rgba(255,255,255,.42)');g.addColorStop(1,'rgba(253,230,138,.24)');ctx.fillStyle=g;ctx.fillRect(0,0,CONFIG.WIDTH,CONFIG.HEIGHT);
         for(let i=0;i<9;i++){const xx=90+i*145;ctx.strokeStyle='rgba(255,255,255,.62)';ctx.lineWidth=5;ctx.shadowColor='#fff7cc';ctx.shadowBlur=20;ctx.beginPath();ctx.moveTo(xx,0);ctx.lineTo(xx+((i%2)?-22:22),CONFIG.HEIGHT);ctx.stroke();}
-        ctx.shadowBlur=0;ctx.fillStyle='rgba(255,255,255,.78)';ctx.font='bold 54px serif';ctx.textAlign='center';ctx.fillText('☁     ☁      ☁      ☁',640,72);ctx.fillStyle='#a16207';ctx.font='900 42px serif';ctx.fillText('✦ HEAVEN ✦',640,126);ctx.font='bold 32px sans-serif';ctx.fillText('빛이 내려온다',640,174);ctx.font='bold 92px serif';ctx.fillText('✝',640,292);ctx.restore();
+        ctx.shadowBlur=0;ctx.fillStyle='rgba(255,255,255,.78)';ctx.font='bold 54px serif';ctx.textAlign='center';ctx.fillText('☁     ☁      ☁      ☁',640,72);ctx.fillStyle='#a16207';ctx.font='900 42px serif';ctx.fillText('✦ HEAVEN ✦',640,126);ctx.font='bold 32px sans-serif';ctx.fillText('하늘에서 십자가가 떨어진다',640,174);
+        for(const pastor of [game.p1,game.p2])if(pastor&&pastor.jobId==='PASTOR'&&pastor.pastorHeaven>0&&pastor.pastorCrosses){for(const cr of pastor.pastorCrosses){if(cr.hit||cr.delay>0)continue;ctx.save();ctx.translate(cr.x,cr.y);ctx.shadowColor='#fff7cc';ctx.shadowBlur=26;ctx.fillStyle='#fff7cc';ctx.strokeStyle='#a16207';ctx.lineWidth=3;ctx.fillRect(-9,-34,18,68);ctx.fillRect(-29,-13,58,17);ctx.restore();}}ctx.restore();
       }
       if(SPECIAL_FX.reindeer){
         const r=SPECIAL_FX.reindeer;ctx.save();ctx.translate(r.x,r.y||150);ctx.scale(r.direction*1.22,1.22);
@@ -12832,7 +13044,7 @@ window.OD_FIREBASE_CONFIG = {
         this.ult=0;GAME.necroMinions=GAME.necroMinions||[];
         // Recasting replaces this caster's existing summons with exactly one Black Knight.
         for(let i=GAME.necroMinions.length-1;i>=0;i--){const old=GAME.necroMinions[i];if(old.owner===this){old.active=false;GAME.necroMinions.splice(i,1);}}
-        GAME.necroMinions.push({owner:this,target:this.opponent,type:'BLACK_KNIGHT',x:this.x-this.facing*62,y:CONFIG.GROUND_Y-54,hp:420,maxHp:420,shieldHp:0,life:900,attackCooldown:8,age:0,flash:0,active:true});
+        GAME.necroMinions.push({owner:this,target:this.opponent,type:'BLACK_KNIGHT',x:this.x-this.facing*62,y:CONFIG.GROUND_Y-54,hp:360,maxHp:360,shieldHp:0,life:900,attackCooldown:8,age:0,flash:0,attackAnimTimer:0,active:true});
         VFX.triggerScreenFlash('#7e22ce',.38);VFX.triggerShake(12);VFX.shockwaves.push({x:this.x,y:this.y-80,radius:12,maxRadius:240,life:25,maxLife:25,color:'#a855f7'});VFX.spawnHitSparks(this.x,this.y-95,'#c4b5fd',40,1.35);VFX.spawnFloatingText(this.x,this.y-195,'일어나라! · 그림자 군단','#e9d5ff');AUDIO.sfxUltimateFlash();return;
       }
       return necroBaseStartAttack.call(this,type,projectiles);
@@ -14311,6 +14523,17 @@ window.OD_FIREBASE_CONFIG = {
         await this.startWebRTCHost();
       });
       this.unsubCallbacks.push(() => guestRef.off('value', onGuest));
+
+      // 상대방이 입장한 뒤 나가면 온라인 로비로 복귀
+      let guestWasPresent = false;
+      const onGuestPresence = guestRef.on('value', (snap) => {
+        const guest = snap.val();
+        if (guest && guest.uid) guestWasPresent = true;
+        else if (guestWasPresent && this.active && this.role === 'HOST') {
+          this.handlePeerLeft();
+        }
+      });
+      this.unsubCallbacks.push(() => guestRef.off('value', onGuestPresence));
     },
 
     async joinRoom(code) {
@@ -14363,6 +14586,26 @@ window.OD_FIREBASE_CONFIG = {
       this.setStatus('P2P 초저지연 터널 연결 중...', '#38bdf8');
 
       await this.startWebRTCGuest();
+
+      // 방장이 방을 삭제하거나 연결을 끊으면 로비로 복귀
+      let roomWasPresent = true;
+      const onRoomPresence = roomRef.on('value', (roomSnap) => {
+        if (!roomSnap.exists() && roomWasPresent && this.active && this.role === 'GUEST') {
+          this.handlePeerLeft();
+        }
+      });
+      this.unsubCallbacks.push(() => roomRef.off('value', onRoomPresence));
+    },
+
+    handlePeerLeft() {
+      if (!this.active) return;
+      this.leaveRoom(true).then(() => {
+        const modal = document.getElementById('onlineModal');
+        if (modal) modal.hidden = false;
+        this.updateModalView();
+        this.setStatus('플레이어를 찾지 못했습니다. 온라인 방 만들기/입장 화면으로 돌아왔습니다.', '#fb7185');
+        this.subscribeRoomList();
+      });
     },
 
     async leaveRoom(silent = false) {
@@ -15109,6 +15352,7 @@ window.OD_FIREBASE_CONFIG = {
           bannerColor: GAME.bannerColor,
           p1: this.packFighter(GAME.p1),
           p2: this.packFighter(GAME.p2),
+          minions: (GAME.necroMinions||[]).filter(m=>m&&m.active&&m.hp>0).map(m=>({owner:m.owner===GAME.p1?'P1':'P2',type:m.type,x:m.x,y:m.y,hp:m.hp,maxHp:m.maxHp,life:m.life,attackCooldown:m.attackCooldown,age:m.age,flash:m.flash,attackAnimTimer:m.attackAnimTimer||0,facing:m.facing||1})),
           teamHp: GAME.battleType === 'SWITCH' ? {
             P1: (GAME.teams.P1 || []).map(f => f.hp),
             P2: (GAME.teams.P2 || []).map(f => f.hp)
@@ -15145,6 +15389,7 @@ window.OD_FIREBASE_CONFIG = {
         ww: f.isWerewolf ? 1 : 0,
         rg: Math.round(f.rage || 0),
         dg: f.jobId === 'DRAGON_KNIGHT' ? Math.max(0, Math.round(f.dragonFormTimer || 0)) : 0,
+        f1r: Math.max(0,Math.round(f.f1RideTimer||0)), f1a: Math.max(0,Math.round(f.f1ArmorTimer||0)), f1d: Math.max(0,Math.round(f.f1DTRTimer||0)), f1b: Math.max(0,Math.round(f.f1BurnTimer||0)),
         ti: GAME.battleType === 'SWITCH' && GAME.teams && GAME.teams[f.id]
           ? Math.max(0, GAME.teams[f.id].indexOf(f)) : 0
       };
@@ -15174,6 +15419,15 @@ window.OD_FIREBASE_CONFIG = {
       if (typeof snap.banner === 'string') GAME.bannerText = snap.banner;
       if (typeof snap.subBanner === 'string') GAME.subBannerText = snap.subBanner;
       if (typeof snap.bannerColor === 'string') GAME.bannerColor = snap.bannerColor;
+      // Host-authoritative shadow summons: guests see them and their HP, and can attack them locally.
+      if(Array.isArray(snap.minions)){
+        GAME.necroMinions= snap.minions.map(m=>({
+          owner:m.owner==='P1'?GAME.p1:GAME.p2,target:(m.owner==='P1'?GAME.p1:GAME.p2)?.opponent,
+          type:m.type,x:m.x,y:m.y,hp:m.hp,maxHp:m.maxHp,shieldHp:0,life:m.life,
+          attackCooldown:m.attackCooldown,age:m.age,flash:m.flash||0,attackAnimTimer:m.attackAnimTimer||0,
+          facing:m.facing||1,active:true
+        }));
+      }
       // 도박꾼 궁극기의 전체 화면 동전 연출을 호스트 기준으로 공유한다.
       if (Object.prototype.hasOwnProperty.call(snap, 'gambleFlip')) {
         if (snap.gambleFlip && (snap.gambleFlip.owner === 'P1' || snap.gambleFlip.owner === 'P2')) {
@@ -15300,6 +15554,10 @@ window.OD_FIREBASE_CONFIG = {
             this._dgOff[side] = 0;
           }
         }
+        if(f.jobId==='F1_DRIVER'){
+          f.f1RideTimer=Math.max(0,s.f1r||0);f.f1ArmorTimer=Math.max(0,s.f1a||0);f.f1DTRTimer=Math.max(0,s.f1d||0);f.f1BurnTimer=Math.max(0,s.f1b||0);
+          if(f.f1RideTimer>0){f.state='IDLE';f.attackType=null;f.vx=s.vx||0;f.vy=0;}
+        }
         if (s.st === 'KO' && f.state !== 'KO') {
           f.state = 'KO';
           f.hp = 0;
@@ -15424,7 +15682,7 @@ window.OD_FIREBASE_CONFIG = {
       const floorTransition = (targetOnPlatform && f.y >= CONFIG.GROUND_Y - 2) || (currentOnPlatform && ty >= CONFIG.GROUND_Y - 2);
       if (floorTransition || Math.abs(ex) > 70 || Math.abs(ey) > 70) { f.x = tx; f.y = ty; if (snapshotOnPlatform) f.vy = 0; return; }
       if (targetOnPlatform) { f.y = plat.y; f.vy = 0; }
-      if (Math.abs(ex) > 3) f.x += ex * 0.12;
+      if (Math.abs(ex) > 3) f.x += ex * 0.18;
       // 입장한 플레이어의 점프는 입력 재생으로 계산되는 궤적을 유지해 수직 보정 버벅임을 방지한다.
       if (!targetOnPlatform && f.state !== 'JUMP' && g.st !== 'JUMP' && Math.abs(ey) > 3) f.y += ey * 0.12;
     },
@@ -16071,6 +16329,99 @@ window.OD_FIREBASE_CONFIG = {
    avoiding deletion of guest fields that may be required by local update code. */
 (function(){
   if(typeof NET==='undefined'||!NET.packFighter||!NET.applySnapshotSmoothly)return;
+    // ---------------------------------------------------------------------
+    // F1 DRIVER: localized custom moves and racing-form mechanics.
+    // ---------------------------------------------------------------------
+    const f1BaseStart=Fighter.prototype.startAttack;
+    Fighter.prototype.startAttack=function(type,projectiles){
+      if(this.jobId!=='F1_DRIVER')return f1BaseStart.call(this,type,projectiles);
+      if(this.f1RideTimer>0){
+        if(type==='ULTIMATE')return;
+        if(type==='SKILL1'){
+          if(this.cooldowns.SKILL1>0)return;this.cooldowns.SKILL1=300;this.f1DriftTimer=18;this.f1DriftHit=false;
+          this.vx*=.2;VFX.spawnHitSparks(this.x,this.y-35,'#fb923c',22,1.2);VFX.spawnFloatingText(this.x,this.y-120,'파이어 드리프트!','#fb923c');AUDIO.sfxUppercut();return;
+        }
+        if(type==='SKILL2'){
+          if(this.cooldowns.SKILL2>0)return;this.cooldowns.SKILL2=360;this.f1ArmorTimer=180;this.f1ArmorMax=180;
+          VFX.spawnHitSparks(this.x,this.y-38,'#fbbf24',18,1);VFX.spawnFloatingText(this.x,this.y-125,'카본 아머 강화!','#fbbf24');AUDIO.sfxShieldCast();return;
+        }
+        return;
+      }
+      if(type==='SKILL1'){
+        if(this.cooldowns.SKILL1>0)return;this.cooldowns.SKILL1=210;this.gainUlt(6);
+        const spec={visualType:'F1_TIRE',speed:15,radius:34,damage:62,ultGainAttacker:6,ultGainDefender:4,hitstun:14,blockstun:10,knockbackX:5,knockbackY:-2,hitstop:4,shake:5};
+        const tire=new Projectile(this,this.x+this.facing*36,this.y-15,this.facing,spec,false);tire.f1Burn=true;tire.f1Clash=true;projectiles.push(tire);
+        VFX.spawnFloatingText(this.x,this.y-155,'번아웃 타이어 슛!','#fb923c');AUDIO.sfxWhiff();return;
+      }
+      if(type==='SKILL2'){
+        if(this.cooldowns.SKILL2>0)return;this.cooldowns.SKILL2=270;this.gainUlt(7);this.f1DTRTimer=240;
+        this.f1DashTimer=18;this.f1DashHit=false;this.vx=this.facing*25;this.invulnTimer=Math.max(this.invulnTimer,7);
+        this.state='DASH';this.attackType='F1_DRS';this.stateTimer=0;VFX.spawnAfterimage(this,'#ef4444');VFX.spawnDust(this.x,this.y,this.facing);VFX.spawnFloatingText(this.x,this.y-160,'DRS 오버테이크!','#ef4444');AUDIO.sfxUppercut();return;
+      }
+      if(type==='ULTIMATE'){
+        if(this.ult<CONFIG.MAX_ULT)return;this.ult=0;this.hp=Math.min(this.maxHp,this.hp+Math.round(this.maxHp*0.22));this.f1RideTimer=480;this.f1RideMax=480;this.f1StartLightsTimer=48;this.f1ArmorTimer=0;this.f1RideHitCooldown={};this.state='IDLE';this.attackType=null;this.stateTimer=0;this.vx=0;this.vy=0;
+        VFX.triggerSuperFlash('#ef4444','LIGHTS OUT · FULL THROTTLE');VFX.triggerHitstop(8);VFX.spawnHitSparks(this.x,this.y-40,'#fbbf24',28,1.4);VFX.spawnHitSparks(this.x,this.y-90,'#22c55e',18,1.0);VFX.spawnFloatingText(this.x,this.y-160,'LIGHTS OUT! + HP 회복','#22c55e');AUDIO.sfxUltimateFlash();return;
+      }
+      return f1BaseStart.call(this,type,projectiles);
+    };
+    const f1BaseTryInput=Fighter.prototype.tryStartAttackInput;
+    Fighter.prototype.tryStartAttackInput=function(projectiles){if(this.jobId==='F1_DRIVER'&&this.f1RideTimer>0)return true;return f1BaseTryInput.call(this,projectiles);};
+    const f1BaseUpdate=Fighter.prototype.update;
+    Fighter.prototype.update=function(opponent,projectiles,canControl){
+      const wasRide=this.f1RideTimer||0,wasDrift=this.f1DriftTimer||0,wasDash=this.f1DashTimer||0;
+      if(this.jobId==='F1_DRIVER'&&canControl&&this.state!=='KO'&&this.state!=='HITSTUN'&&this.state!=='KNOCKDOWN'){
+        if(this.f1RideTimer>0){
+          if(INPUT.wasPressed(this.controls.skill1)&&this.cooldowns.SKILL1<=0)this.startAttack('SKILL1',projectiles);
+          else if(INPUT.wasPressed(this.controls.skill2)&&this.cooldowns.SKILL2<=0)this.startAttack('SKILL2',projectiles);
+          else {const left=INPUT.isDown(this.controls.left),right=INPUT.isDown(this.controls.right);if(left!==right){this.facing=left?-1:1;this.vx=this.facing*17.5;}else this.vx*=.88;this.state='IDLE';}
+        } else if(INPUT.wasPressed(this.controls.skill1)&&this.cooldowns.SKILL1<=0)this.startAttack('SKILL1',projectiles);
+        else if(INPUT.wasPressed(this.controls.skill2)&&this.cooldowns.SKILL2<=0)this.startAttack('SKILL2',projectiles);
+        else if(INPUT.wasPressed(this.controls.ultimate)&&this.ult>=CONFIG.MAX_ULT)this.startAttack('ULTIMATE',projectiles);
+      }
+      const result=f1BaseUpdate.call(this,opponent,projectiles,canControl);
+      if(this.jobId!=='F1_DRIVER')return result;
+      if(this.f1DTRTimer>0)this.f1DTRTimer--;
+      if(this.f1StartLightsTimer>0)this.f1StartLightsTimer--;
+      if(this.f1ArmorTimer>0)this.f1ArmorTimer--;
+      if(this.f1RideTimer>0){
+        this.f1RideTimer--;
+        if(this.f1RideTimer%4===0)VFX.spawnDust(this.x,this.y,this.facing);
+        if(opponent&&opponent.state!=='KO'&&Math.abs(opponent.x-this.x)<85&&Math.abs(opponent.y-this.y)<100){
+          const key=opponent.id||opponent.jobId;const cd=this.f1RideHitCooldown||{};
+          if((cd[key]||0)<=0){cd[key]=24;this.f1RideHitCooldown=cd;const dmg=this.f1ArmorTimer>0?66:56;
+            COMBAT_ENGINE.applyHit(this,opponent,{damage:dmg,ultGainAttacker:5,ultGainDefender:4,hitstun:13,blockstun:10,knockbackX:8,knockbackY:-4,knockdown:false,hitstop:4,shake:6,direction:this.facing,sourceX:this.x});VFX.spawnHitSparks(opponent.x,opponent.y-38,'#ef4444',16,1);VFX.spawnFloatingText(opponent.x,opponent.y-115,'차체 충돌!','#ef4444');}
+        }
+        if(this.f1RideHitCooldown)for(const k in this.f1RideHitCooldown)this.f1RideHitCooldown[k]=Math.max(0,this.f1RideHitCooldown[k]-1);
+        if(canControl){const l=INPUT.isDown(this.controls.left),r=INPUT.isDown(this.controls.right);if(l!==r){this.facing=l?-1:1;this.vx=this.facing*17.5;}else this.vx*=.86;}
+        if(this.f1RideTimer<=0){this.vx*=.25;this.f1RideHitCooldown={};VFX.spawnHitSparks(this.x,this.y-30,'#fbbf24',14,1);VFX.spawnFloatingText(this.x,this.y-140,'피트인!','#fbbf24');}
+      }
+      if(this.f1DriftTimer>0){this.f1DriftTimer--;this.vx*=.72;if(opponent&&!this.f1DriftHit&&Math.abs(opponent.x-this.x)<145&&Math.abs(opponent.y-this.y)<110){this.f1DriftHit=true;COMBAT_ENGINE.applyHit(this,opponent,{damage:79,ultGainAttacker:7,ultGainDefender:5,hitstun:20,blockstun:13,knockbackX:13,knockbackY:-5,knockdown:false,hitstop:6,shake:8,direction:this.facing,sourceX:this.x});opponent.f1BurnTimer=120;VFX.spawnHitSparks(opponent.x,opponent.y-30,'#fb923c',24,1.25);VFX.spawnFloatingText(opponent.x,opponent.y-135,'드리프트 화염!','#fb923c');}}
+      if(this.f1DashTimer>0){this.f1DashTimer--;this.vx=this.facing*25;if(this.f1DashTimer%2===0)VFX.spawnAfterimage(this,'#ef4444');if(opponent&&!this.f1DashHit&&Math.abs(opponent.x-this.x)<92&&Math.abs(opponent.y-this.y)<115){this.f1DashHit=true;COMBAT_ENGINE.applyHit(this,opponent,{damage:72,ultGainAttacker:8,ultGainDefender:5,hitstun:18,blockstun:12,knockbackX:8,knockbackY:-3,hitstop:5,shake:7,direction:this.facing,sourceX:this.x});VFX.spawnHitSparks(opponent.x,opponent.y-60,'#ef4444',18,1.1);}if(this.f1DashTimer<=0){this.vx*=.25;this.state=this.isGrounded()?'IDLE':'JUMP';this.attackType=null;}}
+      if(this.f1BurnTimer>0){this.f1BurnTimer--;if(this.f1BurnTimer%30===0&&this.f1BurnOwner&&this.f1BurnOwner.hp>0&&this.invulnTimer<=0){COMBAT_ENGINE.applyHit(this.f1BurnOwner,this,{damage:4,isSkill:true,ultGainAttacker:0,ultGainDefender:1,hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,hitstop:0,shake:1,direction:this.f1BurnOwner.facing,sourceX:this.f1BurnOwner.x});}if(this.f1BurnTimer<=0)this.f1BurnOwner=null;}
+      return result;
+    };
+    const f1BaseHit=COMBAT_ENGINE.applyHit;
+    COMBAT_ENGINE.applyHit=function(attacker,defender,info){
+      let hit=info, armor=false, before=null;
+      if(defender&&defender.jobId==='F1_DRIVER'&&defender.f1RideTimer>0&&defender.f1ArmorTimer>0){
+        armor=true;before={state:defender.state,attackType:defender.attackType,stateTimer:defender.stateTimer,vx:defender.vx,vy:defender.vy,rootTimer:defender.rootTimer,customStun:defender.customStun,hitstunTimer:defender.hitstunTimer};
+        hit={...info,damage:Math.round((info.damage||0)*.45),hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,knockdown:false,guardBreak:false,rootDuration:0};
+      }
+      const res=f1BaseHit.call(this,attacker,defender,hit);
+      if(armor&&defender.hp>0){defender.state=before.state;defender.attackType=before.attackType;defender.stateTimer=before.stateTimer;defender.vx=before.vx;defender.vy=before.vy;defender.rootTimer=before.rootTimer;defender.customStun=before.customStun;defender.hitstunTimer=0;defender.isBlocking=false;VFX.spawnHitSparks(defender.x,defender.y-40,'#fbbf24',5,.55);}
+      const src=info&&info.sourceProjectile;
+      if(attacker&&attacker.jobId==='F1_DRIVER'&&src&&src.visualType==='F1_TIRE'&&res&&res.connected&&!res.guarded){defender.f1BurnTimer=120;defender.f1BurnOwner=attacker;}
+      return res;
+    };
+    const previousBuffHitResolver=COMBAT_ENGINE.applyHit;
+    COMBAT_ENGINE.applyHit=function(attacker,defender,info){
+      if(defender&&defender.jobId==='SAMURAI'&&defender.awakenTimer>0){
+        const mult=defender.attacks.ULTIMATE.defenseMult||0.72;
+        info={...info,damage:Math.max(1,Math.round((info.damage||0)*mult))};
+      }
+      return previousBuffHitResolver.call(this,attacker,defender,info);
+    };
+
   const syncKeyRe=/(ult|ultimate|form|buff|shield|charge|rain|coin|clone|ghost|soul|minion|meteor|domain|stop|palm|banner|ship|strike|mark|ammo|step|reload|heaven|awaken|rage|slow|freeze|ride|sleigh|bombard|execute|scythe|trap|bomb|echo|storedDamage|kraken|warning|impact|rainstorm|raindrop|dodge|pierce|barrier|aura|revert|sword|root|invuln|customStun|hitstun|knockdown|pastor|necro|dragon|mafia|timeMage|tkd|werewolf|song|poseidon|pirate|hunter|gamble|astro|blackhole|jetpack|orbital|laser|burn|samurai|viking|taoist|knight)/i;
   const excluded=new Set(['id','jobId','job','name','attacks','controls','opponent','state','stateTimer','attackType','hp','maxHp','ultGainAttacker','ultGainDefender','x','y','vx','vy','facing','walkSpeed','backWalkSpeed','dashSpeed','gravity','projectiles','cooldowns']);
   const MAX_KEYS=16, MAX_ARRAY=12, MAX_OBJECT_KEYS=10, MAX_DEPTH=2, MAX_BYTES=2600;
