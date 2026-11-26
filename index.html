@@ -443,7 +443,7 @@ window.OD_FIREBASE_CONFIG = {
       WIDTH: 1280,
       HEIGHT: 720,
       GROUND_Y: 604,
-      PLATFORM: { x: 360, width: 560, y: 438, height: 18 },
+      PLATFORM: { x: -10000, width: 0, y: 438, height: 18 },
       STAGE_LEFT: 72,
       STAGE_RIGHT: 1208,
 
@@ -2319,12 +2319,12 @@ window.OD_FIREBASE_CONFIG = {
           id:'ASTRONAUT', name:'우주비행사', engName:'ASTRONAUT', tagline:'중력 펄스 · 블랙홀과 궤도 레이저',
           gearSummary:'흰 우주복 · 하늘색 반사 바이저 · 산소통 제트팩 · 중력 권총',
           statBars:{hp:3,speed:4,reach:5},
-          skillSummary:{normal:'중력 펄스 권총: 중거리 링 탄환 · 적을 살짝 끌어당김',skill1:'미니 블랙홀: 2.5초 흡인 · 적과 투사체를 끌어당기고 소멸 시 폭발',skill2:'제트팩 부스터: 무적 후방 공중 회피 · 잔류 화염 밀치기와 화상',ultimate:'궤도 위성 포격: 화면 밖으로 상승 후 좌우 조종 가능한 수직 플라즈마 레이저'},
+          skillSummary:{normal:'중력 펄스 권총: 중거리 링 탄환 · 적을 살짝 끌어당김',skill1:'미니 블랙홀: 2.5초 흡인 · 적과 투사체를 끌어당기고 소멸 시 폭발 · 쿨타임 증가',skill2:'제트팩 부스터: 무적 후방 공중 회피 · 잔류 화염 밀치기와 화상',ultimate:'궤도 위성 포격: 화면 밖으로 상승 후 좌우 조종 가능한 수직 플라즈마 레이저'},
           stats:{maxHp:1020,walkSpeed:6.3,backWalkSpeed:5.0,dashSpeed:16.2},firstNormal:'ASTRO_PULSE',attacks:{
             ASTRO_PULSE:{name:'ASTRO_PULSE',startup:5,active:2,recovery:10,damage:0,projectile:{visualType:'ASTRO_PULSE',speed:17.5,radius:20,damage:38,ultGainAttacker:6,ultGainDefender:4,hitstun:12,blockstun:9,knockbackX:0,knockbackY:0,hitstop:3,shake:4},nextNormal:'ASTRO_PULSE',canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
-            SKILL1:{name:'SKILL1',skillStyle:'ASTRO_BLACKHOLE',startup:1,active:1,recovery:12,cooldown:300,ultGainOnCast:8,holeDuration:150,holeRadius:138,holeTickDamage:9,holeBurstDamage:58},
+            SKILL1:{name:'SKILL1',skillStyle:'ASTRO_BLACKHOLE',startup:1,active:1,recovery:12,cooldown:420,ultGainOnCast:8,holeDuration:150,holeRadius:138,holeTickDamage:9,holeBurstDamage:58},
             SKILL2:{name:'SKILL2',skillStyle:'ASTRO_JET',startup:1,active:1,recovery:13,cooldown:240,ultGainOnCast:7,invulnFrames:32,dashVelX:14.5,dashVelY:-15.5,flameDuration:24,flameRadius:92,flameDamage:38,burnDuration:90},
-            ULTIMATE:{name:'ULTIMATE',ultStyle:'ASTRO_ORBITAL',startup:42,active:180,recovery:22,cooldown:0,beamWidth:104,beamHeight:1050,tickInterval:8,damagePerTick:17,hitstun:12,knockbackX:4,knockbackY:-2,guardBreak:true,finalDamage:88}
+            ULTIMATE:{name:'ULTIMATE',ultStyle:'ASTRO_ORBITAL',startup:42,active:120,recovery:22,cooldown:0,beamWidth:104,beamHeight:1050,tickInterval:8,damagePerTick:17,hitstun:12,knockbackX:4,knockbackY:-2,guardBreak:true,finalDamage:88}
           }
         }
 
@@ -7958,6 +7958,8 @@ window.OD_FIREBASE_CONFIG = {
       },
 
       drawSecondFloor(ctx) {
+        // 2층 발판 제거: 게임 로직의 기존 참조는 유지하되, 발판을 비활성화하고 그리지 않는다.
+        return;
         const p = CONFIG.PLATFORM;
         ctx.save();
         // Clean, readable 2F platform with glowing top edge and supports.
