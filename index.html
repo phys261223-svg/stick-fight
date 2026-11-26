@@ -12545,15 +12545,21 @@ window.OD_FIREBASE_CONFIG = {
             }
           }else{
             const isBlackKnight=m.type==='BLACK_KNIGHT';
-            const speed=isBlackKnight?6.2:m.type==='SOLDIER'?5.8:m.type==='ARMORED'?3.25:3.6;
-            const preferred=isBlackKnight?74:m.type==='ARMORED'?76:42;
-            if(dist>preferred){m.x+=Math.sign(dx)*Math.min(speed,dist-preferred);m.y=CONFIG.GROUND_Y-(m.type==='ORC'?65:54);}
-            else if(m.attackCooldown<=0){
-              m.attackCooldown=isBlackKnight?28:m.type==='SOLDIER'?31:m.type==='ARMORED'?55:72;
-              const damage=isBlackKnight?42:m.type==='SOLDIER'?15:m.type==='ARMORED'?12:34;
+            const speed=isBlackKnight?5.4:m.type==='SOLDIER'?5.8:m.type==='ARMORED'?3.25:3.6;
+            const preferred=isBlackKnight?96:m.type==='ARMORED'?76:42;
+            // Keep the Black Knight grounded and close to its live opponent target.
+            m.y=CONFIG.GROUND_Y-(m.type==='ORC'?65:54);
+            if(dist>preferred){m.x+=Math.sign(dx)*Math.min(speed,dist-preferred);}
+            else if(m.attackCooldown<=0 && Math.abs(target.y-m.y)<135){
+              m.attackCooldown=isBlackKnight?24:m.type==='SOLDIER'?31:m.type==='ARMORED'?55:72;
+              const damage=isBlackKnight?50:m.type==='SOLDIER'?15:m.type==='ARMORED'?12:34;
               const heavy=isBlackKnight||m.type==='ORC';
-              if(target.invulnTimer<=0 && target.hp>0){COMBAT_ENGINE.applyHit(owner,target,{damage,isSkill:true,ultGainAttacker:2,ultGainDefender:2,hitstun:isBlackKnight?16:heavy?18:11,blockstun:heavy?12:8,knockbackX:isBlackKnight?7.5:heavy?14:3.2,knockbackY:heavy?-3.5:0,knockdown:m.type==='ORC',hitstop:heavy?5:3,shake:heavy?8:4,direction:m.facing,sourceX:m.x,isHeavy:heavy});}
-              VFX.spawnSlashArc({x:m.x+m.facing*(isBlackKnight?52:36),y:m.y-(isBlackKnight?70:55),radius:isBlackKnight?112:heavy?92:56,startAngle:-.9,endAngle:.75,facing:m.facing,color:isBlackKnight?'#e5e7eb':heavy?'#a855f7':'#c4b5fd',lineWidth:isBlackKnight?20:heavy?18:9,life:10});
+              // Use the shared hit resolver so guards, invulnerability and online HP sync remain respected.
+              if(target.invulnTimer<=0 && target.hp>0){
+                const hit=COMBAT_ENGINE.applyHit(owner,target,{damage,isSkill:true,ultGainAttacker:2,ultGainDefender:2,hitstun:isBlackKnight?16:heavy?18:11,blockstun:heavy?12:8,knockbackX:isBlackKnight?7.5:heavy?14:3.2,knockbackY:heavy?-3.5:0,knockdown:m.type==='ORC',hitstop:heavy?5:3,shake:heavy?8:4,direction:m.facing,sourceX:m.x,isHeavy:heavy});
+                if(isBlackKnight && hit && hit.connected && !hit.guarded){VFX.spawnHitSparks(target.x,target.y-82,'#e5e7eb',20,1.05);VFX.spawnFloatingText(target.x,target.y-150,'검은 기사 타격!','#e5e7eb');}
+              }
+              VFX.spawnSlashArc({x:m.x+m.facing*(isBlackKnight?52:36),y:m.y-(isBlackKnight?70:55),radius:isBlackKnight?122:heavy?92:56,startAngle:-.9,endAngle:.75,facing:m.facing,color:isBlackKnight?'#e5e7eb':heavy?'#a855f7':'#c4b5fd',lineWidth:isBlackKnight?20:heavy?18:9,life:10});
             }
           }
         }
@@ -12799,19 +12805,13 @@ window.OD_FIREBASE_CONFIG = {
         if (linked && linked.hp>0 && linked.necroChainOwner===this && (linked.necroChainTimer||0)>0) {
           this.cooldowns.SKILL1=360;this.necroChainTarget=null;linked.necroChainOwner=null;linked.necroChainTimer=0;
           const pull=INPUT.isDown(this.controls.down);
-          if (pull) {
-            const dir=this.x>=linked.x?1:-1;
-            linked.x=Math.max(CONFIG.STAGE_LEFT+30,Math.min(CONFIG.STAGE_RIGHT-30,this.x-dir*74));
-            linked.vx=dir*4;linked.vy=-2;linked.state='HITSTUN';linked.stateTimer=15;
-            VFX.spawnFloatingText(linked.x,linked.y-175,'망자의 사슬 · 끌어당김','#c4b5fd');
-            VFX.spawnHitSparks(linked.x,linked.y-88,'#a855f7',22,1.0);
-          } else {
-            const oldX=this.x;this.facing=linked.x>=this.x?1:-1;
-            this.x=Math.max(CONFIG.STAGE_LEFT+35,Math.min(CONFIG.STAGE_RIGHT-35,linked.x-this.facing*78));
-            this.y=CONFIG.GROUND_Y;this.vx=0;this.vy=0;
-            VFX.spawnAfterimage(this,'#a855f7');VFX.spawnHitSparks(oldX,this.y-85,'#7e22ce',18,.9);VFX.spawnHitSparks(this.x,this.y-85,'#c4b5fd',22,1.0);
-            VFX.spawnFloatingText(this.x,this.y-175,'망자의 사슬 · 추격 돌진','#c4b5fd');
-          }
+          const dir=this.x>=linked.x?1:-1;
+          this.facing=linked.x>=this.x?1:-1;
+          // Never teleport the Necromancer (or the chained target). Apply a short pull/strike instead.
+          linked.vx=dir*(pull?7:4.5);linked.vy=pull?-2:-1.5;linked.state='HITSTUN';linked.stateTimer=15;
+          const hit=COMBAT_ENGINE.applyHit(this,linked,{damage:pull?28:38,isSkill:true,ultGainAttacker:0,ultGainDefender:2,hitstun:15,blockstun:10,knockbackX:pull?7:4.5,knockbackY:-1.5,knockdown:false,guardBreak:false,hitstop:4,shake:5,direction:dir,sourceX:this.x,isHeavy:false});
+          VFX.spawnFloatingText(linked.x,linked.y-175,pull?'망자의 사슬 · 끌어당김':'망자의 사슬 · 타격','#c4b5fd');
+          VFX.spawnHitSparks(linked.x,linked.y-88,'#a855f7',22,1.0);
           this.state='IDLE';this.attackType=null;this.stateTimer=0;AUDIO.sfxWindGust();return;
         }
         if (this.cooldowns.SKILL1>0) return;
@@ -15265,7 +15265,8 @@ window.OD_FIREBASE_CONFIG = {
             this._mis[side] = 0;
           }
           if (typeof s.vx === 'number') f.vx = f.vx * 0.35 + s.vx * 0.65;
-          if (typeof s.vy === 'number') f.vy = f.vy * 0.35 + s.vy * 0.65;
+          // 점프 중에는 스냅샷 속도 혼합이 중력을 계속 감쇠시켜 2P 점프가 끊기는 현상을 막는다.
+          if (typeof s.vy === 'number') f.vy = (f.state === 'JUMP' || s.st === 'JUMP') ? s.vy : f.vy * 0.35 + s.vy * 0.65;
         }
 
         // ---- 전투 수치는 항상 방장(1P) 기준 ----
@@ -15368,7 +15369,8 @@ window.OD_FIREBASE_CONFIG = {
         } else {
           if (targetOnPlatform) { r.y = plat.y; r.vy = 0; }
           if (Math.abs(ex) > 1.5) r.x += ex * 0.38;
-          if (!targetOnPlatform && Math.abs(ey) > 1.5) r.y += ey * 0.42;
+          // 점프의 수직 궤적은 로컬 중력 시뮬레이션을 그대로 사용하고 네트워크 lerp로 흔들지 않는다.
+          if (!targetOnPlatform && r.state !== 'JUMP' && t.st !== 'JUMP' && Math.abs(ey) > 1.5) r.y += ey * 0.42;
         }
       }
 
@@ -15423,7 +15425,8 @@ window.OD_FIREBASE_CONFIG = {
       if (floorTransition || Math.abs(ex) > 70 || Math.abs(ey) > 70) { f.x = tx; f.y = ty; if (snapshotOnPlatform) f.vy = 0; return; }
       if (targetOnPlatform) { f.y = plat.y; f.vy = 0; }
       if (Math.abs(ex) > 3) f.x += ex * 0.12;
-      if (!targetOnPlatform && Math.abs(ey) > 3) f.y += ey * 0.12;
+      // 입장한 플레이어의 점프는 입력 재생으로 계산되는 궤적을 유지해 수직 보정 버벅임을 방지한다.
+      if (!targetOnPlatform && f.state !== 'JUMP' && g.st !== 'JUMP' && Math.abs(ey) > 3) f.y += ey * 0.12;
     },
 
     // =========================================================================
