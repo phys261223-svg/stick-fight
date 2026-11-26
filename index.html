@@ -12430,7 +12430,7 @@ window.OD_FIREBASE_CONFIG = {
         if(f.necroSoulScytheTimer>0){
           f.necroSoulScytheTimer--;f.necroSoulScytheTick=(f.necroSoulScytheTick||0)+1;
           const enemy=f.opponent;
-          if(f.necroSoulScytheTick%22===0){
+          if(f.necroSoulScytheTick%30===0){
             VFX.spawnSlashArc({x:f.x+(enemy&&enemy.x<f.x?-1:1)*82,y:f.y-108,radius:138,startAngle:-1.22,endAngle:1.0,facing:enemy&&enemy.x<f.x?-1:1,color:'#a855f7',lineWidth:27,life:16});
             VFX.spawnHitSparks(f.x+(enemy&&enemy.x<f.x?-1:1)*118,f.y-106,'#d8b4fe',18,1.0);
             if(enemy&&enemy.hp>0&&enemy.invulnTimer<=0&&Math.abs(enemy.x-f.x)<205&&Math.abs(enemy.y-f.y)<125){
@@ -12544,15 +12544,16 @@ window.OD_FIREBASE_CONFIG = {
               VFX.spawnFloatingText(target.x,target.y-165,'와이번 영혼 화염!','#c4b5fd');
             }
           }else{
-            const speed=m.type==='SOLDIER'?5.8:m.type==='ARMORED'?3.25:3.6;
-            const preferred=m.type==='ARMORED'?76:42;
+            const isBlackKnight=m.type==='BLACK_KNIGHT';
+            const speed=isBlackKnight?6.2:m.type==='SOLDIER'?5.8:m.type==='ARMORED'?3.25:3.6;
+            const preferred=isBlackKnight?74:m.type==='ARMORED'?76:42;
             if(dist>preferred){m.x+=Math.sign(dx)*Math.min(speed,dist-preferred);m.y=CONFIG.GROUND_Y-(m.type==='ORC'?65:54);}
             else if(m.attackCooldown<=0){
-              m.attackCooldown=m.type==='SOLDIER'?31:m.type==='ARMORED'?55:72;
-              const damage=m.type==='SOLDIER'?15:m.type==='ARMORED'?12:34;
-              const heavy=m.type==='ORC';
-              if(target.invulnTimer<=0){COMBAT_ENGINE.applyHit(owner,target,{damage,isSkill:true,ultGainAttacker:2,ultGainDefender:2,hitstun:heavy?18:11,blockstun:heavy?12:8,knockbackX:heavy?14:3.2,knockbackY:heavy?-6:0,knockdown:heavy,hitstop:heavy?7:3,shake:heavy?10:4,direction:m.facing,sourceX:m.x,isHeavy:heavy});}
-              VFX.spawnSlashArc({x:m.x+m.facing*36,y:m.y-55,radius:heavy?92:56,startAngle:-.9,endAngle:.75,facing:m.facing,color:heavy?'#a855f7':'#c4b5fd',lineWidth:heavy?18:9,life:10});
+              m.attackCooldown=isBlackKnight?28:m.type==='SOLDIER'?31:m.type==='ARMORED'?55:72;
+              const damage=isBlackKnight?42:m.type==='SOLDIER'?15:m.type==='ARMORED'?12:34;
+              const heavy=isBlackKnight||m.type==='ORC';
+              if(target.invulnTimer<=0 && target.hp>0){COMBAT_ENGINE.applyHit(owner,target,{damage,isSkill:true,ultGainAttacker:2,ultGainDefender:2,hitstun:isBlackKnight?16:heavy?18:11,blockstun:heavy?12:8,knockbackX:isBlackKnight?7.5:heavy?14:3.2,knockbackY:heavy?-3.5:0,knockdown:m.type==='ORC',hitstop:heavy?5:3,shake:heavy?8:4,direction:m.facing,sourceX:m.x,isHeavy:heavy});}
+              VFX.spawnSlashArc({x:m.x+m.facing*(isBlackKnight?52:36),y:m.y-(isBlackKnight?70:55),radius:isBlackKnight?112:heavy?92:56,startAngle:-.9,endAngle:.75,facing:m.facing,color:isBlackKnight?'#e5e7eb':heavy?'#a855f7':'#c4b5fd',lineWidth:isBlackKnight?20:heavy?18:9,life:10});
             }
           }
         }
@@ -12829,13 +12830,9 @@ window.OD_FIREBASE_CONFIG = {
       if (type === 'ULTIMATE') {
         if(this.ult<CONFIG.MAX_ULT)return;
         this.ult=0;GAME.necroMinions=GAME.necroMinions||[];
-        const pool=['SOLDIER','SOLDIER','ARMORED','ORC','WYVERN'];let wyvernCount=0;
-        for(let i=0;i<3;i++){
-          let kind=pool[Math.floor(Math.random()*pool.length)];
-          if(kind==='WYVERN'&&wyvernCount>=1)kind=['SOLDIER','ARMORED','ORC'][Math.floor(Math.random()*3)];
-          if(kind==='WYVERN')wyvernCount++;
-          GAME.necroMinions.push({owner:this,target:this.opponent,type:kind,x:this.x-this.facing*(42+i*28),y:kind==='WYVERN'?this.y-190:CONFIG.GROUND_Y-54-i*7,hp:kind==='ARMORED'?245:kind==='ORC'?190:kind==='WYVERN'?155:105,maxHp:kind==='ARMORED'?245:kind==='ORC'?190:kind==='WYVERN'?155:105,shieldHp:kind==='ARMORED'?150:0,life:600,attackCooldown:12+i*9,age:i*8,flash:0,active:true});
-        }
+        // Recasting replaces this caster's existing summons with exactly one Black Knight.
+        for(let i=GAME.necroMinions.length-1;i>=0;i--){const old=GAME.necroMinions[i];if(old.owner===this){old.active=false;GAME.necroMinions.splice(i,1);}}
+        GAME.necroMinions.push({owner:this,target:this.opponent,type:'BLACK_KNIGHT',x:this.x-this.facing*62,y:CONFIG.GROUND_Y-54,hp:420,maxHp:420,shieldHp:0,life:900,attackCooldown:8,age:0,flash:0,active:true});
         VFX.triggerScreenFlash('#7e22ce',.38);VFX.triggerShake(12);VFX.shockwaves.push({x:this.x,y:this.y-80,radius:12,maxRadius:240,life:25,maxLife:25,color:'#a855f7'});VFX.spawnHitSparks(this.x,this.y-95,'#c4b5fd',40,1.35);VFX.spawnFloatingText(this.x,this.y-195,'일어나라! · 그림자 군단','#e9d5ff');AUDIO.sfxUltimateFlash();return;
       }
       return necroBaseStartAttack.call(this,type,projectiles);
@@ -13982,7 +13979,6 @@ window.OD_FIREBASE_CONFIG = {
           border: 1px solid rgba(148, 163, 184, 0.22);
         }
         #onlineChatToggle { position: fixed; right: 18px; bottom: 18px; z-index: 9400; display: none; }
-        #onlineChatToggle { position: relative; }
         #onlineChatUnread { display: none; position: absolute; top: -7px; right: -7px; width: 19px; height: 19px; border-radius: 50%; background: #ef4444; color: #fff; border: 2px solid #fff; font-size: 12px; font-weight: 900; line-height: 15px; text-align: center; box-shadow: 0 0 8px rgba(239,68,68,.7); }
         #onlineChatUnread.show { display: block; }
         #onlineChatPanel { position: fixed; right: 18px; bottom: 66px; width: min(320px, calc(100vw - 28px)); height: 300px; z-index: 9400; display: none; flex-direction: column; background: rgba(9, 15, 30, .96); border: 1px solid rgba(56, 189, 248, .55); border-radius: 14px; box-shadow: 0 12px 36px rgba(0,0,0,.55); color: #f8fafc; }
