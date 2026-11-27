@@ -16234,6 +16234,10 @@ window.OD_FIREBASE_CONFIG = {
     }
   };
 
+  // Expose the online controller to the character/state extension scripts below.
+  // NET is declared inside this IIFE, so later classic scripts cannot see it otherwise.
+  window.NET = NET;
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => NET.init());
   } else {
@@ -16898,8 +16902,13 @@ RENDERER.drawVFX=function(c){original.call(this,c);const g=currentGame;if(!g||g.
  ctx.fillStyle='#92400e';ctx.strokeStyle='#451a03';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x+shoulderX-20,y+shoulderY-4);ctx.lineTo(x+shoulderX+20,y+shoulderY-4);ctx.lineTo(x+hipX+18,y+hipY+13);ctx.lineTo(x+hipX-18,y+hipY+13);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#f59e0b';ctx.fillRect(x+hipX-18,y+hipY-2,36,8);ctx.fillStyle='#78350f';ctx.fillRect(x+hipX-23,y+hipY+9,46,12);ctx.fillStyle='#fbbf24';ctx.fillRect(x+hipX-5,y+hipY+11,10,8);
  // bright miner helmet + headlamp
  ctx.fillStyle='#b45309';ctx.strokeStyle='#fbbf24';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x+headX,y+headY-5,21,Math.PI,Math.PI*2);ctx.lineTo(x+headX+23,y+headY+4);ctx.lineTo(x+headX-23,y+headY+4);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#fde68a';ctx.beginPath();ctx.ellipse(x+headX,y+headY+2,24,5,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#fff7ed';ctx.shadowColor='#fbbf24';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(x+headX+dir*2,y+headY-12,5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
- // drill weapon: shaft, motor, cone bit; rotate while grinding/dashing
- const hx=x+frontHand.x+dir*8,hy=y+frontHand.y-8,rot=(f.state==='ATTACK'&&f.attackType==='DRILL_GRIND')||f.drillPhase==='rocket'||f.drillPhase==='ultdash'?((f.stateTimer||0)*.5):0;ctx.translate(hx,hy);ctx.rotate(dir*(f.drillPhase==='ultdash'?-.08:0));ctx.strokeStyle='#78350f';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(-dir*25,0);ctx.lineTo(dir*5,0);ctx.stroke();ctx.fillStyle='#b45309';ctx.strokeStyle='#fbbf24';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(dir*2,-13,30,26,6);ctx.fill();ctx.stroke();ctx.translate(dir*34,0);ctx.rotate(rot);ctx.fillStyle='#f59e0b';ctx.strokeStyle='#78350f';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-5,-14);ctx.lineTo(30,0);ctx.lineTo(-5,14);ctx.closePath();ctx.fill();ctx.stroke();for(let k=0;k<3;k++){ctx.strokeStyle='#fff7ed';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-3,-10+k*10);ctx.lineTo(17,0);ctx.stroke();}ctx.restore();};
+ // Drill weapon: mirror its local coordinate system by facing, so both players hold it point-forward.
+ const hx=x+frontHand.x+dir*8,hy=y+frontHand.y-8,rot=(f.state==='ATTACK'&&f.attackType==='DRILL_GRIND')||f.drillPhase==='rocket'||f.drillPhase==='ultdash'?((f.stateTimer||0)*.5):0;
+ ctx.translate(hx,hy);ctx.scale(dir,1);ctx.rotate(f.drillPhase==='ultdash'?.08:0);
+ ctx.strokeStyle='#78350f';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(-25,0);ctx.lineTo(5,0);ctx.stroke();
+ ctx.fillStyle='#b45309';ctx.strokeStyle='#fbbf24';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(2,-13,30,26,6);ctx.fill();ctx.stroke();
+ ctx.translate(34,0);ctx.rotate(rot);ctx.fillStyle='#f59e0b';ctx.strokeStyle='#78350f';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-5,-14);ctx.lineTo(30,0);ctx.lineTo(-5,14);ctx.closePath();ctx.fill();ctx.stroke();
+ for(let k=0;k<3;k++){ctx.strokeStyle='#fff7ed';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-3,-10+k*10);ctx.lineTo(17,0);ctx.stroke();}ctx.restore();};
  const fx0=drawDragonKnightEffects;drawDragonKnightEffects=function(ctx,g){fx0(ctx,g);if(!g||!['FIGHT','INTRO'].includes(g.phase))return;ctx.save();for(const f of [g.p1,g.p2])if(f?.jobId==='DRILLER'){const t=performance.now()/1000;ctx.lineCap='round';if(f.drillPhase==='burrow'){ctx.fillStyle='rgba(120,53,15,.45)';ctx.beginPath();ctx.ellipse(f.x,CONFIG.GROUND_Y-7,46,13,0,0,Math.PI*2);ctx.fill();for(let i=0;i<8;i++){const a=t*4+i*Math.PI/4;ctx.fillStyle='#b45309';ctx.beginPath();ctx.arc(f.x+Math.cos(a)*35,CONFIG.GROUND_Y-12+Math.sin(a)*9,4,0,Math.PI*2);ctx.fill();}ctx.fillStyle='#fbbf24';ctx.font='bold 15px sans-serif';ctx.textAlign='center';ctx.fillText('잠복 · C 재입력',f.x,CONFIG.GROUND_Y-40);}if(['rocket','ultdash'].includes(f.drillPhase)){const col=f.drillPhase==='ultdash'?'#fef3c7':C;ctx.strokeStyle=col;ctx.shadowColor=col;ctx.shadowBlur=20;ctx.lineWidth=9;for(let k=0;k<4;k++){ctx.beginPath();ctx.moveTo(f.x-f.facing*(35+k*20),f.y-95+(k-1.5)*14);ctx.lineTo(f.x-f.facing*(115+k*22),f.y-95+(k-1.5)*14);ctx.stroke();}for(let k=0;k<10;k++){const x=f.x-f.facing*(45+Math.random()*90),y=f.y-70+Math.random()*55;ctx.fillStyle=k%2?'#fbbf24':'#fff7ed';ctx.fillRect(x,y,4,4);}}if(f.drillPhase==='rocks'){ctx.fillStyle='rgba(120,53,15,.15)';ctx.fillRect(0,90,CONFIG.WIDTH,CONFIG.GROUND_Y-90);ctx.fillStyle='#fde68a';ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.fillText('낙석 폭풍!',640,135);for(let n=0;n<9;n++){const seed=(n*83+Math.floor(f.drillRockTimer/18)*47)%997;const rx=CONFIG.STAGE_LEFT+(seed/997)*(CONFIG.STAGE_RIGHT-CONFIG.STAGE_LEFT);const fall=(150-f.drillRockTimer+(n*11))%90;const ry=110+fall*7;ctx.save();ctx.translate(rx,ry);ctx.rotate((t+n)*.07);ctx.fillStyle='#78350f';ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-16,-13);ctx.lineTo(9,-20);ctx.lineTo(22,-2);ctx.lineTo(14,18);ctx.lineTo(-10,15);ctx.lineTo(-23,2);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();}}}ctx.restore();};
  // Enhanced Driller FX: deterministic, lightweight layered effects for both players.
  const drillFxBase=drawDragonKnightEffects;
@@ -16963,6 +16972,28 @@ RENDERER.drawVFX=function(c){original.call(this,c);const g=currentGame;if(!g||g.
    // Moving dust trail behind the burrow path.
    for(let j=0;j<12;j++){const seed=(j*37+age*11)%97,u=seed/97,side=(j%2?1:-1),dx=-f.facing*(14+u*105),dy=-5-u*23+Math.sin(now*5+j)*3;ctx.globalAlpha=.35+u*.45;ctx.fillStyle=j%3?'#a16207':'#fbbf24';ctx.beginPath();ctx.ellipse(x+dx,ground+dy,3+u*5,2+u*3,side*.25,0,Math.PI*2);ctx.fill();}
    ctx.globalAlpha=.95;ctx.fillStyle='#fde68a';ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillText('지하 이동',x,ground-33);
+  }
+  ctx.restore();};
+
+ // Premium Driller attack feedback: readable charge, spinning drill arcs, emergence burst, and impact rings.
+ const drillPolishBase=drawDragonKnightEffects;
+ drawDragonKnightEffects=function(ctx,g){drillPolishBase(ctx,g);if(!g||!['FIGHT','INTRO'].includes(g.phase))return;const tm=performance.now()/1000;ctx.save();
+  for(const f of [g.p1,g.p2])if(f&&f.jobId==='DRILLER'){
+   const x=f.x,y=f.y-95,d=f.facing||1,atk=f.attackType||'';
+   if(atk==='DRILL_GRIND'||atk==='DRILL_UPPER'||atk==='DRILL_JAB'){
+    const strong=atk==='DRILL_UPPER',rad=strong?82:56,alpha=.35+.3*Math.sin(tm*18);
+    ctx.globalAlpha=alpha;ctx.strokeStyle=strong?'#fff7ed':'#fbbf24';ctx.lineWidth=strong?7:4;ctx.shadowColor=ctx.strokeStyle;ctx.shadowBlur=18;
+    ctx.beginPath();ctx.arc(x+d*44,y,rad,tm*7,tm*7+Math.PI*1.45);ctx.stroke();ctx.beginPath();ctx.arc(x+d*44,y,rad-12,tm*-8,tm*-8+Math.PI*1.1);ctx.stroke();ctx.shadowBlur=0;
+    if(strong){ctx.globalAlpha=.8;ctx.fillStyle='rgba(251,191,36,.18)';ctx.beginPath();ctx.ellipse(x+d*40,y+38,70,48,0,0,Math.PI*2);ctx.fill();}
+   }
+   if(f.drillPhase==='emerge'){
+    const q=1-(f.drillEmergeTimer||0)/18;ctx.globalAlpha=.8;ctx.strokeStyle='#fde68a';ctx.lineWidth=5;ctx.beginPath();ctx.arc(f.x,CONFIG.GROUND_Y-8,24+q*90,0,Math.PI*2);ctx.stroke();
+    for(let i=0;i<12;i++){const a=i*Math.PI/6+tm*2,rr=28+q*70;ctx.fillStyle=i%2?'#b45309':'#fcd34d';ctx.beginPath();ctx.arc(f.x+Math.cos(a)*rr,CONFIG.GROUND_Y-12+Math.sin(a)*rr*.25,3+(i%3),0,Math.PI*2);ctx.fill();}
+   }
+   if(f.drillPhase==='rocket'||f.drillPhase==='ultdash'){
+    const ultimate=f.drillPhase==='ultdash';ctx.globalAlpha=.55;ctx.strokeStyle=ultimate?'#fff7ad':'#fbbf24';ctx.lineWidth=2;ctx.beginPath();ctx.arc(f.x,f.y-96,44+Math.sin(tm*20)*9,0,Math.PI*2);ctx.stroke();
+    for(let i=0;i<8;i++){const u=(i/8+(tm*3)%1),px=f.x-d*(48+u*140),py=f.y-80+Math.sin(tm*14+i*2)*26;ctx.globalAlpha=.65;ctx.fillStyle=i%2?'#fff7ed':'#f59e0b';ctx.beginPath();ctx.arc(px,py,2+((i%3)+1),0,Math.PI*2);ctx.fill();}
+   }
   }
   ctx.restore();};
  // Minimal online state relay; authoritative timers and phases follow host snapshots.
