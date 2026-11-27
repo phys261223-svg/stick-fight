@@ -11601,7 +11601,7 @@ window.OD_FIREBASE_CONFIG = {
           ctx.restore();
         }
 
-        for (const p of (typeof GAME!=='undefined'&&GAME._lowFx?VFX.particles.slice(-100):VFX.particles)) {
+        for (const p of (typeof GAME!=='undefined'&&GAME._lowFx?VFX.particles.slice(-64):VFX.particles)) {
           const alpha = p.life / p.maxLife;
           ctx.save();
           ctx.globalAlpha = alpha;
@@ -13679,7 +13679,7 @@ window.OD_FIREBASE_CONFIG = {
           this.accumulator += delta;
           let steps = 0;
           const online = typeof NET !== 'undefined' && NET.active;
-          if (online) { this._frameCost = (this._frameCost || 16.7)*.92 + Math.max(0,delta)*.08; if(this._frameCost>23 || (this._workCost||0)>15) { this._lowFx=true; this._fxGoodFrames=0; } else if(this._frameCost<19 && (this._workCost||0)<11) { this._fxGoodFrames=(this._fxGoodFrames||0)+1; if(this._fxGoodFrames>=90)this._lowFx=false; } else this._fxGoodFrames=0; } else { this._lowFx=false; this._frameCost=16.7; this._fxGoodFrames=0; }
+          if (online) { this._frameCost = (this._frameCost || 16.7)*.92 + Math.max(0,delta)*.08; if(this._frameCost>21.5 || (this._workCost||0)>13) { this._lowFx=true; this._fxGoodFrames=0; } else if(this._frameCost<19 && (this._workCost||0)<11) { this._fxGoodFrames=(this._fxGoodFrames||0)+1; if(this._fxGoodFrames>=90)this._lowFx=false; } else this._fxGoodFrames=0; } else { this._lowFx=false; this._frameCost=16.7; this._fxGoodFrames=0; }
           const workStart=performance.now();
           const limit = online ? 3 : 6;
           while (this.accumulator >= this.stepMs && steps++ < limit) {
@@ -15425,7 +15425,7 @@ window.OD_FIREBASE_CONFIG = {
       // The host is authoritative. Send reliable state at 30Hz so round-end/KO
       // transitions cannot be lost and the guest is corrected before divergence grows.
       // P2P 직결일 때는 60Hz, Firebase 릴레이일 때만 30Hz로 상태 전송
-      const snapInterval = this.transport === 'RELAY' ? 3 : 2; // 30Hz: 빠른 권위 상태 보정, 입력은 P2P 60Hz 별도 전달
+      const snapInterval = 3; // 30Hz 권위 상태 스냅샷; 입력 동기화 빈도는 유지
       if (this.role === 'HOST' && this.tick % snapInterval === 0 && GAME.p1 && GAME.p2) {
         if (GAME.phase === 'MATCH_OVER') {
           if (!this.matchReturnAt) this.matchReturnAt = performance.now() + 1000;
@@ -16898,8 +16898,13 @@ RENDERER.drawVFX=function(c){original.call(this,c);const g=currentGame;if(!g||g.
  ctx.fillStyle='#92400e';ctx.strokeStyle='#451a03';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x+shoulderX-20,y+shoulderY-4);ctx.lineTo(x+shoulderX+20,y+shoulderY-4);ctx.lineTo(x+hipX+18,y+hipY+13);ctx.lineTo(x+hipX-18,y+hipY+13);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#f59e0b';ctx.fillRect(x+hipX-18,y+hipY-2,36,8);ctx.fillStyle='#78350f';ctx.fillRect(x+hipX-23,y+hipY+9,46,12);ctx.fillStyle='#fbbf24';ctx.fillRect(x+hipX-5,y+hipY+11,10,8);
  // bright miner helmet + headlamp
  ctx.fillStyle='#b45309';ctx.strokeStyle='#fbbf24';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x+headX,y+headY-5,21,Math.PI,Math.PI*2);ctx.lineTo(x+headX+23,y+headY+4);ctx.lineTo(x+headX-23,y+headY+4);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#fde68a';ctx.beginPath();ctx.ellipse(x+headX,y+headY+2,24,5,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#fff7ed';ctx.shadowColor='#fbbf24';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(x+headX+dir*2,y+headY-12,5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
- // drill weapon: shaft, motor, cone bit; rotate while grinding/dashing
- const hx=x+frontHand.x+dir*8,hy=y+frontHand.y-8,rot=(f.state==='ATTACK'&&f.attackType==='DRILL_GRIND')||f.drillPhase==='rocket'||f.drillPhase==='ultdash'?((f.stateTimer||0)*.5):0;ctx.translate(hx,hy);ctx.rotate(dir*(f.drillPhase==='ultdash'?-.08:0));ctx.strokeStyle='#78350f';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(-dir*25,0);ctx.lineTo(dir*5,0);ctx.stroke();ctx.fillStyle='#b45309';ctx.strokeStyle='#fbbf24';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(dir*2,-13,30,26,6);ctx.fill();ctx.stroke();ctx.translate(dir*34,0);ctx.rotate(rot);ctx.fillStyle='#f59e0b';ctx.strokeStyle='#78350f';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-5,-14);ctx.lineTo(30,0);ctx.lineTo(-5,14);ctx.closePath();ctx.fill();ctx.stroke();for(let k=0;k<3;k++){ctx.strokeStyle='#fff7ed';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-3,-10+k*10);ctx.lineTo(17,0);ctx.stroke();}ctx.restore();};
+ // Drill weapon: right-facing local shape mirrored once by fighter facing.
+ const hx=x+frontHand.x+dir*8,hy=y+frontHand.y-8,rot=(f.state==='ATTACK'&&f.attackType==='DRILL_GRIND')||f.drillPhase==='rocket'||f.drillPhase==='ultdash'?((f.stateTimer||0)*.5):0;
+ ctx.translate(hx,hy);ctx.scale(dir,1);ctx.rotate(f.drillPhase==='ultdash'?.08:0);
+ ctx.strokeStyle='#78350f';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(-25,0);ctx.lineTo(5,0);ctx.stroke();
+ ctx.fillStyle='#b45309';ctx.strokeStyle='#fbbf24';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(2,-13,30,26,6);ctx.fill();ctx.stroke();
+ ctx.translate(34,0);ctx.rotate(rot);ctx.fillStyle='#f59e0b';ctx.strokeStyle='#78350f';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-5,-14);ctx.lineTo(30,0);ctx.lineTo(-5,14);ctx.closePath();ctx.fill();ctx.stroke();
+ for(let k=0;k<3;k++){ctx.strokeStyle='#fff7ed';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-3,-10+k*10);ctx.lineTo(17,0);ctx.stroke();}ctx.restore();};
  const fx0=drawDragonKnightEffects;drawDragonKnightEffects=function(ctx,g){fx0(ctx,g);if(!g||!['FIGHT','INTRO'].includes(g.phase))return;ctx.save();for(const f of [g.p1,g.p2])if(f?.jobId==='DRILLER'){const t=performance.now()/1000;ctx.lineCap='round';if(f.drillPhase==='burrow'){ctx.fillStyle='rgba(120,53,15,.45)';ctx.beginPath();ctx.ellipse(f.x,CONFIG.GROUND_Y-7,46,13,0,0,Math.PI*2);ctx.fill();for(let i=0;i<8;i++){const a=t*4+i*Math.PI/4;ctx.fillStyle='#b45309';ctx.beginPath();ctx.arc(f.x+Math.cos(a)*35,CONFIG.GROUND_Y-12+Math.sin(a)*9,4,0,Math.PI*2);ctx.fill();}ctx.fillStyle='#fbbf24';ctx.font='bold 15px sans-serif';ctx.textAlign='center';ctx.fillText('잠복 · C 재입력',f.x,CONFIG.GROUND_Y-40);}if(['rocket','ultdash'].includes(f.drillPhase)){const col=f.drillPhase==='ultdash'?'#fef3c7':C;ctx.strokeStyle=col;ctx.shadowColor=col;ctx.shadowBlur=20;ctx.lineWidth=9;for(let k=0;k<4;k++){ctx.beginPath();ctx.moveTo(f.x-f.facing*(35+k*20),f.y-95+(k-1.5)*14);ctx.lineTo(f.x-f.facing*(115+k*22),f.y-95+(k-1.5)*14);ctx.stroke();}for(let k=0;k<10;k++){const x=f.x-f.facing*(45+Math.random()*90),y=f.y-70+Math.random()*55;ctx.fillStyle=k%2?'#fbbf24':'#fff7ed';ctx.fillRect(x,y,4,4);}}if(f.drillPhase==='rocks'){ctx.fillStyle='rgba(120,53,15,.15)';ctx.fillRect(0,90,CONFIG.WIDTH,CONFIG.GROUND_Y-90);ctx.fillStyle='#fde68a';ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.fillText('낙석 폭풍!',640,135);for(let n=0;n<9;n++){const seed=(n*83+Math.floor(f.drillRockTimer/18)*47)%997;const rx=CONFIG.STAGE_LEFT+(seed/997)*(CONFIG.STAGE_RIGHT-CONFIG.STAGE_LEFT);const fall=(150-f.drillRockTimer+(n*11))%90;const ry=110+fall*7;ctx.save();ctx.translate(rx,ry);ctx.rotate((t+n)*.07);ctx.fillStyle='#78350f';ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-16,-13);ctx.lineTo(9,-20);ctx.lineTo(22,-2);ctx.lineTo(14,18);ctx.lineTo(-10,15);ctx.lineTo(-23,2);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();}}}ctx.restore();};
  // Enhanced Driller FX: deterministic, lightweight layered effects for both players.
  const drillFxBase=drawDragonKnightEffects;
@@ -16953,6 +16958,16 @@ RENDERER.drawVFX=function(c){original.call(this,c);const g=currentGame;if(!g||g.
   VFX.shockwaves.push({x:this.x,y:CONFIG.GROUND_Y-8,radius:10,maxRadius:115,life:18,maxLife:18,color:C});
   VFX.spawnFloatingText(this.x,this.y-170,'지상 돌출!','#fcd34d');AUDIO.sfxGroundSlam();
   const e=enemy||this.opponent;if(e&&e.hp>0&&Math.abs(e.x-this.x)<125&&Math.abs(e.y-this.y)<250&&!this.drillHitDone){this.drillHitDone=true;hit(this,e,{damage:135,isSkill:true,ultGainAttacker:10,ultGainDefender:7,hitstun:26,blockstun:14,knockbackX:7,knockbackY:-16,knockdown:true,hitstop:9,shake:12});}
+ };
+ // Online rendering budget: cap only cosmetic VFX queues if a burst creates excessive work.
+ // Combat state, hitboxes, damage, inputs and snapshots are not altered by this limiter.
+ const vfxUpdateBudgetBase=VFX.update;
+ VFX.update=function(...args){
+  if(NET&&NET.active){
+   const caps={particles:360,shockwaves:90,afterimages:70,floatingTexts:45,slashArcs:70,thrustCones:55,iaidoLines:45,lightningBolts:35,groundCracks:70,smokePuffs:90,vineTraps:35,skyStrikes:35,raindrops:160,pirateShips:10,cannonBombs:45,wolfBiteJaws:24};
+   for(const [key,cap] of Object.entries(caps)){const arr=VFX[key];if(Array.isArray(arr)&&arr.length>cap)arr.splice(0,arr.length-cap);}
+  }
+  return vfxUpdateBudgetBase.apply(this,args);
  };
  // Burrow FX: underground body is invisible; show only a traveling dirt mound, dust and drill glint.
  const burrowFxBase=drawDragonKnightEffects;
