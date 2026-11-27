@@ -12803,7 +12803,7 @@ window.OD_FIREBASE_CONFIG = {
               const heavy=isBlackKnight||m.type==='ORC';
               // Use the shared hit resolver so guards, invulnerability and online HP sync remain respected.
               if(target.invulnTimer<=0 && target.hp>0){
-                const hit=COMBAT_ENGINE.applyHit(owner,target,{damage,isSkill:true,ultGainAttacker:2,ultGainDefender:2,hitstun:isBlackKnight?14:heavy?18:11,blockstun:heavy?12:8,knockbackX:isBlackKnight?7.5:heavy?14:3.2,knockbackY:heavy?-3.5:0,knockdown:m.type==='ORC',hitstop:heavy?5:3,shake:heavy?8:4,direction:m.facing,sourceX:m.x,isHeavy:heavy});
+                const hit=COMBAT_ENGINE.applyHit(owner,target,{damage,isSkill:true,ultGainAttacker:isBlackKnight?0:2,ultGainDefender:isBlackKnight?0:2,hitstun:isBlackKnight?0:heavy?18:11,blockstun:isBlackKnight?0:heavy?12:8,knockbackX:isBlackKnight?0:heavy?14:3.2,knockbackY:isBlackKnight?0:heavy?-3.5:0,knockdown:isBlackKnight?false:m.type==='ORC',hitstop:isBlackKnight?0:heavy?5:3,shake:isBlackKnight?0:heavy?8:4,direction:m.facing,sourceX:m.x,isHeavy:isBlackKnight?false:heavy});
                 if(isBlackKnight && hit && hit.connected && !hit.guarded){VFX.spawnHitSparks(target.x,target.y-82,'#e5e7eb',20,1.05);VFX.spawnFloatingText(target.x,target.y-150,'검은 기사 타격!','#e5e7eb');}
               }
               VFX.spawnSlashArc({x:m.x+m.facing*(isBlackKnight?52:36),y:m.y-(isBlackKnight?70:55),radius:isBlackKnight?122:heavy?92:56,startAngle:-.9,endAngle:.75,facing:m.facing,color:isBlackKnight?'#e5e7eb':heavy?'#a855f7':'#c4b5fd',lineWidth:isBlackKnight?20:heavy?18:9,life:10});
@@ -16500,7 +16500,7 @@ window.OD_FIREBASE_CONFIG = {
         if(opponent&&opponent.state!=='KO'&&Math.abs(opponent.x-this.x)<85&&Math.abs(opponent.y-this.y)<100){
           const key=opponent.id||opponent.jobId;const cd=this.f1RideHitCooldown||{};
           if((cd[key]||0)<=0){cd[key]=24;this.f1RideHitCooldown=cd;const dmg=this.f1ArmorTimer>0?66:56;
-            COMBAT_ENGINE.applyHit(this,opponent,{damage:dmg,ultGainAttacker:5,ultGainDefender:4,hitstun:13,blockstun:10,knockbackX:8,knockbackY:-4,knockdown:false,hitstop:4,shake:6,direction:this.facing,sourceX:this.x});VFX.spawnHitSparks(opponent.x,opponent.y-38,'#ef4444',16,1);VFX.spawnFloatingText(opponent.x,opponent.y-115,'차체 충돌!','#ef4444');}
+            COMBAT_ENGINE.applyHit(this,opponent,{damage:dmg,ultGainAttacker:0,ultGainDefender:0,hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,knockdown:false,hitstop:0,shake:0,direction:this.facing,sourceX:this.x});VFX.spawnHitSparks(opponent.x,opponent.y-38,'#ef4444',16,1);VFX.spawnFloatingText(opponent.x,opponent.y-115,'차체 충돌!','#ef4444');}
         }
         if(this.f1RideHitCooldown)for(const k in this.f1RideHitCooldown)this.f1RideHitCooldown[k]=Math.max(0,this.f1RideHitCooldown[k]-1);
         if(canControl){const l=INPUT.isDown(this.controls.left),r=INPUT.isDown(this.controls.right);if(l!==r){this.facing=l?-1:1;this.vx=this.facing*17.5;}else this.vx*=.86;}
@@ -16669,14 +16669,16 @@ const anglerFx0=drawDragonKnightEffects;drawDragonKnightEffects=function(ctx,g){
    this.djPerfect=false;
    if(rhythm(this)){const phase=(this.djBeat||0)%30;const beat=Math.round((this.djBeat||0)/30);this.djPerfect=(phase<=12||phase>=18)&&this.djLastBeat!==beat;if(this.djPerfect)this.djLastBeat=beat;if(this.djPerfect)this.djStreak=(this.djStreak||0)+1;else if(this.djLastBeat!==beat)this.djStreak=0;
     if(this.djPerfect)VFX.spawnFloatingText(this.x,this.y-178,'박자 성공!',neon);
-    if(this.djStreak>=3){this.djStreak=0;pulse(this,ps,this.x+this.facing*35,this.y-95,this.facing,60,'DJ_BONUS',350);VFX.spawnFloatingText(this.x,this.y-205,'3연속 성공!',purple);}
+    if(this.djStreak>=3){this.djStreak=0;pulse(this,ps,this.x+this.facing*35,this.y-95,this.facing,60,'DJ_BONUS',600);VFX.spawnFloatingText(this.x,this.y-205,'3연속 성공!',purple);}
    }
   }
  };
  Fighter.prototype.updateAttackState=function(enemy,ps,canControl){const type=this.attackType;const spec=this.attacks[type];if(this.jobId==='DJ'&&spec&&this.stateTimer+1===this.getEffectiveFrames(spec).startup){if(type==='SKILL1'||type.startsWith('DJ_WAVE')){VFX.shockwaves.push({x:this.x+this.facing*(type==='SKILL1'?170:65),y:this.y-90,radius:8,maxRadius:type==='SKILL1'?170:75,life:14,maxLife:14,color:type==='SKILL1'?purple:neon});AUDIO.sfxWindGust();}}return step.call(this,enemy,ps,canControl);};
+ const djBaseDamageMult=Fighter.prototype.getDamageMultiplier;Fighter.prototype.getDamageMultiplier=function(){return djBaseDamageMult.call(this)*(this.jobId==='DJ'&&this.djFestivalTimer>0?1.3:1);};
+ const djBaseApplyHit=COMBAT_ENGINE.applyHit;COMBAT_ENGINE.applyHit=function(attacker,defender,info){if(defender&&defender.jobId==='DJ'&&defender.djFestivalTimer>0)info={...info,damage:Math.round((info.damage||0)*0.75)};return djBaseApplyHit.call(this,attacker,defender,info);};
  Fighter.prototype.update=function(enemy,ps,canControl){const r=update.call(this,enemy,ps,canControl);if(this.hp<=0){this.djRhythmTimer=0;this.djFestivalTimer=0;return r;}if(rhythm(this))this.djBeat=(this.djBeat||0)+1;else{this.djBeat=0;this.djStreak=0;}
   if(this.djRhythmTimer>0)this.djRhythmTimer--;
-  if(this.djFestivalTimer>0){const elapsed=480-this.djFestivalTimer; if(elapsed>=12&&(elapsed-12)%60===0){const i=(elapsed-12)/60,dir=i%2?-1:1,x=dir===1?CONFIG.STAGE_LEFT:CONFIG.STAGE_RIGHT;pulse(this,ps,x,CONFIG.GROUND_Y-19,dir,i===7?80:40,'DJ_FLOOR');VFX.shockwaves.push({x,y:CONFIG.GROUND_Y-20,radius:8,maxRadius:90,life:12,maxLife:12,color:purple});AUDIO.sfxGroundSlam();}this.djFestivalTimer--;}
+  if(this.djFestivalTimer>0){const elapsed=480-this.djFestivalTimer; if(elapsed>=12&&(elapsed-12)%60===0){const i=(elapsed-12)/60,dir=i%2?-1:1,x=dir===1?CONFIG.STAGE_LEFT:CONFIG.STAGE_RIGHT;pulse(this,ps,x,CONFIG.GROUND_Y-19,dir,i===7?80:40,'DJ_FLOOR',1000);VFX.shockwaves.push({x,y:CONFIG.GROUND_Y-20,radius:8,maxRadius:90,life:12,maxLife:12,color:purple});AUDIO.sfxGroundSlam();}this.djFestivalTimer--;}
   return r;};
  const hit=COMBAT_ENGINE.applyHit;COMBAT_ENGINE.applyHit=function(a,d,i){if(a&&i&&!i.sourceProjectile){if(a.attackType?.startsWith('DJ_WAVE')&&a.djPerfect&&!i.isSkill)i={...i,damage:Math.round(i.damage*1.4)};else if(a.attacks?.[a.attackType]?.skillStyle==='DJ_BASS'&&Math.abs(Math.abs(d.x-a.x)-175)<=55)i={...i,damage:Math.round(i.damage*140/110)};}return hit.call(this,a,d,i);};
  const costume=RENDERER.drawClassCostume;RENDERER.drawClassCostume=function(ctx,f,p){costume.call(this,ctx,f,p);if(f.jobId!=='DJ')return;const x=f.x+p.headX,y=f.y+p.headY;ctx.save();ctx.strokeStyle='#312e81';ctx.lineWidth=9;ctx.beginPath();ctx.arc(x,y,23,Math.PI,2*Math.PI);ctx.stroke();ctx.strokeStyle=neon;ctx.lineWidth=3;ctx.stroke();for(const s of [-1,1]){ctx.fillStyle='#312e81';ctx.fillRect(x+s*19-6,y-8,12,23);ctx.strokeStyle=purple;ctx.strokeRect(x+s*19-6,y-8,12,23);}ctx.fillStyle='#312e81';ctx.fillRect(f.x+p.hipX-20,f.y+p.hipY-12,40,23);ctx.strokeStyle=neon;ctx.strokeRect(f.x+p.hipX-20,f.y+p.hipY-12,40,23);for(let i=0;i<5;i++){ctx.fillStyle=i%2?purple:neon;ctx.fillRect(f.x+p.hipX-16+i*7,f.y+p.hipY-7,4,12);}ctx.restore();};
