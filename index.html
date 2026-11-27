@@ -2196,11 +2196,11 @@ window.OD_FIREBASE_CONFIG = {
           skillSummary:{normal:'선물 보따리에서 선물 발사',skill1:'루돌프 썰매가 상공을 지나며 선물 폭탄 투하',skill2:'눈보라: 지속 피해 및 누적 피해 빙결',ultimate:'루돌프 탑승: 회복·공격·방어·속도 강화'},
           stats:{maxHp:1000,walkSpeed:6.0,backWalkSpeed:4.7,dashSpeed:15}, firstNormal:'SANTA_GIFT',
           attacks:{
-            SANTA_GIFT:{name:'SANTA_GIFT',startup:6,active:4,recovery:11,damage:0,projectile:{visualType:'SANTA_GIFT',speed:15,radius:23,damage:44,ultGainAttacker:7,ultGainDefender:4,hitstun:14,blockstun:10,knockbackX:4,hitstop:4,shake:5},nextNormal:'SANTA_GIFT',canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
-            SANTA_GUN:{name:'SANTA_GUN',startup:5,active:4,recovery:10,damage:0,projectile:{visualType:'SANTA_GUN',speed:21,radius:17,damage:56,ultGainAttacker:8,ultGainDefender:4,hitstun:15,blockstun:10,knockbackX:5,hitstop:4,shake:5,nextNormal:'SANTA_GUN'},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
-            SANTA_KNUCKLE:{name:'SANTA_KNUCKLE',startup:4,active:5,recovery:8,damage:66,ultGainAttacker:8,ultGainDefender:5,hitstun:17,blockstun:10,knockbackX:6,hitstop:5,shake:7,hitbox:{offsetX:24,offsetY:-110,width:90,height:48,nextNormal:'SANTA_KNUCKLE'},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
-            SANTA_SWORD:{name:'SANTA_SWORD',startup:6,active:5,recovery:12,damage:84,ultGainAttacker:10,ultGainDefender:6,hitstun:21,blockstun:13,knockbackX:10,knockbackY:-3,hitstop:7,shake:9,hitbox:{offsetX:30,offsetY:-115,width:120,height:55,nextNormal:'SANTA_SWORD'},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
-            SANTA_SHIELD:{name:'SANTA_SHIELD',startup:8,active:5,recovery:16,damage:78,ultGainAttacker:10,ultGainDefender:6,hitstun:23,blockstun:14,knockbackX:13,knockbackY:-5,hitstop:8,shake:10,hitbox:{offsetX:25,offsetY:-120,width:100,height:80,nextNormal:'SANTA_SHIELD'},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
+            SANTA_GIFT:{name:'SANTA_GIFT',startup:6,active:4,recovery:11,damage:0,projectile:{visualType:'SANTA_GIFT',speed:15,radius:23,damage:44,ultGainAttacker:0,ultGainDefender:0,hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,hitstop:0,shake:0},nextNormal:'SANTA_GIFT',canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
+            SANTA_GUN:{name:'SANTA_GUN',startup:5,active:4,recovery:10,damage:0,projectile:{visualType:'SANTA_GUN',speed:21,radius:17,damage:56,ultGainAttacker:0,ultGainDefender:0,hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,hitstop:0,shake:0,nextNormal:'SANTA_GUN'},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
+            SANTA_KNUCKLE:{name:'SANTA_KNUCKLE',startup:4,active:5,recovery:8,damage:66,ultGainAttacker:0,ultGainDefender:0,hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,hitstop:0,shake:0,hitbox:{offsetX:24,offsetY:-110,width:90,height:48,nextNormal:'SANTA_KNUCKLE'},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
+            SANTA_SWORD:{name:'SANTA_SWORD',startup:6,active:5,recovery:12,damage:84,ultGainAttacker:0,ultGainDefender:0,hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,hitstop:0,shake:0,hitbox:{offsetX:30,offsetY:-115,width:120,height:55,nextNormal:'SANTA_SWORD'},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
+            SANTA_SHIELD:{name:'SANTA_SHIELD',startup:8,active:5,recovery:16,damage:78,ultGainAttacker:0,ultGainDefender:0,hitstun:0,blockstun:0,knockbackX:0,knockbackY:0,hitstop:0,shake:0,hitbox:{offsetX:25,offsetY:-120,width:100,height:80,nextNormal:'SANTA_SHIELD'},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
             SKILL1:{name:'SKILL1',skillStyle:'SANTA_REINDEER',startup:8,active:6,recovery:16,cooldown:540,ultGainOnCast:7,duration:180,dropDamage:80,knockback:15},
             SKILL2:{name:'SKILL2',skillStyle:'SANTA_SNOW',startup:7,active:5,recovery:15,cooldown:600,ultGainOnCast:6,duration:240,freezeThreshold:175,freezeDuration:48},
             ULTIMATE:{name:'ULTIMATE',ultStyle:'SANTA_RIDE',flashFrames:20,startup:8,active:8,recovery:15,rideDuration:360,rideHp:320,healAmount:100,damageMult:1.2,defenseMult:0.8,speedMult:1.12}
@@ -14113,8 +14113,8 @@ window.OD_FIREBASE_CONFIG = {
     'spawnPirateShip', 'spawnVineTrap', 'spawnSkyStrike',
     'triggerShake', 'triggerScreenFlash', 'triggerSuperFlash'
   ];
-  const FX_QUEUE_MAX = 48;      // 한 틱에 모을 수 있는 이벤트 상한 (폭주 방지)
-  const FX_PENDING_TICKS = 8;   // 참가자: 로컬 시뮬레이션이 같은 이펙트를 만들 때까지 기다려 주는 시간(틱)
+  const FX_QUEUE_MAX = 96;      // 한 틱에 모을 수 있는 이벤트 상한 (폭주 방지)
+  const FX_PENDING_TICKS = 3;   // 참가자: 로컬 시뮬레이션이 같은 이펙트를 만들 때까지 기다려 주는 시간(틱)
   const FX_LOCAL_KEEP = 48;     // 참가자: 로컬에서 만든 이펙트를 기억해 두는 시간(틱) - 왕복 지연보다 길게
   const FX_POS_TOL = 150;       // 같은 이펙트로 볼 좌표 허용 오차(px)
   const FX_STALE_TICKS = 90;    // 이보다 오래된 이벤트 패킷은 재생하지 않는다 (1.5초)
@@ -16080,7 +16080,7 @@ window.OD_FIREBASE_CONFIG = {
       // (2) 아직이면 잠깐 기다린다 (입력 재생으로 로컬이 곧 만들 수 있음)
       const pend = this.fxPending;
       pend.push({ ev, a, d, until: this.tick + FX_PENDING_TICKS });
-      if (pend.length > 40) { const j=pend.findIndex(p=>['sw','spawnHitSparks','spawnGuardSparks','spawnGlint','spawnSmokePoof','triggerShake'].includes(p.ev.n)); if(j>=0)pend.splice(j,1); else pend.shift(); }
+      if (pend.length > 80) { const j=pend.findIndex(p=>['sw','spawnHitSparks','spawnGuardSparks','spawnGlint','spawnSmokePoof','triggerShake'].includes(p.ev.n)); if(j>=0)pend.splice(j,1); else pend.shift(); }
     },
 
     // 참가자 로컬 시뮬레이션이 이펙트를 만들었을 때 호출: 기다리던 방장 이벤트가 있으면 그것으로 갈음한다
@@ -16101,7 +16101,7 @@ window.OD_FIREBASE_CONFIG = {
     flushPendingFx() {
       const pend = this.fxPending;
       if (!pend.length) return;
-      let budget = 8;
+      let budget = 16;
       for (let i = 0; i < pend.length && budget > 0;) {
         if (pend[i].until <= this.tick) { this.fxPlay(pend.splice(i, 1)[0]); budget--; }
         else i++;
@@ -16780,7 +16780,7 @@ const anglerFx0=drawDragonKnightEffects;drawDragonKnightEffects=function(ctx,g){
  }finally{c.restore();}}return orig.call(this,c,ps);};
  // Add debris only to existing ground cracks and impact shockwaves, never to the fighter.
  const vfx=RENDERER.drawVFX;
- RENDERER.drawVFX=function(c){vfx.call(this,c);if(typeof GAME!=='undefined'&&GAME._lowFx)return;const waves=VFX.shockwaves||[];c.save();try{for(let i=Math.max(0,waves.length-8);i<waves.length;i++){const w=waves[i],a=Math.max(0,Math.min(1,w.life/Math.max(1,w.maxLife))),r=w.radius;if(!Number.isFinite(r)||r<=0||a<=0)continue;c.globalAlpha=a*.62;c.fillStyle=w.color||'#fff';for(let k=0;k<7;k++){const q=k*2.399+i*.4,rr=r*(.85+.12*Math.sin(k*3)),x=w.x+Math.cos(q)*rr,y=w.y+Math.sin(q)*rr;c.beginPath();c.moveTo(x,y);c.lineTo(x+Math.cos(q)*12*a,y+Math.sin(q)*12*a);c.lineTo(x+Math.sin(q)*3,y-Math.cos(q)*3);c.fill();}}}finally{c.restore();}};
+ RENDERER.drawVFX=function(c){vfx.call(this,c);const waves=VFX.shockwaves||[];c.save();try{for(let i=Math.max(0,waves.length-8);i<waves.length;i++){const w=waves[i],a=Math.max(0,Math.min(1,w.life/Math.max(1,w.maxLife))),r=w.radius;if(!Number.isFinite(r)||r<=0||a<=0)continue;c.globalAlpha=a*.62;c.fillStyle=w.color||'#fff';for(let k=0;k<7;k++){const q=k*2.399+i*.4,rr=r*(.85+.12*Math.sin(k*3)),x=w.x+Math.cos(q)*rr,y=w.y+Math.sin(q)*rr;c.beginPath();c.moveTo(x,y);c.lineTo(x+Math.cos(q)*12*a,y+Math.sin(q)*12*a);c.lineTo(x+Math.sin(q)*3,y-Math.cos(q)*3);c.fill();}}}finally{c.restore();}};
 })();
 </script>
 
@@ -16842,7 +16842,7 @@ function observe(f,other,now){if(!f||!recipes[f.jobId])return;const type=f.attac
 }
 const original=RENDERER.drawVFX;let currentGame=null;
 const draw=RENDERER.draw;RENDERER.draw=function(c,g){currentGame=g;try{return draw.call(this,c,g);}finally{currentGame=null;}};
-RENDERER.drawVFX=function(c){original.call(this,c);const g=currentGame;if(!g||g.phase!=='FIGHT'){events=[];lastPhase='';return;}const now=performance.now();if(lastPhase!==g.phase||lastRound!==g.roundNumber){events=[];lastRound=g.roundNumber;lastPhase=g.phase;for(const f of [g.p1,g.p2])if(f)seen.delete(f);}observe(g.p1,g.p2,now);observe(g.p2,g.p1,now);events=events.filter(e=>now-e.born<e.duration).slice(-10);for(const e of (g._lowFx?events.slice(-3):events)){if(now>=e.born)paint(c,e,clamp((now-e.born)/e.duration,0,1));}};
+RENDERER.drawVFX=function(c){original.call(this,c);const g=currentGame;if(!g||g.phase!=='FIGHT'){events=[];lastPhase='';return;}const now=performance.now();if(lastPhase!==g.phase||lastRound!==g.roundNumber){events=[];lastRound=g.roundNumber;lastPhase=g.phase;for(const f of [g.p1,g.p2])if(f)seen.delete(f);}observe(g.p1,g.p2,now);observe(g.p2,g.p1,now);events=events.filter(e=>now-e.born<e.duration).slice(-10);for(const e of events){if(now>=e.born)paint(c,e,clamp((now-e.born)/e.duration,0,1));}};
 })();
 </script>
 <script>
@@ -16859,6 +16859,116 @@ RENDERER.drawVFX=function(c){original.call(this,c);const g=currentGame;if(!g||g.
    ctx.drawImage(layer,0,0);
  };
 })();
+</script>
+<script>
+// === DRILLER character: isolated extension ===
+(function(){
+ const C='#f59e0b', B='#78350f', G='#fbbf24';
+ CONFIG.JOB_ORDER.push('DRILLER');
+ CONFIG.JOBS.DRILLER={id:'DRILLER',name:'드릴러',engName:'MOLE DRILLER',tagline:'땅굴 잠복 기습 · 초고속 드릴 돌파',gearSummary:'광부 헬멧 · 황금 드릴 · 흙먼지',statBars:{hp:4,speed:3,reach:4},skillSummary:{normal:'드릴 찌르기 → 회전 다단히트 → 강력한 올려치기',skill1:'땅굴 잠복 12.5초 · 재입력/시간 종료 시 수직 돌출',skill2:'로켓 드릴 돌진 · 벽 충돌 시 추가 피해와 1초 기절',ultimate:'기가 드릴 브레이커 · 슈퍼아머 관통 돌진 + 맵 전체 낙석'},stats:{maxHp:1080,walkSpeed:5.8,backWalkSpeed:4.6,dashSpeed:15.2},firstNormal:'DRILL_JAB',attacks:{
+  DRILL_JAB:{name:'DRILL_JAB',startup:4,active:4,recovery:9,damage:45,ultGainAttacker:6,ultGainDefender:4,hitstun:13,blockstun:9,knockbackX:3,hitstop:4,shake:5,lungeX:3,hitbox:{offsetX:34,offsetY:-112,width:94,height:46},nextNormal:'DRILL_GRIND',canCancelInto:['DRILL_GRIND','SKILL1','SKILL2','ULTIMATE']},
+  DRILL_GRIND:{name:'DRILL_GRIND',startup:5,active:12,recovery:13,damage:12,ultGainAttacker:2,ultGainDefender:1,hitstun:7,blockstun:6,knockbackX:0,hitstop:2,shake:2,lungeX:5,hitbox:{offsetX:42,offsetY:-112,width:110,height:52},nextNormal:'DRILL_UPPER',canCancelInto:['DRILL_UPPER','SKILL1','SKILL2','ULTIMATE']},
+  DRILL_UPPER:{name:'DRILL_UPPER',startup:8,active:5,recovery:18,damage:92,ultGainAttacker:12,ultGainDefender:7,hitstun:26,blockstun:14,knockbackX:9,knockbackY:-13,knockdown:true,hitstop:8,shake:11,lungeX:7,hitbox:{offsetX:34,offsetY:-148,width:100,height:100},canCancelInto:['SKILL1','SKILL2','ULTIMATE']},
+  SKILL1:{name:'SKILL1',skillStyle:'DRILL_BURROW',startup:1,active:1,recovery:8,cooldown:480,ultGainOnCast:7},
+  SKILL2:{name:'SKILL2',skillStyle:'DRILL_ROCKET',startup:1,active:1,recovery:16,cooldown:240,ultGainOnCast:6},
+  ULTIMATE:{name:'ULTIMATE',ultStyle:'DRILL_BREAKER',startup:1,active:1,recovery:22}
+ }};
+ const pal0=RENDERER.drawCharacterSelect; // palette handled by class render overlay
+ const start0=Fighter.prototype.startAttack, update0=Fighter.prototype.update, hit0=COMBAT_ENGINE.applyHit;
+ function hit(att,def,info){return COMBAT_ENGINE.applyHit(att,def,{...info,sourceX:att.x,direction:att.facing});}
+ Fighter.prototype.startAttack=function(type,ps){
+  if(this.jobId==='DRILLER'){
+   if(type==='SKILL1'&&this.drillBurrowTimer>0){this.drillEmerge(this.opponent);return;}
+   if(type==='SKILL1'){if(this.cooldowns.SKILL1>0)return;this.cooldowns.SKILL1=480;this.drillBurrowTimer=750;this.drillPhase='burrow';this.drillBurrowAge=0;this.drillHitDone=false;this.state='IDLE';this.attackType=null;this.vx=0;this.vy=0;this.invulnTimer=Math.max(this.invulnTimer||0,750);VFX.spawnDust(this.x,CONFIG.GROUND_Y,0);VFX.spawnHitSparks(this.x,CONFIG.GROUND_Y-10,C,20,1);VFX.spawnFloatingText(this.x,this.y-160,'땅굴 잠복! C 재입력으로 기습','#fcd34d');AUDIO.sfxGroundSlam();return;}
+   if(type==='SKILL2'){if(this.cooldowns.SKILL2>0)return;this.cooldowns.SKILL2=240;this.drillRocketTimer=42;this.drillRocketHitCooldown=0;this.drillRocketWallHit=false;this.drillPhase='rocket';this.state='DASH';this.attackType='DRILL_ROCKET';this.stateTimer=0;this.vx=this.facing*24;this.vy=0;this.attackHasHit=false;VFX.spawnHitSparks(this.x-this.facing*35,this.y-95,C,18,1);VFX.spawnFloatingText(this.x,this.y-175,'로켓 드릴 돌진!','#fbbf24');AUDIO.sfxUppercut();return;}
+   if(type==='ULTIMATE'){if(this.ult<CONFIG.MAX_ULT)return;this.ult=0;this.drillUltTimer=42;this.drillUltHitCooldown=0;this.drillRockTimer=0;this.drillRockHits=0;this.drillRockSeed=Math.floor(Math.random()*100000);this.drillPhase='ultdash';this.state='DASH';this.attackType='DRILL_BREAKER';this.stateTimer=0;this.vx=this.facing*28;this.vy=0;this.invulnTimer=0;this.drillArmor=true;VFX.triggerScreenFlash('#fbbf24',.38);VFX.triggerShake(15);VFX.spawnFloatingText(this.x,this.y-190,'기가 드릴 브레이커!!','#fff7ed');VFX.spawnHitSparks(this.x,this.y-100,'#fff7ad',26,1.5);AUDIO.sfxUltimateFlash();return;}
+  }
+  return start0.call(this,type,ps);
+ };
+ const input0=Fighter.prototype.tryStartAttackInput;Fighter.prototype.tryStartAttackInput=function(ps){if(this.jobId==='DRILLER'&&this.drillBurrowTimer>0&&INPUT.wasPressed(this.controls.skill1)){this.drillEmerge(this.opponent);return true;}return input0.call(this,ps);};
+ Fighter.prototype.drillEmerge=function(enemy){this.drillBurrowTimer=0;this.drillPhase='emerge';this.drillEmergeTimer=22;this.state='ATTACK';this.attackType='DRILL_EMERGE';this.stateTimer=0;this.vx=0;this.vy=-19;this.invulnTimer=Math.max(0,this.invulnTimer||0);VFX.triggerShake(10);VFX.spawnDust(this.x,CONFIG.GROUND_Y,0);VFX.spawnHitSparks(this.x,CONFIG.GROUND_Y-15,C,30,1.35);VFX.spawnFloatingText(this.x,this.y-180,'지상 돌출!','#fcd34d');AUDIO.sfxGroundSlam();const e=enemy||this.opponent;if(e&&e.hp>0&&Math.abs(e.x-this.x)<125&&Math.abs(e.y-this.y)<250&&!this.drillHitDone){this.drillHitDone=true;hit(this,e,{damage:135,isSkill:true,ultGainAttacker:10,ultGainDefender:7,hitstun:26,blockstun:14,knockbackX:7,knockbackY:-16,knockdown:true,hitstop:9,shake:12});}}
+ Fighter.prototype.update=function(enemy,ps,canControl){const r=update0.call(this,enemy,ps,canControl);if(this.jobId!=='DRILLER'||this.hp<=0)return r;
+  if(this.drillBurrowTimer>0){this.drillBurrowTimer--;this.drillBurrowAge++;this.drillPhase='burrow';this.state='IDLE';this.attackType=null;this.vy=0;this.vx=0;if(canControl){const l=INPUT.isDown(this.controls.left),rr=INPUT.isDown(this.controls.right);if(l&&!rr){this.x-=8.5;this.facing=-1;}else if(rr&&!l){this.x+=8.5;this.facing=1;}this.x=Math.max(CONFIG.STAGE_LEFT+35,Math.min(CONFIG.STAGE_RIGHT-35,this.x));}if(this.drillBurrowTimer===0)this.drillEmerge(enemy);}
+  if(this.drillEmergeTimer>0){this.drillEmergeTimer--;this.drillPhase='emerge';if(this.drillEmergeTimer<=0){this.drillPhase='';this.state=this.isGrounded()?'IDLE':'JUMP';this.attackType=null;this.stateTimer=0;this.invulnTimer=0;}}
+  if(this.drillRocketTimer>0){this.drillRocketTimer--;this.drillPhase='rocket';this.state='DASH';this.attackType='DRILL_ROCKET';this.vy=0;this.vx=this.facing*24;const wall=this.x<=CONFIG.STAGE_LEFT+28||this.x>=CONFIG.STAGE_RIGHT-28;if(wall&&!this.drillRocketWallHit){this.drillRocketWallHit=true;this.drillRocketTimer=0;VFX.triggerShake(16);VFX.triggerScreenFlash('#f59e0b',.3);VFX.shockwaves.push({x:this.x,y:CONFIG.GROUND_Y-8,radius:8,maxRadius:180,life:18,maxLife:18,color:C});VFX.spawnHitSparks(this.x,CONFIG.GROUND_Y-20,'#fff7ed',28,1.4);if(enemy&&enemy.hp>0&&Math.abs(enemy.x-this.x)<180)hit(this,enemy,{damage:85,isSkill:true,ultGainAttacker:0,ultGainDefender:5,hitstun:60,blockstun:18,knockbackX:0,knockbackY:-4,hitstop:10,shake:14});this.drillPhase='';this.vx=0;this.state='IDLE';this.attackType=null;}else if(enemy&&enemy.hp>0&&this.drillRocketHitCooldown<=0&&Math.abs(enemy.x-this.x)<92&&Math.abs(enemy.y-this.y)<120){this.drillRocketHitCooldown=9;hit(this,enemy,{damage:22,isSkill:true,ultGainAttacker:2,ultGainDefender:1,hitstun:9,blockstun:7,knockbackX:1,knockbackY:0,hitstop:2,shake:3});VFX.spawnHitSparks(enemy.x,enemy.y-85,C,10,.8);}if(this.drillRocketTimer<=0&&this.drillPhase==='rocket'){this.drillPhase='';this.vx=0;this.state='IDLE';this.attackType=null;}}
+  if(this.drillUltTimer>0){this.drillUltTimer--;this.drillPhase='ultdash';this.state='DASH';this.attackType='DRILL_BREAKER';this.vy=0;this.vx=this.facing*28;if(enemy&&enemy.hp>0&&this.drillUltHitCooldown<=0&&Math.abs(enemy.x-this.x)<120&&Math.abs(enemy.y-this.y)<130){this.drillUltHitCooldown=15;hit(this,enemy,{damage:42,isSkill:true,ultGainAttacker:0,ultGainDefender:5,hitstun:15,blockstun:9,knockbackX:4,knockbackY:-3,hitstop:3,shake:5});VFX.spawnHitSparks(enemy.x,enemy.y-85,G,14,1.1);}if(this.drillUltTimer<=0){this.drillPhase='rocks';this.drillRockTimer=150;this.drillRockHits=0;this.drillArmor=false;this.invulnTimer=0;this.state='IDLE';this.attackType=null;this.stateTimer=0;this.vx=0;VFX.triggerShake(20);VFX.triggerScreenFlash('#f59e0b',.35);VFX.spawnFloatingText(640,145,'지진! 천장 낙석!','#fef3c7');VFX.spawnDust(640,CONFIG.GROUND_Y,0);}}
+  if(this.drillPhase==='rocks'&&this.drillRockTimer>0){const before=this.drillRockTimer;this.drillRockTimer--;if(before%15===0){const idx=Math.floor((150-before)/15),seed=((this.drillRockSeed||1)+idx*137)%997,x=CONFIG.STAGE_LEFT+(seed/997)*(CONFIG.STAGE_RIGHT-CONFIG.STAGE_LEFT),y=85;VFX.particles.push({x,y,vx:0,vy:11,life:24,maxLife:24,size:20,color:'#92400e',spark:false,drillRock:true});VFX.spawnHitSparks(x,CONFIG.GROUND_Y-20,'#fbbf24',12,.85);VFX.shockwaves.push({x,y:CONFIG.GROUND_Y-5,radius:4,maxRadius:105,life:16,maxLife:16,color:'#b45309'});VFX.triggerShake(4);if(enemy&&enemy.hp>0&&Math.abs(enemy.x-x)<100&&Math.abs(enemy.y-CONFIG.GROUND_Y)<190){hit(this,enemy,{damage:38,isSkill:true,ultGainAttacker:0,ultGainDefender:4,hitstun:18,blockstun:12,knockbackX:5,knockbackY:-6,hitstop:4,shake:6});this.drillRockHits++;}}if(this.drillRockTimer<=0){this.drillPhase='';this.drillArmor=false;this.invulnTimer=0;this.state=this.isGrounded()?'IDLE':'JUMP';this.attackType=null;this.stateTimer=0;this.vx=0;this.vy=0;}}
+  return r;};
+ const costume0=RENDERER.drawClassCostume;RENDERER.drawClassCostume=function(ctx,f,p){costume0.call(this,ctx,f,p);if(f.jobId!=='DRILLER')return;const {headX,headY,frontHand,shoulderX,shoulderY,hipX,hipY,dir}=p,x=f.x,y=f.y;ctx.save();ctx.lineCap='round';// miner outfit
+ ctx.fillStyle='#92400e';ctx.strokeStyle='#451a03';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x+shoulderX-20,y+shoulderY-4);ctx.lineTo(x+shoulderX+20,y+shoulderY-4);ctx.lineTo(x+hipX+18,y+hipY+13);ctx.lineTo(x+hipX-18,y+hipY+13);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#f59e0b';ctx.fillRect(x+hipX-18,y+hipY-2,36,8);ctx.fillStyle='#78350f';ctx.fillRect(x+hipX-23,y+hipY+9,46,12);ctx.fillStyle='#fbbf24';ctx.fillRect(x+hipX-5,y+hipY+11,10,8);
+ // bright miner helmet + headlamp
+ ctx.fillStyle='#b45309';ctx.strokeStyle='#fbbf24';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x+headX,y+headY-5,21,Math.PI,Math.PI*2);ctx.lineTo(x+headX+23,y+headY+4);ctx.lineTo(x+headX-23,y+headY+4);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#fde68a';ctx.beginPath();ctx.ellipse(x+headX,y+headY+2,24,5,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#fff7ed';ctx.shadowColor='#fbbf24';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(x+headX+dir*2,y+headY-12,5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+ // drill weapon: shaft, motor, cone bit; rotate while grinding/dashing
+ const hx=x+frontHand.x+dir*8,hy=y+frontHand.y-8,rot=(f.state==='ATTACK'&&f.attackType==='DRILL_GRIND')||f.drillPhase==='rocket'||f.drillPhase==='ultdash'?((f.stateTimer||0)*.5):0;ctx.translate(hx,hy);ctx.rotate(dir*(f.drillPhase==='ultdash'?-.08:0));ctx.strokeStyle='#78350f';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(-dir*25,0);ctx.lineTo(dir*5,0);ctx.stroke();ctx.fillStyle='#b45309';ctx.strokeStyle='#fbbf24';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(dir*2,-13,30,26,6);ctx.fill();ctx.stroke();ctx.translate(dir*34,0);ctx.rotate(rot);ctx.fillStyle='#f59e0b';ctx.strokeStyle='#78350f';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-5,-14);ctx.lineTo(30,0);ctx.lineTo(-5,14);ctx.closePath();ctx.fill();ctx.stroke();for(let k=0;k<3;k++){ctx.strokeStyle='#fff7ed';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-3,-10+k*10);ctx.lineTo(17,0);ctx.stroke();}ctx.restore();};
+ const fx0=drawDragonKnightEffects;drawDragonKnightEffects=function(ctx,g){fx0(ctx,g);if(!g||!['FIGHT','INTRO'].includes(g.phase))return;ctx.save();for(const f of [g.p1,g.p2])if(f?.jobId==='DRILLER'){const t=performance.now()/1000;ctx.lineCap='round';if(f.drillPhase==='burrow'){ctx.fillStyle='rgba(120,53,15,.45)';ctx.beginPath();ctx.ellipse(f.x,CONFIG.GROUND_Y-7,46,13,0,0,Math.PI*2);ctx.fill();for(let i=0;i<8;i++){const a=t*4+i*Math.PI/4;ctx.fillStyle='#b45309';ctx.beginPath();ctx.arc(f.x+Math.cos(a)*35,CONFIG.GROUND_Y-12+Math.sin(a)*9,4,0,Math.PI*2);ctx.fill();}ctx.fillStyle='#fbbf24';ctx.font='bold 15px sans-serif';ctx.textAlign='center';ctx.fillText('잠복 · C 재입력',f.x,CONFIG.GROUND_Y-40);}if(['rocket','ultdash'].includes(f.drillPhase)){const col=f.drillPhase==='ultdash'?'#fef3c7':C;ctx.strokeStyle=col;ctx.shadowColor=col;ctx.shadowBlur=20;ctx.lineWidth=9;for(let k=0;k<4;k++){ctx.beginPath();ctx.moveTo(f.x-f.facing*(35+k*20),f.y-95+(k-1.5)*14);ctx.lineTo(f.x-f.facing*(115+k*22),f.y-95+(k-1.5)*14);ctx.stroke();}for(let k=0;k<10;k++){const x=f.x-f.facing*(45+Math.random()*90),y=f.y-70+Math.random()*55;ctx.fillStyle=k%2?'#fbbf24':'#fff7ed';ctx.fillRect(x,y,4,4);}}if(f.drillPhase==='rocks'){ctx.fillStyle='rgba(120,53,15,.15)';ctx.fillRect(0,90,CONFIG.WIDTH,CONFIG.GROUND_Y-90);ctx.fillStyle='#fde68a';ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.fillText('낙석 폭풍!',640,135);for(let n=0;n<9;n++){const seed=(n*83+Math.floor(f.drillRockTimer/18)*47)%997;const rx=CONFIG.STAGE_LEFT+(seed/997)*(CONFIG.STAGE_RIGHT-CONFIG.STAGE_LEFT);const fall=(150-f.drillRockTimer+(n*11))%90;const ry=110+fall*7;ctx.save();ctx.translate(rx,ry);ctx.rotate((t+n)*.07);ctx.fillStyle='#78350f';ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-16,-13);ctx.lineTo(9,-20);ctx.lineTo(22,-2);ctx.lineTo(14,18);ctx.lineTo(-10,15);ctx.lineTo(-23,2);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();}}}ctx.restore();};
+ // Enhanced Driller FX: deterministic, lightweight layered effects for both players.
+ const drillFxBase=drawDragonKnightEffects;
+ drawDragonKnightEffects=function(ctx,g){
+  drillFxBase(ctx,g); if(!g||!['FIGHT','INTRO'].includes(g.phase))return;
+  const now=performance.now()/1000; ctx.save();
+  for(const f of [g.p1,g.p2]) if(f&&f.jobId==='DRILLER'){
+   const x=f.x,y=f.y,dir=f.facing||1,phase=f.drillPhase||'';
+   if(phase==='burrow'){
+    // Underground moving dirt trail, layered rings, and glinting drill tip.
+    const pulse=.5+.5*Math.sin(now*8); ctx.globalAlpha=.72;
+    ctx.fillStyle='#451a03';ctx.beginPath();ctx.ellipse(x,CONFIG.GROUND_Y-5,48+pulse*8,15+pulse*2,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#fbbf24';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(x,CONFIG.GROUND_Y-8,32+pulse*12,8+pulse*3,0,0,Math.PI*2);ctx.stroke();
+    for(let j=0;j<7;j++){let a=now*3.5+j*6.283/7;ctx.fillStyle=j%2?'#a16207':'#fcd34d';ctx.beginPath();ctx.arc(x+Math.cos(a)*(34+pulse*9),CONFIG.GROUND_Y-11+Math.sin(a)*9,3+(j%3),0,Math.PI*2);ctx.fill();}
+   } else if(phase==='emerge'){
+    const q=1-Math.max(0,Math.min(1,(f.drillEmergeTimer||0)/22));
+    ctx.globalAlpha=.75;ctx.strokeStyle='#fbbf24';ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(x,CONFIG.GROUND_Y-6,45+q*50,10+q*20,0,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='rgba(180,83,9,.35)';ctx.beginPath();ctx.ellipse(x,CONFIG.GROUND_Y-10,35+q*45,13+q*15,0,0,Math.PI*2);ctx.fill();
+    for(let j=0;j<10;j++){let a=j*6.283/10+now*2;ctx.fillStyle='#d97706';ctx.beginPath();ctx.arc(x+Math.cos(a)*(28+q*45),CONFIG.GROUND_Y-12+Math.sin(a)*(8+q*15),4,0,Math.PI*2);ctx.fill();}
+   } else if(phase==='rocket'||phase==='ultdash'){
+    const col=phase==='ultdash'?'#fff7ad':'#fbbf24';ctx.globalAlpha=.8;ctx.strokeStyle=col;ctx.shadowColor=col;ctx.shadowBlur=18;ctx.lineWidth=4;
+    // spiraling wake trails behind the drill
+    for(let j=0;j<3;j++){ctx.beginPath();let start=now*12+j*2.1;for(let k=0;k<16;k++){let u=k/15,ang=start+u*5.8,rr=8+u*36;let px=x-dir*(35+u*150),py=y-96+Math.sin(ang)*rr;if(k===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.stroke();}
+    ctx.shadowBlur=0;for(let j=0;j<8;j++){let u=(j/8+(now*2.8)%1),px=x-dir*(45+u*125),py=y-88+Math.sin(now*15+j*2)*22;ctx.fillStyle=j%2?'#fff7ed':col;ctx.beginPath();ctx.arc(px,py,2+((j+1)%3),0,Math.PI*2);ctx.fill();}
+    if(phase==='ultdash'){ctx.globalAlpha=.28;ctx.fillStyle='#f59e0b';ctx.beginPath();ctx.arc(x,y-100,70+Math.sin(now*10)*12,0,Math.PI*2);ctx.fill();}
+   } else if(phase==='rocks'){
+    // A clearly readable falling-rock warning/impact pulse across the stage.
+    const tick=Math.floor((150-(f.drillRockTimer||0))/18);ctx.globalAlpha=.3;ctx.fillStyle='#78350f';ctx.fillRect(CONFIG.STAGE_LEFT,CONFIG.GROUND_Y-42,CONFIG.STAGE_RIGHT-CONFIG.STAGE_LEFT,42);
+    ctx.globalAlpha=.95;ctx.strokeStyle='#fbbf24';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(CONFIG.STAGE_LEFT,CONFIG.GROUND_Y-38);ctx.lineTo(CONFIG.STAGE_RIGHT,CONFIG.GROUND_Y-38);ctx.stroke();
+    for(let j=0;j<6;j++){let seed=((f.drillRockSeed||1)+tick*137+j*173)%997,u=seed/997,rx=CONFIG.STAGE_LEFT+u*(CONFIG.STAGE_RIGHT-CONFIG.STAGE_LEFT),fall=((150-(f.drillRockTimer||0))+j*13)%48,ry=75+fall*7;ctx.globalAlpha=.18+.12*Math.sin(now*8+j);ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.ellipse(rx,CONFIG.GROUND_Y-13,34,8,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.95;ctx.save();ctx.translate(rx,ry);ctx.rotate(now*(j%2?1:-1)*2);ctx.fillStyle='#78350f';ctx.strokeStyle='#fde68a';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-17,-20);ctx.lineTo(12,-24);ctx.lineTo(25,-2);ctx.lineTo(13,19);ctx.lineTo(-12,17);ctx.lineTo(-25,0);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();}
+   }
+  }
+  ctx.restore();
+ };
+ // Clear phase leftovers on round reset / character KO and keep dash direction consistent.
+ const drillResetBase=Fighter.prototype.reset;
+ if(drillResetBase) Fighter.prototype.reset=function(...args){const out=drillResetBase.apply(this,args);if(this.jobId==='DRILLER'){this.drillBurrowTimer=0;this.drillRocketTimer=0;this.drillUltTimer=0;this.drillRockTimer=0;this.drillEmergeTimer=0;this.drillPhase='';this.drillArmor=false;this.drillRocketWallHit=false;this.drillRockSeed=0;this.invulnTimer=0;}return out;};
+ // Prevent subterranean state from taking damage; preserve phase when hit by attacks.
+ COMBAT_ENGINE.applyHit=function(a,d,i){if(d?.jobId==='DRILLER'&&d.drillBurrowTimer>0)return {connected:false,guarded:false,damage:0};if(d?.jobId==='DRILLER'&&d.drillPhase==='ultdash'){const before={state:d.state,attackType:d.attackType,stateTimer:d.stateTimer,vx:d.vx,vy:d.vy};const res=hit0.call(this,a,d,i);if(d.hp>0){d.state=before.state;d.attackType=before.attackType;d.stateTimer=before.stateTimer;d.vx=before.vx;d.vy=before.vy;}return res;}return hit0.call(this,a,d,i);};
+ // Driller burrow visibility + safe emergence patch.
+ // Hide the fighter sprite completely while underground; the moving dirt trail remains visible in FX.
+ const drawFighterBase=RENDERER.drawFighter;
+ RENDERER.drawFighter=function(ctx,f){if(f&&f.jobId==='DRILLER'&&f.drillBurrowTimer>0)return;return drawFighterBase.call(this,ctx,f);};
+ // Replace the custom ATTACK state on emergence (which could enter unsupported attack-state handling)
+ // with a normal jump state and one direct hit check, avoiding state/animation corruption.
+ Fighter.prototype.drillEmerge=function(enemy){
+  this.drillBurrowTimer=0;this.drillPhase='emerge';this.drillEmergeTimer=18;
+  this.state='JUMP';this.attackType=null;this.stateTimer=0;this.vx=0;this.vy=-17.5;
+  // Clear only the burrow-granted invulnerability when emerging; prevent it from leaking into later states. this.invulnTimer=0;this.drillHitDone=this.drillHitDone||false;
+  VFX.triggerShake(8);VFX.spawnDust(this.x,CONFIG.GROUND_Y,0);VFX.spawnHitSparks(this.x,CONFIG.GROUND_Y-15,C,24,1.2);
+  VFX.shockwaves.push({x:this.x,y:CONFIG.GROUND_Y-8,radius:10,maxRadius:115,life:18,maxLife:18,color:C});
+  VFX.spawnFloatingText(this.x,this.y-170,'지상 돌출!','#fcd34d');AUDIO.sfxGroundSlam();
+  const e=enemy||this.opponent;if(e&&e.hp>0&&Math.abs(e.x-this.x)<125&&Math.abs(e.y-this.y)<250&&!this.drillHitDone){this.drillHitDone=true;hit(this,e,{damage:135,isSkill:true,ultGainAttacker:10,ultGainDefender:7,hitstun:26,blockstun:14,knockbackX:7,knockbackY:-16,knockdown:true,hitstop:9,shake:12});}
+ };
+ // Burrow FX: underground body is invisible; show only a traveling dirt mound, dust and drill glint.
+ const burrowFxBase=drawDragonKnightEffects;
+ drawDragonKnightEffects=function(ctx,g){burrowFxBase(ctx,g);if(!g||!['FIGHT','INTRO'].includes(g.phase))return;ctx.save();const now=performance.now()/1000;
+  for(const f of [g.p1,g.p2])if(f&&f.jobId==='DRILLER'&&f.drillBurrowTimer>0){const x=f.x,ground=CONFIG.GROUND_Y,pulse=.5+.5*Math.sin(now*9),age=f.drillBurrowAge||0;
+   ctx.globalAlpha=.92;ctx.fillStyle='rgba(69,26,3,.7)';ctx.beginPath();ctx.ellipse(x,ground-5,38+pulse*10,12+pulse*3,0,0,Math.PI*2);ctx.fill();
+   ctx.strokeStyle='#fbbf24';ctx.shadowColor='#f59e0b';ctx.shadowBlur=12;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(x,ground-8,26+pulse*13,7+pulse*3,0,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;
+   // Moving dust trail behind the burrow path.
+   for(let j=0;j<12;j++){const seed=(j*37+age*11)%97,u=seed/97,side=(j%2?1:-1),dx=-f.facing*(14+u*105),dy=-5-u*23+Math.sin(now*5+j)*3;ctx.globalAlpha=.35+u*.45;ctx.fillStyle=j%3?'#a16207':'#fbbf24';ctx.beginPath();ctx.ellipse(x+dx,ground+dy,3+u*5,2+u*3,side*.25,0,Math.PI*2);ctx.fill();}
+   ctx.globalAlpha=.95;ctx.fillStyle='#fde68a';ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillText('지하 이동',x,ground-33);
+  }
+  ctx.restore();};
+ // Minimal online state relay; authoritative timers and phases follow host snapshots.
+ const pack0=NET.packFighter,apply0=NET.applySnapshotSmoothly;NET.packFighter=function(f){const s=pack0.call(this,f);if(f.jobId==='DRILLER')s.dr=[f.drillBurrowTimer||0,f.drillPhase||'',f.drillRocketTimer||0,f.drillUltTimer||0,f.drillRockTimer||0,f.drillEmergeTimer||0,f.drillRockSeed||0];return s;};NET.applySnapshotSmoothly=function(s){apply0.call(this,s);for(const [f,k] of [[GAME.p1,'p1'],[GAME.p2,'p2']]){if(!f||f.jobId!=='DRILLER')continue;const v=s?.[k]?.dr;if(Array.isArray(v)){f.drillBurrowTimer=v[0]||0;f.drillPhase=v[1]||'';f.drillRocketTimer=v[2]||0;f.drillUltTimer=v[3]||0;f.drillRockTimer=v[4]||0;f.drillEmergeTimer=v[5]||0;f.drillRockSeed=v[6]||0;}}};
+})();
+
 </script>
 </body>
 </html>
