@@ -14207,6 +14207,7 @@ window.OD_FIREBASE_CONFIG = {
       this.patchFxSync();
       this.patchCanvasSelectClick();
       this.patchOnlineSelectionFlow();
+      this.patchOnlineKeyboardSelect();
       window.addEventListener('beforeunload', () => this.leaveRoom(true));
     },
 
@@ -15362,14 +15363,9 @@ window.OD_FIREBASE_CONFIG = {
       }
 
       if (GAME.phase === 'CHAR_SELECT') {
-        // Lock local player to only edit their own side in CHAR_SELECT
-        if (this.role === 'HOST') {
-          this._savedP2Job = GAME.selectedJobs.P2;
-          this._savedP2Lock = GAME.selectLocked.P2;
-        } else {
-          this._savedP1Job = GAME.selectedJobs.P1;
-          this._savedP1Lock = GAME.selectLocked.P1;
-          // Allow Guest to navigate P2 roster with comfortable WASD + X as well
+        // Guest's WASD/X are mirrored to P2 selection keys. Do not cache/restore
+        // the other player's choice: incoming SEL packets must persist.
+        if (this.role === 'GUEST') {
           if (INPUT.wasPressed('KeyA')) INPUT.pressed.add('ArrowLeft');
           if (INPUT.wasPressed('KeyD')) INPUT.pressed.add('ArrowRight');
           if (INPUT.wasPressed('KeyW')) INPUT.pressed.add('ArrowUp');
@@ -15403,13 +15399,8 @@ window.OD_FIREBASE_CONFIG = {
       if (typeof GAME === 'undefined') return;
 
       if (GAME.phase === 'CHAR_SELECT') {
-        if (this.role === 'HOST' && this._savedP2Job) {
-          GAME.selectedJobs.P2 = this._savedP2Job;
-          GAME.selectLocked.P2 = this._savedP2Lock;
-        } else if (this.role === 'GUEST' && this._savedP1Job) {
-          GAME.selectedJobs.P1 = this._savedP1Job;
-          GAME.selectLocked.P1 = this._savedP1Lock;
-        }
+        // Incoming remote selection was previously overwritten here by a stale
+        // cached job, causing the opponent to see STICKMAN at match start.
         if (this.tick % 4 === 0) { const side=this.role==='HOST'?'P1':'P2'; const sig=[GAME.selectedJobs[side],GAME.selectLocked[side],GAME.randomPick?.[side],GAME.pickStage,GAME.battleType].join('|'); if(sig!==this._lastSelSig || this.tick%60===0){this._lastSelSig=sig;this.syncCharSelectState();} }
         this.tick++;
         return;
@@ -16180,6 +16171,31 @@ window.OD_FIREBASE_CONFIG = {
     },
 
     // Allow Host/Guest to click the center roster grid directly for their own character
+    patchOnlineKeyboardSelect() {
+      if (this._onlineKeyboardSelectPatched || typeof GAME === 'undefined') return;
+      this._onlineKeyboardSelectPatched = true;
+      const original = GAME.handleCharacterSelectInput.bind(GAME);
+      GAME.handleCharacterSelectInput = () => {
+        if (!this.active || GAME.phase !== 'CHAR_SELECT') return original();
+        const side = this.role === 'HOST' ? 'P1' : 'P2';
+        const k = side === 'P1'
+          ? {l:'KeyA',r:'KeyD',u:'KeyW',d:'KeyS',lock:'KeyX',unlock:'KeyS'}
+          : {l:'ArrowLeft',r:'ArrowRight',u:'ArrowUp',d:'ArrowDown',lock:'KeyK',unlock:'ArrowDown'};
+        const jobs=CONFIG.JOB_ORDER, cols=4, idx=jobs.indexOf(GAME.selectedJobs[side]);
+        if (!GAME.selectLocked[side]) {
+          let n=idx;
+          if(INPUT.wasPressed(k.l)) n=(idx-1+jobs.length)%jobs.length;
+          else if(INPUT.wasPressed(k.r)) n=(idx+1)%jobs.length;
+          else if(INPUT.wasPressed(k.u)) n=idx-cols>=0?idx-cols:Math.min(jobs.length-1,idx+cols*2);
+          else if(INPUT.wasPressed(k.d)) n=idx+cols<jobs.length?idx+cols:idx%cols;
+          if(n!==idx){GAME.selectedJobs[side]=jobs[n];GAME.randomPick[side]=false;AUDIO.sfxSelectMove();}
+          if(INPUT.wasPressed(k.lock)){GAME.selectLocked[side]=true;AUDIO.sfxSelectLock();}
+        } else if(INPUT.wasPressed(k.unlock)){GAME.selectLocked[side]=false;AUDIO.sfxSelectMove();}
+        if(INPUT.wasPressed('Space')||INPUT.wasPressed('Enter')){GAME.selectLocked[side]=true;AUDIO.sfxSelectLock();}
+        if(GAME.selectLocked.P1&&GAME.selectLocked.P2) GAME.finishSelection();
+      };
+    },
+
     patchCanvasSelectClick() {
       const canvas = document.getElementById('gameCanvas');
       if (!canvas) return;
